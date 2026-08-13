@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
+
 import { SectionHeader } from "@/components/ui/SectionHeader"
 import { ArticleGrid } from "@/components/article/ArticleGrid"
 import { FeaturedArticle } from "@/components/article/FeaturedArticle"
@@ -7,14 +8,17 @@ import { GlassPanel } from "@/components/ui/GlassPanel"
 import { NewsletterForm } from "@/components/forms/NewsletterForm"
 import { Pagination } from "@/components/ui/Pagination"
 import { AdSlot } from "@/components/monetization/AdSlot"
+
 import {
     findCategoryBySlug,
     isKnownCategorySlug,
 } from "@/repositories/categoryRepository"
+
 import {
     listArticlesForCategory,
     getFeaturedArticle,
 } from "@/services/articleService"
+
 import { listTools } from "@/repositories/toolRepository"
 import { ToolCard } from "@/components/tools/ToolCard"
 import { buildMetadata, breadcrumbSchema } from "@/lib/seo"
@@ -74,33 +78,30 @@ export default async function CategoryPage({
     }
 
     const requestedPage = Number(searchParams.page ?? "1")
+
     const page = Number.isFinite(requestedPage)
         ? Math.max(1, requestedPage)
         : 1
 
     const pageSize = 9
 
-    const [
-        featured,
-        articlesResult,
-        relatedToolsResult,
-    ] = await Promise.all([
-        getFeaturedArticle(category.slug),
-        listArticlesForCategory(
-            category.slug,
-            page,
-            pageSize,
-        ),
-        listTools({
-            categorySlug: category.slug,
-            pageSize: 3,
-        }),
-    ])
+    const [featured, articlesResult, relatedToolsResult] =
+        await Promise.all([
+            getFeaturedArticle(category.slug),
 
-    const {
-        items,
-        total,
-    } = articlesResult
+            listArticlesForCategory(
+                category.slug,
+                page,
+                pageSize,
+            ),
+
+            listTools({
+                categorySlug: category.slug,
+                pageSize: 3,
+            }),
+        ])
+
+    const { items, total } = articlesResult
 
     const relatedTools = relatedToolsResult.items
 
@@ -171,12 +172,16 @@ export default async function CategoryPage({
                     />
 
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-                        {relatedTools.map((tool) => (
-                            <ToolCard
-                                key={tool.slug}
-                                tool={tool}
-                            />
-                        ))}
+                        {relatedTools.map(
+                            (
+                                tool: (typeof relatedTools)[number],
+                            ) => (
+                                <ToolCard
+                                    key={tool.slug}
+                                    tool={tool}
+                                />
+                            ),
+                        )}
                     </div>
                 </section>
             ) : null}
@@ -193,3 +198,4 @@ export default async function CategoryPage({
         </div>
     )
 }
+
