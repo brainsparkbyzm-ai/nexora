@@ -1,0 +1,70 @@
+{
+  "name": "nexora",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NEXORA \u2014 a premium AI technology publication, tool directory and editorial CMS.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "seed": "tsx prisma/seed.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "next": "14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "typescript": "5.5.4",
+    "@prisma/client": "5.19.1",
+    "prisma": "5.19.1",
+    "framer-motion": "11.3.28",
+    "three": "0.166.1",
+    "@react-three/fiber": "8.16.8",
+    "@react-three/drei": "9.109.2",
+    "zod": "3.23.8",
+    "jose": "5.9.2",
+    "bcryptjs": "2.4.3",
+    "@aws-sdk/client-s3": "3.637.0",
+    "@aws-sdk/s3-request-presigner": "3.637.0",
+    "resend": "3.5.0",
+    "nanoid": "5.0.7",
+    "reading-time": "1.5.0",
+    "clsx": "2.1.1",
+    "isomorphic-dompurify": "2.16.0",
+    "date-fns": "3.6.0",
+    "lucide-react": "0.436.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.15",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@types/bcryptjs": "2.4.6",
+    "autoprefixer": "10.4.19",
+    "postcss": "8.4.40",
+    "tailwindcss": "3.4.9",
+    "@tailwindcss/typography": "0.5.13",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.35",
+    "@typescript-eslint/parser": "7.18.0",
+    "@typescript-eslint/eslint-plugin": "7.18.0",
+    "prettier": "3.3.3",
+    "prettier-plugin-tailwindcss": "0.6.5",
+    "tsx": "4.16.5",
+    "vitest": "2.0.5",
+    "@testing-library/react": "16.0.0"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}

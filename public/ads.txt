@@ -1,0 +1,6 @@
+# Google AdSense publisher authorization file.
+# REPLACE the line below with your real AdSense publisher line before going
+# live -- find it in AdSense under Sites > [your site] > "Get ads.txt snippet".
+# Until replaced, ads.txt will NOT authorize any publisher and AdSense will
+# report this domain as missing/misconfigured ads.txt.
+google.com, pub-REPLACE_WITH_YOUR_PUBLISHER_ID, DIRECT, f08c47fec0942fa0
