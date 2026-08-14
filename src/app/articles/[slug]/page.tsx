@@ -229,15 +229,19 @@ export default async function ArticlePage({ params }: Props) {
               </h2>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {article.relatedTools.map(({ tool }) => (
-                  <ToolCard
-                    key={tool.slug}
-                    tool={tool}
-                  />
-                ))}
-              </div>
-            </section>
-          ) : null}
+	{article.relatedTools.map((relation) => {
+		const tool = relation.tool
+
+		return (
+			<ToolCard
+				key={tool.slug}
+				tool={tool}
+			/>
+		)
+	})}
+</div>
+</section>
+) : null}
 
           <section className="mt-12">
             <NewsletterForm placement="article" />
