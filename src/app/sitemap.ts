@@ -4,6 +4,21 @@ import { siteConfig, coreCategorySlugs } from "@/config/site"
 import { listAllSlugs } from "@/repositories/articleRepository"
 import { prisma } from "@/lib/prisma"
 
+type SitemapTool = {
+	slug: string
+	updatedAt: Date
+}
+
+type SitemapComparison = {
+	slug: string
+	updatedAt: Date
+}
+
+type SitemapAuthor = {
+	slug: string
+	updatedAt: Date
+}
+
 /**
  * Production sitemap.
  *
@@ -90,28 +105,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	]
 
 	const categoryRoutes: MetadataRoute.Sitemap = coreCategorySlugs.map(
-		(slug) => ({
+		(slug: string) => ({
 			url: `${siteConfig.url}/${slug}`,
 			changeFrequency: "daily",
 			priority: 0.7,
 		}),
 	)
 
-	const articleRoutes: MetadataRoute.Sitemap = articleSlugs.map((slug) => ({
-		url: `${siteConfig.url}/articles/${slug}`,
-		changeFrequency: "weekly",
-		priority: 0.6,
-	}))
+	const articleRoutes: MetadataRoute.Sitemap = articleSlugs.map(
+		(slug: string) => ({
+			url: `${siteConfig.url}/articles/${slug}`,
+			changeFrequency: "weekly",
+			priority: 0.6,
+		}),
+	)
 
-	const toolRoutes: MetadataRoute.Sitemap = tools.map((tool) => ({
-		url: `${siteConfig.url}/tools/${tool.slug}`,
-		lastModified: tool.updatedAt,
-		changeFrequency: "weekly",
-		priority: 0.6,
-	}))
+	const toolRoutes: MetadataRoute.Sitemap = tools.map(
+		(tool: SitemapTool) => ({
+			url: `${siteConfig.url}/tools/${tool.slug}`,
+			lastModified: tool.updatedAt,
+			changeFrequency: "weekly",
+			priority: 0.6,
+		}),
+	)
 
 	const comparisonRoutes: MetadataRoute.Sitemap = comparisons.map(
-		(comparison) => ({
+		(comparison: SitemapComparison) => ({
 			url: `${siteConfig.url}/compare/${comparison.slug}`,
 			lastModified: comparison.updatedAt,
 			changeFrequency: "monthly",
@@ -119,12 +138,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		}),
 	)
 
-	const authorRoutes: MetadataRoute.Sitemap = authors.map((author) => ({
-		url: `${siteConfig.url}/authors/${author.slug}`,
-		lastModified: author.updatedAt,
-		changeFrequency: "monthly",
-		priority: 0.4,
-	}))
+	const authorRoutes: MetadataRoute.Sitemap = authors.map(
+		(author: SitemapAuthor) => ({
+			url: `${siteConfig.url}/authors/${author.slug}`,
+			lastModified: author.updatedAt,
+			changeFrequency: "monthly",
+			priority: 0.4,
+		}),
+	)
 
 	return [
 		...staticRoutes,
