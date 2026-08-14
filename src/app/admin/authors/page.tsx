@@ -1,19 +1,19 @@
 import { prisma } from "@/lib/prisma"
-import type { Prisma } from "@prisma/client"
 
-type AuthorWithCount = Prisma.AuthorGetPayload<{
-	include: {
-		_count: {
-			select: {
-				articles: true
-			}
-		}
+type AuthorRow = {
+	id: string
+	name: string
+	role: string | null
+	_count: {
+		articles: number
 	}
-}>
+}
 
 export default async function AdminAuthorsPage() {
-	const authors: AuthorWithCount[] = await prisma.author.findMany({
-		orderBy: { name: "asc" },
+	const authors: AuthorRow[] = await prisma.author.findMany({
+		orderBy: {
+			name: "asc",
+		},
 		include: {
 			_count: {
 				select: {
@@ -38,7 +38,7 @@ export default async function AdminAuthorsPage() {
 					</thead>
 
 					<tbody>
-						{authors.map((author: AuthorWithCount) => (
+						{authors.map((author: AuthorRow) => (
 							<tr
 								key={author.id}
 								className="border-b border-admin-border last:border-0"
@@ -48,7 +48,7 @@ export default async function AdminAuthorsPage() {
 								</td>
 
 								<td className="p-4 text-admin-muted">
-									{author.role}
+									{author.role ?? "—"}
 								</td>
 
 								<td className="p-4 text-admin-muted">
@@ -56,6 +56,17 @@ export default async function AdminAuthorsPage() {
 								</td>
 							</tr>
 						))}
+
+						{authors.length === 0 ? (
+							<tr>
+								<td
+									colSpan={3}
+									className="p-4 text-admin-muted"
+								>
+									No authors yet.
+								</td>
+							</tr>
+						) : null}
 					</tbody>
 				</table>
 			</div>
