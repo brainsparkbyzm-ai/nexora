@@ -1,27 +1,37 @@
 import { prisma } from "@/lib/prisma"
 
+export async function createSubscriber(
+	email: string,
+	_firstName?: string | null,
+) {
+	return prisma.newsletterSubscriber.create({
+		data: {
+			email,
+		},
+	})
+}
+
 export async function findSubscriberByEmail(email: string) {
-	return prisma.newsletterSubscriber.findUnique({ where: { email } })
-}
-
-export async function createSubscriber(email: string, firstName?: string | null) {
-	return prisma.newsletterSubscriber.create({ data: { email, firstName: firstName ?? null } })
-}
-
-export async function unsubscribe(email: string) {
-	return prisma.newsletterSubscriber.updateMany({
-		where: { email },
-		data: { unsubscribedAt: new Date() },
+	return prisma.newsletterSubscriber.findUnique({
+		where: {
+			email,
+		},
 	})
 }
 
-export async function resubscribe(email: string) {
-	return prisma.newsletterSubscriber.update({
-		where: { email },
-		data: { unsubscribedAt: null },
+export async function unsubscribeSubscriber(email: string) {
+	return prisma.newsletterSubscriber.delete({
+		where: {
+			email,
+		},
 	})
 }
 
-export async function countActiveSubscribers() {
-	return prisma.newsletterSubscriber.count({ where: { unsubscribedAt: null } })
+export async function listSubscribers() {
+	return prisma.newsletterSubscriber.findMany({
+		orderBy: {
+			createdAt: "desc",
+		},
+	})
 }
+

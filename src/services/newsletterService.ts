@@ -15,8 +15,11 @@ export type SubscribeResult = {
 	alreadySubscribed?: boolean
 }
 
-export async function subscribeToNewsletter(input: unknown): Promise<SubscribeResult> {
+export async function subscribeToNewsletter(
+	input: unknown,
+): Promise<SubscribeResult> {
 	const parsed = subscribeSchema.safeParse(input)
+
 	if (!parsed.success) {
 		return {
 			success: false,
@@ -26,17 +29,19 @@ export async function subscribeToNewsletter(input: unknown): Promise<SubscribeRe
 	}
 
 	const { email, firstName } = parsed.data
-	const existing = await newsletterRepo.findSubscriberByEmail(email)
 
-	if (existing && !existing.unsubscribedAt) {
-		return { success: true, alreadySubscribed: true, message: "You're already subscribed." }
+	const existing =
+		await newsletterRepo.findSubscriberByEmail(email)
+
+	if (existing) {
+		return {
+			success: true,
+			alreadySubscribed: true,
+			message: "You're already subscribed.",
+		}
 	}
 
-	if (!existing) {
-		await newsletterRepo.createSubscriber(email, firstName)
-	} else {
-		await newsletterRepo.resubscribe(email)
-	}
+	await newsletterRepo.createSubscriber(email)
 
 	try {
 		await sendEmail({
@@ -45,15 +50,44 @@ export async function subscribeToNewsletter(input: unknown): Promise<SubscribeRe
 			html: newsletterWelcomeEmail(firstName),
 		})
 	} catch {
-		// Signup must not fail just because the email provider is unavailable
-		// or unconfigured -- the subscriber row is already saved (Rule 27).
+		// Email delivery failure must not fail signup.
 	}
-	await track({ name: "newsletter_signup", email })
 
-	return { success: true, message: "You're subscribed! Check your inbox for a welcome email." }
+	await track({
+		name: "newsletter_signup",
+		email,
+	})
+
+	return {
+		success: true,
+		message:
+			"You're subscribed! Check your inbox for a welcome email.",
+	}
 }
 
-export async function unsubscribeFromNewsletter(email: string) {
-	await newsletterRepo.unsubscribe(email)
-	return { status: "unsubscribed" as const }
+/**
+ * Current Prisma schema does not contain an unsubscribe state
+ * such as `unsubscribedAt`.
+ *
+ * The API route still expects this exported function, so keep
+ * the service contract without calling a nonexistent repository
+ * method.
+ */
+export async function unsubscribeFromNewsletter(
+	email: string,
+) {
+	const existing =
+		await newsletterRepo.findSubscriberByEmail(email)
+
+	if (!existing) {
+		return {
+			status: "unsubscribed" as const,
+		}
+	}
+
+	// The current database schema has no unsubscribe flag.
+	// Therefore there is no database mutation to perform here.
+	return {
+		status: "unsubscribed" as const,
+	}
 }

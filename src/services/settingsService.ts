@@ -1,41 +1,94 @@
 import { prisma } from "@/lib/prisma"
-import { defaultHomepageSections, type HomepageSectionConfig } from "@/config/site"
-
-/**
- * Reads/writes the singleton SiteSettings row. Admin > Settings edits flow
- * through here; the public site (homepage, footer, SEO defaults) reads
- * through here too, falling back to src/config/site.ts defaults when no
- * database row exists yet (fresh installs).
- */
+import { defaultHomepageSections } from "@/config/site"
 
 export async function getSiteSettings() {
-	const settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } })
-	return settings
+	return prisma.siteSettings.findUnique({
+		where: {
+			id: "singleton",
+		},
+	})
 }
 
-export async function getHomepageSections(): Promise<HomepageSectionConfig[]> {
-	const settings = await getSiteSettings()
-	if (settings?.homepageSections) {
-		return settings.homepageSections as unknown as HomepageSectionConfig[]
-	}
+export async function getHomepageSections() {
 	return defaultHomepageSections
 }
 
 export async function upsertSiteSettings(data: {
 	siteName?: string
-	logoUrl?: string | null
-	description?: string | null
-	defaultSeoTitle?: string | null
-	defaultSeoDescription?: string | null
+	description?: string
+	defaultSeoTitle?: string
+	defaultSeoDescription?: string
 	socialLinks?: Record<string, string>
 	newsletterEnabled?: boolean
 	adsEnabled?: boolean
 	affiliateEnabled?: boolean
-	homepageSections?: HomepageSectionConfig[]
 }) {
 	return prisma.siteSettings.upsert({
-		where: { id: "singleton" },
-		create: { id: "singleton", ...data },
-		update: data,
+		where: {
+			id: "singleton",
+		},
+
+		create: {
+			id: "singleton",
+			siteName: data.siteName ?? "NEXORA",
+			description: data.description ?? "",
+			defaultSeoTitle: data.defaultSeoTitle ?? "",
+			defaultSeoDescription:
+				data.defaultSeoDescription ?? "",
+			socialLinks: data.socialLinks ?? {},
+			newsletterEnabled:
+				data.newsletterEnabled ?? true,
+			adsEnabled: data.adsEnabled ?? false,
+			affiliateEnabled:
+				data.affiliateEnabled ?? false,
+		},
+
+		update: {
+			...(data.siteName !== undefined
+				? { siteName: data.siteName }
+				: {}),
+
+			...(data.description !== undefined
+				? { description: data.description }
+				: {}),
+
+			...(data.defaultSeoTitle !== undefined
+				? {
+						defaultSeoTitle:
+							data.defaultSeoTitle,
+					}
+				: {}),
+
+			...(data.defaultSeoDescription !== undefined
+				? {
+						defaultSeoDescription:
+							data.defaultSeoDescription,
+					}
+				: {}),
+
+			...(data.socialLinks !== undefined
+				? { socialLinks: data.socialLinks }
+				: {}),
+
+			...(data.newsletterEnabled !== undefined
+				? {
+						newsletterEnabled:
+							data.newsletterEnabled,
+					}
+				: {}),
+
+			...(data.adsEnabled !== undefined
+				? {
+						adsEnabled: data.adsEnabled,
+					}
+				: {}),
+
+			...(data.affiliateEnabled !== undefined
+				? {
+						affiliateEnabled:
+							data.affiliateEnabled,
+					}
+				: {}),
+		},
 	})
 }

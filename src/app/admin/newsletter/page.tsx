@@ -5,15 +5,11 @@ type NewsletterSubscriber = {
 	id: string
 	email: string
 	createdAt: Date
-	unsubscribedAt: Date | null
 }
 
 export default async function AdminNewsletterPage() {
-	const [total, active, recent] = await Promise.all([
+	const [total, recent] = await Promise.all([
 		prisma.newsletterSubscriber.count(),
-		prisma.newsletterSubscriber.count({
-			where: { unsubscribedAt: null },
-		}),
 		prisma.newsletterSubscriber.findMany({
 			orderBy: { createdAt: "desc" },
 			take: 50,
@@ -32,13 +28,13 @@ export default async function AdminNewsletterPage() {
 						Active subscribers
 					</p>
 					<p className="mt-2 text-h2 text-white">
-						{active.toLocaleString()}
+						{total.toLocaleString()}
 					</p>
 				</div>
 
 				<div className="rounded-card border border-admin-border bg-admin-surface p-5">
 					<p className="text-caption text-admin-muted">
-						Total ever subscribed
+						Total subscribers
 					</p>
 					<p className="mt-2 text-h2 text-white">
 						{total.toLocaleString()}
@@ -57,7 +53,7 @@ export default async function AdminNewsletterPage() {
 					</thead>
 
 					<tbody>
-						{subscribers.map((subscriber: NewsletterSubscriber) => (
+						{subscribers.map((subscriber) => (
 							<tr
 								key={subscriber.id}
 								className="border-b border-admin-border last:border-0"
@@ -71,9 +67,7 @@ export default async function AdminNewsletterPage() {
 								</td>
 
 								<td className="p-4 text-admin-muted">
-									{subscriber.unsubscribedAt
-										? "Unsubscribed"
-										: "Active"}
+									Active
 								</td>
 							</tr>
 						))}

@@ -1,38 +1,62 @@
 import Link from "next/link"
-import { GlassPanel } from "@/components/ui/GlassPanel"
-import { OptimizedImage } from "@/components/media/OptimizedImage"
-import { formatRating } from "@/lib/utils"
 import type { ToolCardData } from "@/types/content"
 
 export function ToolCard({ tool }: { tool: ToolCardData }) {
-	const rating = formatRating(tool.rating)
 	return (
-		<GlassPanel as="article" className="flex flex-col gap-4 p-5 hover:-translate-y-1">
+		<Link
+			href={`/tools/${tool.slug}`}
+			className="nexora-glass group flex flex-col gap-4 rounded-card p-5 transition-colors hover:border-nexora-blue"
+		>
 			<div className="flex items-center gap-3">
-				<div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-nexora-surface-raised">
-					{tool.logoUrl ? (
-						<OptimizedImage src={tool.logoUrl} alt={`${tool.name} logo`} aspectRatio="1/1" />
+				<div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-nexora-surface-raised text-sm font-bold text-nexora-cyan">
+					{tool.name.charAt(0).toUpperCase()}
+				</div>
+
+				<div className="min-w-0">
+					<h3 className="truncate text-h4 text-nexora-text transition-colors group-hover:text-white">
+						{tool.name}
+					</h3>
+
+					{tool.category ? (
+						<p className="text-caption text-nexora-muted">
+							{tool.category.name}
+						</p>
 					) : null}
 				</div>
-				<div>
-					<Link href={`/tools/${tool.slug}`} className="text-h4 text-nexora-text hover:text-white">
-						{tool.name}
-					</Link>
-					<div className="text-caption text-nexora-muted">{tool.category.name}</div>
-				</div>
-				{rating ? (
-					<span className="ml-auto shrink-0 rounded-pill bg-nexora-surface-raised px-2.5 py-1 text-caption font-semibold text-nexora-cyan">
-						★ {rating}
-					</span>
+			</div>
+
+			{tool.description ? (
+				<p className="line-clamp-3 text-small text-nexora-muted">
+					{tool.description}
+				</p>
+			) : null}
+
+			<div className="flex flex-wrap items-center gap-2 text-caption text-nexora-muted">
+				{tool.pricing ? (
+					<span>{tool.pricing}</span>
+				) : null}
+
+				{tool.rating !== null && tool.rating !== undefined ? (
+					<>
+						<span aria-hidden="true">·</span>
+						<span>★ {tool.rating}</span>
+					</>
+				) : null}
+
+				{tool.bestFor ? (
+					<>
+						<span aria-hidden="true">·</span>
+						<span className="truncate">{tool.bestFor}</span>
+					</>
 				) : null}
 			</div>
-			<p className="line-clamp-3 text-small text-nexora-muted">{tool.description}</p>
-			<div className="mt-auto flex items-center justify-between text-caption text-nexora-muted-2">
-				<span>{tool.pricing ?? "Pricing varies"}</span>
-				<Link href={`/tools/${tool.slug}`} className="font-semibold text-nexora-cyan hover:opacity-80">
-					Read review &rarr;
-				</Link>
-			</div>
-		</GlassPanel>
+
+			{tool.featured ? (
+				<span className="w-fit rounded-full bg-nexora-blue/15 px-2 py-1 text-caption font-semibold text-nexora-cyan">
+					Featured
+				</span>
+			) : null}
+		</Link>
 	)
 }
+

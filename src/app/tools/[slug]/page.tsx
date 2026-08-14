@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 
-import { OptimizedImage } from "@/components/media/OptimizedImage"
-import { ToolReviewCard } from "@/components/tools/ToolReviewCard"
 import { AffiliateButton } from "@/components/tools/AffiliateButton"
 import { ToolCard } from "@/components/tools/ToolCard"
 import { ArticleGrid } from "@/components/article/ArticleGrid"
@@ -29,7 +27,6 @@ export async function generateMetadata({
 	params,
 }: Props): Promise<Metadata> {
 	const { slug } = await params
-
 	const tool = await getToolReview(slug)
 
 	if (!tool) {
@@ -40,13 +37,11 @@ export async function generateMetadata({
 		title: `${tool.name} Review — Pricing, Pros & Cons`,
 		description: tool.description,
 		path: `/tools/${tool.slug}`,
-		image: tool.logoUrl || undefined,
 	})
 }
 
 export default async function ToolReviewPage({ params }: Props) {
 	const { slug } = await params
-
 	const tool = await getToolReview(slug)
 
 	if (!tool) {
@@ -88,16 +83,6 @@ export default async function ToolReviewPage({ params }: Props) {
 			<div className="grid gap-8 lg:grid-cols-[1fr_320px]">
 				<div>
 					<div className="flex flex-wrap items-center gap-4">
-						<div className="relative h-16 w-16 overflow-hidden rounded-card bg-nexora-surface-raised">
-							{tool.logoUrl ? (
-								<OptimizedImage
-									src={tool.logoUrl}
-									alt={`${tool.name} logo`}
-									aspectRatio="1/1"
-								/>
-							) : null}
-						</div>
-
 						<div>
 							<h1 className="text-h1 text-nexora-text">
 								{tool.name}
@@ -128,9 +113,59 @@ export default async function ToolReviewPage({ params }: Props) {
 						</p>
 					) : null}
 
-					<div className="mt-10">
-						<ToolReviewCard tool={tool} />
-					</div>
+					{tool.pros.length > 0 || tool.cons.length > 0 ? (
+						<section className="mt-10 grid gap-6 md:grid-cols-2">
+							{tool.pros.length > 0 ? (
+								<div className="rounded-card border border-nexora-border p-6">
+									<h2 className="mb-4 text-h4 text-nexora-text">
+										Pros
+									</h2>
+
+									<ul className="flex flex-col gap-3">
+										{tool.pros.map((pro) => (
+											<li
+												key={pro}
+												className="flex items-start gap-2 text-small text-nexora-muted"
+											>
+												<span
+													className="mt-0.5 text-nexora-success"
+													aria-hidden="true"
+												>
+													✓
+												</span>
+												<span>{pro}</span>
+											</li>
+										))}
+									</ul>
+								</div>
+							) : null}
+
+							{tool.cons.length > 0 ? (
+								<div className="rounded-card border border-nexora-border p-6">
+									<h2 className="mb-4 text-h4 text-nexora-text">
+										Cons
+									</h2>
+
+									<ul className="flex flex-col gap-3">
+										{tool.cons.map((con) => (
+											<li
+												key={con}
+												className="flex items-start gap-2 text-small text-nexora-muted"
+											>
+												<span
+													className="mt-0.5 text-red-400"
+													aria-hidden="true"
+												>
+													×
+												</span>
+												<span>{con}</span>
+											</li>
+										))}
+									</ul>
+								</div>
+							) : null}
+						</section>
+					) : null}
 
 					{tool.features.length > 0 ? (
 						<section className="mt-10">
@@ -155,7 +190,9 @@ export default async function ToolReviewPage({ params }: Props) {
 						<section
 							className="prose-nexora mt-10"
 							dangerouslySetInnerHTML={{
-								__html: sanitizeHtml(tool.reviewBodyHtml),
+								__html: sanitizeHtml(
+									tool.reviewBodyHtml,
+								),
 							}}
 						/>
 					) : null}

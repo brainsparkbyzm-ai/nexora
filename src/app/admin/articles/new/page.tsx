@@ -3,8 +3,10 @@ import { ArticleEditorForm } from "@/components/admin/ArticleEditorForm"
 import { requireRoleOrRedirect } from "@/lib/auth"
 
 export default async function NewArticlePage() {
-	const user = await requireRoleOrRedirect("AUTHOR")
-	const categories = await prisma.category.findMany({ orderBy: { name: "asc" } })
+	const user = await requireRoleOrRedirect("ADMIN")
+	const categories = await prisma.category.findMany({
+		orderBy: { name: "asc" },
+	})
 
 	return (
 		<ArticleEditorForm

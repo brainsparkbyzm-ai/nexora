@@ -11,19 +11,34 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-	const session = await requireRole("EDITOR")
-	if (!session) return apiError("Unauthorized. Editor role or higher is required.", 401)
+	const session = await requireRole("ADMIN")
 
-	let body: { name?: string; description?: string }
+	if (!session) {
+		return apiError("Unauthorized. Admin role is required.", 401)
+	}
+
+	let body: {
+		name?: string
+		description?: string
+	}
+
 	try {
 		body = await request.json()
 	} catch {
 		return apiError("Invalid JSON body.")
 	}
-	if (!body.name) return apiError("name is required.")
+
+	if (!body.name) {
+		return apiError("name is required.")
+	}
 
 	const category = await prisma.category.create({
-		data: { name: body.name, slug: slugify(body.name), description: body.description },
+		data: {
+			name: body.name,
+			slug: slugify(body.name),
+			description: body.description ?? "",
+		},
 	})
+
 	return apiSuccess(category, 201)
 }

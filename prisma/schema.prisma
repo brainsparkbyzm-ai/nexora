@@ -1,749 +1,305 @@
-import { PrismaClient, ArticleStatus, Prisma } from "@prisma/client";
-import bcrypt from "bcryptjs";
+generator client {
+  provider = "prisma-client-js"
+}
 
-const prisma = new PrismaClient();
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
-type SeedArticle = {
-  slug: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  categorySlug: string;
-  authorSlug: string;
-  featured?: boolean;
-  trending?: boolean;
-  tags: string[];
-  readingTime: number;
-  seoTitle?: string;
-  seoDescription?: string;
-  canonicalUrl?: string;
-  schemaType?: string;
-};
+enum UserRole {
+  USER
+  ADMIN
+}
 
-type SeedTool = {
-  slug: string;
-  name: string;
-  description: string;
-  websiteUrl: string;
-  pricing?: string;
-  rating?: number;
-  pros?: string[];
-  cons?: string[];
-  bestFor?: string;
-  features?: string[];
-  affiliateUrl?: string;
-  affiliateDisclosure?: string;
-  lastReviewedAt?: Date;
-  featured?: boolean;
-  category: string;
-};
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
 
-type SeedCategory = {
-  slug: string;
-  name: string;
-  description: string;
-  heroImage?: string;
-};
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(USER)
 
-type SeedToolCategory = {
-  slug: string;
-  name: string;
-};
+  author Author?
 
-const now = new Date();
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-const CORE_CATEGORIES: SeedCategory[] = [
-  {
-    slug: "ai-agents",
-    name: "AI Agents",
-    description:
-      "Autonomous and multi-agent systems reshaping how work gets done.",
-    heroImage:
-      "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=85",
-  },
-  {
-    slug: "automation",
-    name: "Automation",
-    description:
-      "Workflow automation, RPA, and orchestration for modern teams.",
-    heroImage:
-      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1600&q=85",
-  },
-  {
-    slug: "ai-tools",
-    name: "AI Tools",
-    description:
-      "Software built on top of modern AI models.",
-    heroImage:
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1600&q=85",
-  },
-  {
-    slug: "productivity",
-    name: "Productivity",
-    description:
-      "AI-powered productivity workflows and habits.",
-    heroImage:
-      "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&w=1600&q=85",
-  },
-  {
-    slug: "business-ai",
-    name: "Business AI",
-    description:
-      "How companies deploy AI in real operations.",
-    heroImage:
-      "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1600&q=85",
-  },
-  {
-    slug: "reviews",
-    name: "Reviews",
-    description:
-      "Independent, hands-on AI software reviews.",
-    heroImage:
-      "https://images.unsplash.com/photo-1684369175809-f9642140f2a1?auto=format&fit=crop&w=1600&q=85",
-  },
-  {
-    slug: "guides",
-    name: "Guides",
-    description:
-      "Step-by-step tutorials for working with AI.",
-    heroImage:
-      "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&w=1600&q=85",
-  },
-];
+model Author {
+  id   String  @id @default(cuid())
+  slug String  @unique
+  name String
+  role String
+  bio  String?
 
-const TOOL_CATEGORIES: SeedToolCategory[] = [
-  {
-    slug: "chatbots",
-    name: "Chatbots & Assistants",
-  },
-  {
-    slug: "writing",
-    name: "Writing & Content",
-  },
-  {
-    slug: "productivity-tools",
-    name: "Productivity",
-  },
-  {
-    slug: "automation-tools",
-    name: "Automation",
-  },
-  {
-    slug: "design",
-    name: "Design & Creative",
-  },
-  {
-    slug: "research",
-    name: "Research & Search",
-  },
-  {
-    slug: "coding",
-    name: "Coding & Development",
-  },
-];
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-const TAG_NAMES = [
-  "Multi-Agent",
-  "LLM",
-  "No-Code",
-  "Enterprise",
-  "Prompting",
-  "Case Study",
-  "Automation",
-  "AI Tools",
-  "Productivity",
-  "Business AI",
-  "Reviews",
-  "Guides",
-  "Coding",
-  "Research",
-  "Writing",
-  "AI Agents",
-  "Workflow",
-  "SaaS",
-  "Future of Work",
-];
+  articles Article[]
 
-const TOOLS: SeedTool[] = [
-  {
-    slug: "chatgpt",
-    name: "ChatGPT",
-    description:
-      "General-purpose AI assistant for writing, research, coding, analysis, image generation, and everyday productivity.",
-    websiteUrl: "https://chatgpt.com",
-    pricing: "Free / Paid",
-    rating: 4.8,
-    pros: [
-      "Broad general-purpose capabilities",
-      "Strong multimodal workflows",
-      "Large ecosystem",
-      "Useful for writing, coding, research and analysis",
-    ],
-    cons: [
-      "Quality varies by task",
-      "Premium features require paid access",
-    ],
-    bestFor:
-      "Users who want one versatile AI workspace for many different workflows.",
-    features: [
-      "Chat",
-      "Writing",
-      "Coding",
-      "Research",
-      "Image generation",
-      "Data analysis",
-      "Custom assistants",
-    ],
-    featured: true,
-    category: "chatbots",
-  },
-  {
-    slug: "claude",
-    name: "Claude",
-    description:
-      "AI assistant focused on reasoning, long-context work, writing, analysis, and coding.",
-    websiteUrl: "https://claude.ai",
-    pricing: "Free / Paid",
-    rating: 4.8,
-    pros: [
-      "Strong long-form writing",
-      "Excellent document analysis",
-      "Strong reasoning",
-      "Large-context workflows",
-    ],
-    cons: [
-      "Smaller ecosystem than some competitors",
-      "Limited native media generation",
-    ],
-    bestFor:
-      "Long documents, complex reasoning, writing, and substantial coding tasks.",
-    features: [
-      "Long-context analysis",
-      "Writing",
-      "Coding",
-      "Reasoning",
-      "Document analysis",
-      "Projects",
-    ],
-    featured: true,
-    category: "chatbots",
-  },
-  {
-    slug: "zapier",
-    name: "Zapier",
-    description:
-      "Automation platform for connecting applications and building AI-powered workflows.",
-    websiteUrl: "https://zapier.com",
-    pricing: "Free / Paid",
-    rating: 4.6,
-    pros: [
-      "Large integration ecosystem",
-      "Accessible workflow builder",
-      "Good business automation coverage",
-    ],
-    cons: [
-      "Advanced workflows can become expensive",
-      "Complex automation requires careful maintenance",
-    ],
-    bestFor:
-      "Connecting SaaS applications and automating repetitive business workflows.",
-    features: [
-      "Workflow automation",
-      "App integrations",
-      "Triggers",
-      "Actions",
-      "AI automation",
-      "Business workflows",
-    ],
-    featured: true,
-    category: "automation-tools",
-  },
-  {
-    slug: "perplexity",
-    name: "Perplexity",
-    description:
-      "AI-powered research and search platform that combines web retrieval with generated answers and citations.",
-    websiteUrl: "https://www.perplexity.ai",
-    pricing: "Free / Paid",
-    rating: 4.6,
-    pros: [
-      "Current web information",
-      "Inline citations",
-      "Fast research workflows",
-      "Useful source discovery",
-    ],
-    cons: [
-      "Source quality varies",
-      "Deep analysis still needs human verification",
-    ],
-    bestFor:
-      "Research tasks where current, sourced information matters.",
-    features: [
-      "Web search",
-      "Citations",
-      "Research",
-      "Source discovery",
-      "Document analysis",
-    ],
-    featured: true,
-    category: "research",
-  },
-  {
-    slug: "cursor",
-    name: "Cursor",
-    description:
-      "AI-powered code editor designed for assisted software development and codebase-level workflows.",
-    websiteUrl: "https://www.cursor.com",
-    pricing: "Free / Paid",
-    rating: 4.7,
-    pros: [
-      "Strong codebase workflows",
-      "AI-assisted editing",
-      "Useful developer experience",
-    ],
-    cons: [
-      "Primarily focused on software development",
-      "Best results require understanding the codebase",
-    ],
-    bestFor:
-      "Developers working on real projects with AI-assisted coding workflows.",
-    features: [
-      "Code completion",
-      "Codebase search",
-      "AI editing",
-      "Debugging",
-      "Refactoring",
-    ],
-    featured: true,
-    category: "coding",
-  },
-  {
-    slug: "jasper",
-    name: "Jasper",
-    description:
-      "AI content platform designed for marketing teams, brand content, and business writing workflows.",
-    websiteUrl: "https://www.jasper.ai",
-    pricing: "Paid",
-    rating: 4.4,
-    pros: [
-      "Marketing-focused workflows",
-      "Brand-oriented content generation",
-      "Useful for content teams",
-    ],
-    cons: [
-      "More specialized than general AI assistants",
-      "Paid-first product positioning",
-    ],
-    bestFor:
-      "Marketing teams producing structured content at scale.",
-    features: [
-      "Marketing copy",
-      "Brand voice",
-      "Content generation",
-      "Campaign workflows",
-      "Content optimization",
-    ],
-    featured: false,
-    category: "writing",
-  },
-  {
-    slug: "notion-ai",
-    name: "Notion AI",
-    description:
-      "AI capabilities integrated into the Notion workspace for writing, summarization, knowledge retrieval, and productivity.",
-    websiteUrl: "https://www.notion.so/product/ai",
-    pricing: "Paid / Add-on",
-    rating: 4.5,
-    pros: [
-      "Integrated with workspace content",
-      "Useful summarization",
-      "Strong productivity workflows",
-    ],
-    cons: [
-      "Best value comes inside the Notion ecosystem",
-      "Less specialized for advanced standalone AI tasks",
-    ],
-    bestFor:
-      "Teams already using Notion as their primary knowledge workspace.",
-    features: [
-      "Summarization",
-      "Writing",
-      "Knowledge retrieval",
-      "Workspace assistance",
-      "Productivity",
-    ],
-    featured: true,
-    category: "productivity-tools",
-  },
-];
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-const ARTICLES: SeedArticle[] = [
-  {
-    slug: "the-complete-guide-to-ai-automation-for-businesses",
-    title: "The Complete Guide to AI Automation for Businesses",
-    seoTitle:
-      "The Complete Guide to AI Automation for Businesses in 2026",
-    seoDescription:
-      "A practical guide to choosing, implementing, measuring, and scaling AI automation across modern business workflows.",
-    excerpt:
-      "Everything a growing company needs to know before rolling out AI automation across email, CRM, documents and analytics.",
-    content:
-      "<p>Rolling out AI automation across a business works best as a staged process rather than a single big-bang launch.</p>" +
-      "<h2>Stage 1: Pick one workflow</h2>" +
-      "<p>Choose a process with clear inputs, outputs and a measurable definition of success. Good starting points include customer support triage, lead qualification, document processing and internal reporting.</p>" +
-      "<h2>Stage 2: Connect your systems</h2>" +
-      "<p>Most of the real work is integration. Email, CRM, documents, databases and analytics systems need to exchange information reliably.</p>" +
-      "<h2>Stage 3: Add intelligence carefully</h2>" +
-      "<p>Use AI where interpretation or judgment is required, while keeping deterministic rules for simple operations that do not need a language model.</p>" +
-      "<h2>Stage 4: Expand deliberately</h2>" +
-      "<p>Only add new workflows once the first automation is stable, measurable and trusted by the team using it.</p>",
-    categorySlug: "business-ai",
-    authorSlug: "elena-cho",
-    featured: true,
-    trending: true,
-    tags: ["Enterprise", "Case Study", "Automation", "Business AI"],
-    readingTime: 11,
-    schemaType: "Article",
-  },
-  {
-    slug: "how-businesses-are-using-ai-agents",
-    title: "How Businesses Are Using AI Agents in 2026",
-    seoTitle:
-      "How Businesses Are Using AI Agents in 2026",
-    seoDescription:
-      "Real-world AI agent use cases across customer support, sales, internal knowledge, documents, analytics and meetings.",
-    excerpt:
-      "From customer support to internal operations, these are the business workflows where AI agents are creating practical value.",
-    content:
-      "<p>Businesses are moving beyond AI experiments and beginning to integrate agents into everyday operations.</p>" +
-      "<h2>Customer operations</h2>" +
-      "<p>Agents can classify incoming requests, gather account information, prepare responses and route complex cases to the right employee.</p>" +
-      "<h2>Sales operations</h2>" +
-      "<p>AI systems can research prospects, summarize customer histories and prepare personalized follow-ups for sales teams.</p>" +
-      "<h2>Internal knowledge</h2>" +
-      "<p>Agents can search company documentation and provide employees with answers based on internal sources.</p>" +
-      "<h2>Business intelligence</h2>" +
-      "<p>AI can turn raw reports into summaries and highlight unusual changes that deserve human attention.</p>",
-    categorySlug: "business-ai",
-    authorSlug: "marcus-webb",
-    tags: ["Enterprise", "Case Study", "AI Agents"],
-    readingTime: 8,
-    schemaType: "Article",
-  },
-  {
-    slug: "ai-business-strategy-guide-for-leaders",
-    title: "An AI Strategy Guide for Business Leaders",
-    seoTitle:
-      "AI Strategy Guide for Business Leaders in 2026",
-    seoDescription:
-      "A practical AI strategy framework covering business problems, use-case selection, governance, measurement and scaling.",
-    excerpt:
-      "A practical framework for deciding where AI belongs in a company and where traditional software still makes more sense.",
-    content:
-      "<p>AI strategy should begin with business outcomes rather than technology trends. Leaders need to understand which problems actually benefit from intelligent automation.</p>" +
-      "<h2>Start with business problems</h2>" +
-      "<p>Identify expensive, repetitive or slow processes before evaluating specific AI products.</p>" +
-      "<h2>Choose measurable use cases</h2>" +
-      "<p>A good first project has a clear baseline and an outcome that can be measured after implementation.</p>" +
-      "<h2>Build governance early</h2>" +
-      "<p>Security, permissions, data handling and human oversight should be part of the design from the beginning.</p>" +
-      "<h2>Scale what works</h2>" +
-      "<p>Once an AI workflow proves its value, document it and create a repeatable process for deploying similar solutions elsewhere.</p>",
-    categorySlug: "business-ai",
-    authorSlug: "elena-cho",
-    tags: ["Enterprise", "Business AI", "Automation"],
-    readingTime: 8,
-    schemaType: "Article",
-  },
-  {
-    slug: "chatgpt-review-is-it-still-worth-it-in-2026",
-    title: "ChatGPT Review: Is It Still Worth It in 2026?",
-    seoTitle:
-      "ChatGPT Review 2026: Is It Still Worth It?",
-    seoDescription:
-      "An updated review of ChatGPT covering writing, coding, research, analysis, multimodal workflows, strengths and limitations.",
-    excerpt:
-      "An updated, hands-on review of ChatGPT's strengths, weaknesses and where it fits against newer competitors.",
-    content:
-      "<p>We revisited ChatGPT across writing, coding, research, analysis and everyday productivity workflows.</p>" +
-      "<h2>What it does well</h2>" +
-      "<p>ChatGPT remains a highly versatile assistant with strong general-purpose capabilities across a wide range of tasks.</p>" +
-      "<h2>Where it struggles</h2>" +
-      "<p>Like every general-purpose AI assistant, it can produce incorrect information and may require careful verification for important work.</p>" +
-      "<h2>Who should use it</h2>" +
-      "<p>It is particularly useful for people who want one flexible AI workspace covering writing, research, coding and general problem solving.</p>" +
-      "<h2>Our verdict</h2>" +
-      "<p>ChatGPT remains one of the strongest all-round options, but the best choice depends on the user's workflow and the features they value most.</p>",
-    categorySlug: "reviews",
-    authorSlug: "marcus-webb",
-    featured: true,
-    trending: true,
-    tags: ["Reviews", "LLM", "AI Tools"],
-    readingTime: 7,
-    schemaType: "Article",
-  },
-  {
-    slug: "claude-review-is-it-the-best-ai-assistant",
-    title: "Claude Review: Is It the Best AI Assistant?",
-    seoTitle:
-      "Claude Review 2026: Writing, Coding and Long Documents",
-    seoDescription:
-      "A practical review of Claude for writing, research, long documents, coding and professional workflows.",
-    excerpt:
-      "A practical review of Claude for writing, research, long documents, coding and professional workflows.",
-    content:
-      "<p>Claude has built a strong reputation around long-form reasoning, structured writing and working with large amounts of context.</p>" +
-      "<h2>Writing quality</h2>" +
-      "<p>Claude is particularly strong when a task requires clear structure, careful explanation and long-form output.</p>" +
-      "<h2>Working with documents</h2>" +
-      "<p>Large documents and complex instructions are among the areas where Claude can be especially useful.</p>" +
-      "<h2>For developers</h2>" +
-      "<p>Claude can also be useful for code generation, debugging, explanation and working through larger software tasks.</p>" +
-      "<h2>Our verdict</h2>" +
-      "<p>Claude is an excellent option for users who prioritize long-context work, thoughtful writing and structured analysis.</p>",
-    categorySlug: "reviews",
-    authorSlug: "marcus-webb",
-    tags: ["Reviews", "LLM", "Prompting"],
-    readingTime: 8,
-    schemaType: "Article",
-  },
-  {
-    slug: "zapier-ai-review-automation-workflows",
-    title: "Zapier AI Review: Is It Worth Using for Automation?",
-    seoTitle:
-      "Zapier AI Review 2026: Is It Worth Using for Automation?",
-    seoDescription:
-      "A practical review of Zapier's AI-powered automation features, integrations and business workflow capabilities.",
-    excerpt:
-      "A hands-on look at Zapier's AI-powered automation features, integrations and real-world workflow capabilities.",
-    content:
-      "<p>Zapier has long been one of the most accessible ways to connect business applications without writing traditional integration code.</p>" +
-      "<h2>Ease of use</h2>" +
-      "<p>The platform's visual workflow approach makes it approachable for teams that need automation without maintaining custom infrastructure.</p>" +
-      "<h2>AI capabilities</h2>" +
-      "<p>AI-assisted workflow creation and intelligent steps can reduce the amount of manual configuration required for certain automations.</p>" +
-      "<h2>Where it fits</h2>" +
-      "<p>Zapier works especially well for connecting SaaS applications, moving information between systems and triggering routine business processes.</p>" +
-      "<h2>Our verdict</h2>" +
-      "<p>For teams that value simplicity and a large integration ecosystem, Zapier remains a compelling automation platform.</p>",
-    categorySlug: "reviews",
-    authorSlug: "marcus-webb",
-    tags: ["Reviews", "No-Code", "Automation"],
-    readingTime: 7,
-    schemaType: "Article",
-  },
-  {
-    slug: "a-beginners-guide-to-prompting-ai-agents",
-    title: "A Beginner's Guide to Prompting AI Agents",
-    seoTitle:
-      "How to Prompt AI Agents Effectively in 2026",
-    seoDescription:
-      "Learn the core principles for giving AI agents clear goals, constraints, tools, uncertainty handling and reliable success criteria.",
-    excerpt:
-      "The core principles for giving agents clear goals, constraints and tools — explained without the jargon.",
-    content:
-      "<p>Prompting an AI agent is different from prompting a normal chat model. Instead of requesting a single response, you are describing a goal and the environment in which the agent should operate.</p>" +
-      "<h2>Start with a clear goal</h2>" +
-      "<p>Tell the agent exactly what successful completion looks like. Avoid vague instructions when the task can be described more precisely.</p>" +
-      "<h2>Define constraints</h2>" +
-      "<p>Explain what the agent is allowed to do, what it should avoid and when it should ask for human approval.</p>" +
-      "<h2>Give the right tools</h2>" +
-      "<p>An agent can only perform actions through the tools and permissions available to it, so keep its toolset focused.</p>" +
-      "<h2>Test with real examples</h2>" +
-      "<p>Start with representative tasks and review the results before expanding the workflow.</p>",
-    categorySlug: "guides",
-    authorSlug: "elena-cho",
-    featured: true,
-    trending: true,
-    tags: ["Prompting", "Multi-Agent", "AI Agents"],
-    readingTime: 6,
-    schemaType: "HowTo",
-  },
-  {
-    slug: "how-to-build-your-first-ai-agent",
-    title: "How to Build Your First AI Agent",
-    seoTitle:
-      "How to Build Your First AI Agent in 2026",
-    seoDescription:
-      "A practical beginner guide to building an AI agent with a clear goal, tools, instructions, testing and human oversight.",
-    excerpt:
-      "A beginner-friendly guide to designing an AI agent with a clear goal, tools, instructions and human oversight.",
-    content:
-      "<p>Building an AI agent does not have to begin with a complicated architecture. A focused workflow is usually the best starting point.</p>" +
-      "<h2>Step 1: Choose one task</h2>" +
-      "<p>Select a task with a clear beginning, end and measurable outcome.</p>" +
-      "<h2>Step 2: Define the agent's role</h2>" +
-      "<p>Give the agent a specific responsibility rather than asking it to handle every possible task.</p>" +
-      "<h2>Step 3: Add tools</h2>" +
-      "<p>Provide only the tools needed to complete the workflow, such as search, databases or application APIs.</p>" +
-      "<h2>Step 4: Add safeguards</h2>" +
-      "<p>Define approval requirements, permission boundaries and failure handling before putting the agent into production.</p>" +
-      "<h2>Step 5: Test and improve</h2>" +
-      "<p>Review failures, refine instructions and gradually expand the agent's responsibilities.</p>",
-    categorySlug: "guides",
-    authorSlug: "elena-cho",
-    tags: ["Multi-Agent", "Prompting", "Guides"],
-    readingTime: 8,
-    schemaType: "HowTo",
-  },
-  {
-    slug: "how-to-create-an-ai-workflow-step-by-step",
-    title: "How to Create an AI Workflow Step by Step",
-    seoTitle:
-      "How to Build a Reliable AI Workflow in 2026",
-    seoDescription:
-      "A practical framework for mapping, building, testing and monitoring reliable AI workflows.",
-    excerpt:
-      "A simple framework for turning repetitive work into a reliable AI-assisted workflow.",
-    content:
-      "<p>An effective AI workflow combines human judgment, deterministic automation and AI reasoning where each is most useful.</p>" +
-      "<h2>Map the current process</h2>" +
-      "<p>Document the existing workflow before changing it. This reveals unnecessary steps and potential failure points.</p>" +
-      "<h2>Find the AI step</h2>" +
-      "<p>Use AI where the workflow requires interpreting text, generating content, classifying information or making a bounded decision.</p>" +
-      "<h2>Connect the systems</h2>" +
-      "<p>Make sure information can move reliably between the applications involved in the workflow.</p>" +
-      "<h2>Add review points</h2>" +
-      "<p>Important or irreversible actions should have an appropriate human approval step.</p>" +
-      "<h2>Measure the result</h2>" +
-      "<p>Compare the automated workflow against the original process using time, cost, accuracy and completion rate.</p>",
-    categorySlug: "guides",
-    authorSlug: "elena-cho",
-    tags: ["No-Code", "Prompting", "Workflow", "Automation"],
-    readingTime: 7,
-    schemaType: "HowTo",
-  },
-];
+model Category {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  name        String
+  description String
+  heroImage   String?
 
-const ARTICLE_HERO_IMAGES: Record<string, string> = {
-  "the-complete-guide-to-ai-automation-for-businesses":
-    "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1600&q=85",
+  articles Article[]
 
-  "how-businesses-are-using-ai-agents":
-    "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1600&q=85",
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-  "ai-business-strategy-guide-for-leaders":
-    "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=85",
+model Tag {
+  id   String @id @default(cuid())
+  slug String @unique
+  name String
 
-  "chatgpt-review-is-it-still-worth-it-in-2026":
-    "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?auto=format&fit=crop&w=1600&q=85",
+  articles ArticleTag[]
 
-  "claude-review-is-it-the-best-ai-assistant":
-    "https://images.unsplash.com/photo-1633412802994-5c058f151b66?auto=format&fit=crop&w=1600&q=85",
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-  "zapier-ai-review-automation-workflows":
-    "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=85",
+model Article {
+  id      String @id @default(cuid())
+  slug    String @unique
+  title   String
+  excerpt String
+  content String
 
-  "a-beginners-guide-to-prompting-ai-agents":
-    "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=85",
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
-  "how-to-build-your-first-ai-agent":
-    "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=1600&q=85",
+  authorId String
+  author   Author @relation(fields: [authorId], references: [id], onDelete: Restrict)
 
-  "how-to-create-an-ai-workflow-step-by-step":
-    "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1600&q=85",
-};
+  status      ArticleStatus @default(DRAFT)
+  featured    Boolean       @default(false)
+  trending    Boolean       @default(false)
+  readingTime Int
+  heroImage   String?
 
-const DEFAULT_HERO_IMAGE =
-  "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=85";
+  seoTitle       String?
+  seoDescription String?
+  canonicalUrl   String?
+  schemaType     String?
 
-const TOOL_LOGOS: Record<string, string> = {
-  chatgpt:
-    "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
-  claude:
-    "https://upload.wikimedia.org/wikipedia/commons/7/78/Anthropic_logo.svg",
-  zapier:
-    "https://cdn.simpleicons.org/zapier",
-  perplexity:
-    "https://cdn.simpleicons.org/perplexity",
-  cursor:
-    "https://cdn.simpleicons.org/cursor",
-  jasper:
-    "https://cdn.simpleicons.org/jasper",
-  "notion-ai":
-    "https://cdn.simpleicons.org/notion",
-};
+  tags         ArticleTag[]
+  relatedTools ArticleTool[]
+  revisions    Revision[]
+  viewEvents   ViewEvent[]
 
-const AUTHOR_DATA = {
-  "elena-cho": {
-    name: "Elena Cho",
-    role: "Senior AI Editor",
-    bio:
-      "Elena covers agentic AI, automation platforms, and enterprise AI adoption. Previously a data infrastructure engineer.",
-    twitter: null,
-    linkedin: null,
-    website: null,
-  },
-  "marcus-webb": {
-    name: "Marcus Webb",
-    role: "AI Tools Reviewer",
-    bio:
-      "Marcus tests and reviews AI software full-time, focusing on real workflows over marketing claims.",
-    twitter: null,
-    linkedin: null,
-    website: null,
-  },
-} as const;
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-const REVIEW_DATA: Record<
-  string,
-  {
-    summary: string;
-    body: string;
-    faq: Array<{ question: string; answer: string }>;
-  }
-> = {
-  chatgpt: {
-    summary:
-      "A versatile general-purpose AI assistant with broad capabilities across writing, research, coding, analysis and multimodal workflows.",
-    body:
-      "<p>ChatGPT remains one of the most versatile AI assistants for users who need a broad set of capabilities in one workspace.</p>" +
-      "<h2>Strengths</h2>" +
-      "<p>Its strongest advantage is breadth: writing, coding, research, analysis and multimodal tasks can all be handled from one interface.</p>" +
-      "<h2>Limitations</h2>" +
-      "<p>Important outputs still require verification, particularly when accuracy matters.</p>",
-    faq: [
-      {
-        question: "Is ChatGPT good for professional work?",
-        answer:
-          "Yes. It can be useful for writing, analysis, research, coding and many repetitive knowledge-work tasks, provided important outputs are reviewed.",
-      },
-    ],
-  },
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([status])
+  @@index([featured])
+  @@index([trending])
+  @@index([publishedAt])
+}
 
-  claude: {
-    summary:
-      "A strong AI assistant for long-form writing, reasoning, document analysis and complex coding workflows.",
-    body:
-      "<p>Claude is particularly compelling for users who work with long documents and complex instructions.</p>" +
-      "<h2>Strengths</h2>" +
-      "<p>Long-form writing, structured reasoning and document synthesis are major strengths.</p>" +
-      "<h2>Limitations</h2>" +
-      "<p>Its ecosystem and native capabilities differ from broader AI platforms, so workflow fit matters.</p>",
-    faq: [
-      {
-        question: "Is Claude good for long documents?",
-        answer:
-          "Yes. Long-context document analysis is one of its strongest use cases.",
-      },
-    ],
-  },
+model ArticleTag {
+  articleId String
+  tagId     String
 
-  zapier: {
-    summary:
-      "A mature automation platform for connecting applications and creating repeatable business workflows.",
-    body:
-      "<p>Zapier is useful when a team needs to connect existing SaaS applications without maintaining custom integrations.</p>" +
-      "<h2>Strengths</h2>" +
-      "<p>The large integration ecosystem and visual workflow approach make automation accessible.</p>" +
-      "<h2>Limitations</h2>" +
-      "<p>Complex workflows require careful monitoring, testing and cost management.</p>",
-    faq: [
-      {
-        question: "Is Zapier useful for AI automation?",
-        answer:
-          "Yes. It can connect AI steps with business applications and automate repetitive workflows.",
-      },
-    ],
-  },
-};
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@index([tagId])
+}
+
+model ArticleTool {
+  articleId String
+  toolId    String
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tool    Tool    @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, toolId])
+  @@index([toolId])
+}
+
+model ToolCategory {
+  id   String @id @default(cuid())
+  slug String @unique
+  name String
+
+  tools Tool[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tool {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  name        String
+  description String
+  websiteUrl  String
+  pricing     String?
+
+  rating   Float?
+  pros     Json?
+  cons     Json?
+  bestFor  String?
+  features Json?
+
+  affiliateUrl        String?
+  affiliateDisclosure String?
+  lastReviewedAt      DateTime?
+  featured            Boolean   @default(false)
+
+  categoryId String
+  category   ToolCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  comparisonsA Comparison[] @relation("ComparisonToolA")
+  comparisonsB Comparison[] @relation("ComparisonToolB")
+  winners      Comparison[] @relation("ComparisonWinner")
+
+  review          Review?
+  relatedArticles ArticleTool[]
+  affiliateClicks AffiliateClick[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([featured])
+  @@index([slug])
+}
+
+model Review {
+  id     String @id @default(cuid())
+  toolId String @unique
+  tool   Tool   @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  rating  Float
+  summary String?
+  content String?
+  pros    Json?
+  cons    Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Comparison {
+  id      String @id @default(cuid())
+  slug    String @unique
+  title   String
+  summary String
+
+  toolAId String
+  toolA   Tool   @relation("ComparisonToolA", fields: [toolAId], references: [id], onDelete: Restrict)
+
+  toolBId String
+  toolB   Tool   @relation("ComparisonToolB", fields: [toolBId], references: [id], onDelete: Restrict)
+
+  winnerToolId String?
+  winnerTool   Tool?   @relation("ComparisonWinner", fields: [winnerToolId], references: [id], onDelete: SetNull)
+
+  featureTable Json
+  verdict      String
+  faq          Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Revision {
+  id        String  @id @default(cuid())
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  title    String
+  excerpt  String
+  content  String
+  editedBy String?
+
+  createdAt DateTime @default(now())
+
+  @@index([articleId])
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  type      String?
+  alt       String?
+  title     String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+model SearchLog {
+  id        String   @id @default(cuid())
+  query     String
+  createdAt DateTime @default(now())
+
+  @@index([query])
+}
+
+model ViewEvent {
+  id        String   @id @default(cuid())
+  articleId String?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  path      String?
+  createdAt DateTime @default(now())
+
+  @@index([articleId])
+  @@index([createdAt])
+}
+
+model AffiliateClick {
+  id     String  @id @default(cuid())
+  toolId String?
+  tool   Tool?   @relation(fields: [toolId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([toolId])
+  @@index([createdAt])
+}
+
+model SiteSettings {
+  id String @id
+
+  siteName              String
+  description           String
+  defaultSeoTitle       String
+  defaultSeoDescription String
+
+  socialLinks Json
+
+  newsletterEnabled Boolean @default(true)
+  adsEnabled        Boolean @default(false)
+  affiliateEnabled  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
