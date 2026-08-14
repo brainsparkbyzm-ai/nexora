@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma"
-import { ArticleStatus, Prisma } from "@prisma/client"
+import { Prisma } from "@prisma/client"
+
+type ArticleStatus = NonNullable<Prisma.ArticleWhereInput["status"]>
 
 /**
  * Repository layer: the ONLY place that talks to Prisma for articles.
- * Services (src/services/articleService.ts) and API routes call these
- * functions instead of `prisma.article.*` directly, so query shape changes
- * (e.g. adding a join, changing an index) happen in one place.
+ * Services and API routes call these functions instead of prisma.article.* directly.
  */
 
 const articleWithRelations = {
@@ -15,18 +15,26 @@ const articleWithRelations = {
 	relatedTools: { include: { tool: { include: { category: true } } } },
 } satisfies Prisma.ArticleInclude
 
-export type ArticleWithRelations = Prisma.ArticleGetPayload<{ include: typeof articleWithRelations }>
+export type ArticleWithRelations = Prisma.ArticleGetPayload<{
+	include: typeof articleWithRelations
+}>
 
-export async function findPublishedArticleBySlug(slug: string): Promise<ArticleWithRelations | null> {
+export async function findPublishedArticleBySlug(
+	slug: string
+): Promise<ArticleWithRelations | null> {
 	return prisma.article.findFirst({
-		where: { slug, status: ArticleStatus.PUBLISHED },
+		where: { slug, status: "PUBLISHED" },
 		include: articleWithRelations,
 	})
 }
 
-export async function findArticleByIdOrSlug(idOrSlug: string): Promise<ArticleWithRelations | null> {
+export async function findArticleByIdOrSlug(
+	idOrSlug: string
+): Promise<ArticleWithRelations | null> {
 	return prisma.article.findFirst({
-		where: { OR: [{ id: idOrSlug }, { slug: idOrSlug }] },
+		where: {
+			OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+		},
 		include: articleWithRelations,
 	})
 }
@@ -44,7 +52,9 @@ export type ListArticlesFilter = {
 	pageSize?: number
 }
 
-export async function listArticles(filter: ListArticlesFilter): Promise<{
+export async function listArticles(
+	filter: ListArticlesFilter
+): Promise<{
 	items: ArticleWithRelations[]
 	total: number
 	page: number
@@ -54,18 +64,38 @@ export async function listArticles(filter: ListArticlesFilter): Promise<{
 	const pageSize = Math.min(50, Math.max(1, filter.pageSize ?? 12))
 
 	const where: Prisma.ArticleWhereInput = {
-		status: filter.status ?? ArticleStatus.PUBLISHED,
-		...(filter.categorySlug ? { category: { slug: filter.categorySlug } } : {}),
-		...(filter.tagSlug ? { tags: { some: { tag: { slug: filter.tagSlug } } } } : {}),
-		...(filter.authorSlug ? { author: { slug: filter.authorSlug } } : {}),
+		status: filter.status ?? "PUBLISHED",
+		...(filter.categorySlug
+			? { category: { slug: filter.categorySlug } }
+			: {}),
+		...(filter.tagSlug
+			? { tags: { some: { tag: { slug: filter.tagSlug } } } }
+			: {}),
+		...(filter.authorSlug
+			? { author: { slug: filter.authorSlug } }
+			: {}),
 		...(filter.authorId ? { authorId: filter.authorId } : {}),
-		...(filter.featured != null ? { featured: filter.featured } : {}),
-		...(filter.trending != null ? { trending: filter.trending } : {}),
+		...(filter.featured != null
+			? { featured: filter.featured }
+			: {}),
+		...(filter.trending != null
+			? { trending: filter.trending }
+			: {}),
 		...(filter.search
 			? {
 					OR: [
-						{ title: { contains: filter.search, mode: "insensitive" } },
-						{ excerpt: { contains: filter.search, mode: "insensitive" } },
+						{
+							title: {
+								contains: filter.search,
+								mode: "insensitive",
+							},
+						},
+						{
+							excerpt: {
+								contains: filter.search,
+								mode: "insensitive",
+							},
+						},
 					],
 				}
 			: {}),
@@ -85,10 +115,13 @@ export async function listArticles(filter: ListArticlesFilter): Promise<{
 	return { items, total, page, pageSize }
 }
 
-export async function listRelatedArticles(article: ArticleWithRelations, limit: number) {
+export async function listRelatedArticles(
+	article: ArticleWithRelations,
+	limit: number
+) {
 	return prisma.article.findMany({
 		where: {
-			status: ArticleStatus.PUBLISHED,
+			status: "PUBLISHED",
 			id: { not: article.id },
 			categoryId: article.categoryId,
 		},
@@ -99,19 +132,37 @@ export async function listRelatedArticles(article: ArticleWithRelations, limit: 
 }
 
 export async function createArticle(data: Prisma.ArticleCreateInput) {
-	return prisma.article.create({ data, include: articleWithRelations })
+	return prisma.article.create({
+		data,
+		include: articleWithRelations,
+	})
 }
 
-export async function updateArticle(id: string, data: Prisma.ArticleUncheckedUpdateInput) {
-	return prisma.article.update({ where: { id }, data, include: articleWithRelations })
+export async function updateArticle(
+	id: string,
+	data: Prisma.ArticleUncheckedUpdateInput
+) {
+	return prisma.article.update({
+		where: { id },
+		data,
+		include: articleWithRelations,
+	})
 }
 
 export async function deleteArticle(id: string) {
-	return prisma.article.delete({ where: { id } })
+	return prisma.article.delete({
+		where: { id },
+	})
 }
 
-export async function createRevisionSnapshot(articleId: string, editedBy: string | null) {
-	const article = await prisma.article.findUniqueOrThrow({ where: { id: articleId } })
+export async function createRevisionSnapshot(
+	articleId: string,
+	editedBy: string | null
+) {
+	const article = await prisma.article.findUniqueOrThrow({
+		where: { id: articleId },
+	})
+
 	return prisma.revision.create({
 		data: {
 			articleId,
@@ -125,8 +176,9 @@ export async function createRevisionSnapshot(articleId: string, editedBy: string
 
 export async function listAllSlugs(): Promise<string[]> {
 	const rows = await prisma.article.findMany({
-		where: { status: ArticleStatus.PUBLISHED },
+		where: { status: "PUBLISHED" },
 		select: { slug: true },
 	})
+
 	return rows.map((r) => r.slug)
 }
