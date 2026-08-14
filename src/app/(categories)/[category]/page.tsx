@@ -27,12 +27,12 @@ import { coreCategorySlugs } from "@/config/site"
 export const revalidate = 300
 
 type Props = {
-    params: {
+    params: Promise<{
         category: string
-    }
-    searchParams: {
+    }>
+    searchParams: Promise<{
         page?: string
-    }
+    }>
 }
 
 export async function generateStaticParams() {
@@ -44,7 +44,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({
     params,
 }: Props): Promise<Metadata> {
-    const category = await findCategoryBySlug(params.category)
+    const { category: slug } = await params
+
+    const category = await findCategoryBySlug(slug)
 
     if (!category) {
         return {}
@@ -63,7 +65,8 @@ export default async function CategoryPage({
     params,
     searchParams,
 }: Props) {
-    const slug = params.category
+    const { category: slug } = await params
+    const { page: pageParam } = await searchParams
 
     const knownCategory = await isKnownCategorySlug(slug)
 
@@ -77,7 +80,7 @@ export default async function CategoryPage({
         notFound()
     }
 
-    const requestedPage = Number(searchParams.page ?? "1")
+    const requestedPage = Number(pageParam ?? "1")
 
     const page = Number.isFinite(requestedPage)
         ? Math.max(1, requestedPage)
@@ -198,4 +201,3 @@ export default async function CategoryPage({
         </div>
     )
 }
-

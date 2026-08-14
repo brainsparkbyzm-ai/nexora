@@ -11,9 +11,9 @@ import { buildMetadata } from "@/lib/seo"
 export const revalidate = 600
 
 type Props = {
-    params: {
+    params: Promise<{
         slug: string
-    }
+    }>
 }
 
 type AuthorData = {
@@ -49,7 +49,8 @@ async function getAuthor(slug: string): Promise<AuthorData | null> {
 export async function generateMetadata({
     params,
 }: Props): Promise<Metadata> {
-    const author = await getAuthor(params.slug)
+    const { slug } = await params
+    const author = await getAuthor(slug)
 
     if (!author) {
         return {}
@@ -64,10 +65,9 @@ export async function generateMetadata({
     })
 }
 
-export default async function AuthorPage({
-    params,
-}: Props) {
-    const author = await getAuthor(params.slug)
+export default async function AuthorPage({ params }: Props) {
+    const { slug } = await params
+    const author = await getAuthor(slug)
 
     if (!author) {
         notFound()

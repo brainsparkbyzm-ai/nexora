@@ -17,17 +17,24 @@ export const metadata: Metadata = buildMetadata({
 })
 
 type Props = {
-	searchParams: {
+	searchParams: Promise<{
 		category?: string
 		page?: string
-	}
+	}>
 }
 
-export default async function ToolsDirectoryPage({ searchParams }: Props) {
-	const page = Math.max(1, Number(searchParams.page ?? "1") || 1)
+export default async function ToolsDirectoryPage({
+	searchParams,
+}: Props) {
+	const params = await searchParams
+
+	const page = Math.max(
+		1,
+		Number(params.page ?? "1") || 1,
+	)
 
 	const result = await listToolsDirectory({
-		categorySlug: searchParams.category,
+		categorySlug: params.category,
 		page,
 	})
 
@@ -54,7 +61,7 @@ export default async function ToolsDirectoryPage({ searchParams }: Props) {
 				<SectionHeader title="All Tools" />
 
 				<div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-					{items.map((tool: ToolCardData) => (
+					{items.map((tool) => (
 						<ToolCard
 							key={tool.slug}
 							tool={tool}
