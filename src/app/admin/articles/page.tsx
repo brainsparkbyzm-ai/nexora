@@ -8,23 +8,29 @@ type Props = {
     }
 }
 
+type ArticleRow = {
+    id: string
+    slug: string
+    title: string
+    status: string
+    updatedAt: Date
+    category: {
+        name: string
+    }
+    author: {
+        name: string
+    }
+}
+
 export default async function AdminArticlesPage({
     searchParams,
 }: Props) {
-    const statusParam = searchParams.status?.trim()
+    const status = searchParams.status?.trim() || undefined
 
-    const validStatuses = ["DRAFT", "PUBLISHED", "ARCHIVED"] as const
-
-    const status = validStatuses.includes(
-        statusParam as (typeof validStatuses)[number],
-    )
-        ? (statusParam as (typeof validStatuses)[number])
-        : undefined
-
-    const articles = await prisma.article.findMany({
+    const articles = (await prisma.article.findMany({
         where: status
             ? {
-                  status,
+                  status: status as never,
               }
             : undefined,
         orderBy: {
@@ -43,7 +49,7 @@ export default async function AdminArticlesPage({
                 },
             },
         },
-    })
+    })) as unknown as ArticleRow[]
 
     return (
         <div className="flex flex-col gap-6">
@@ -73,7 +79,7 @@ export default async function AdminArticlesPage({
                     </thead>
 
                     <tbody>
-                        {articles.map((article) => (
+                        {articles.map((article: ArticleRow) => (
                             <tr
                                 key={article.id}
                                 className="border-b border-admin-border last:border-0 hover:bg-admin-surface"
