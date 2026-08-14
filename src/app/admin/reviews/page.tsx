@@ -1,6 +1,16 @@
 import { prisma } from "@/lib/prisma"
 import { formatDate } from "@/lib/utils"
 
+type ReviewRow = {
+	id: string
+	updatedAt: Date
+	tool: {
+		name: string
+		rating: number | null
+		lastReviewedAt: Date | null
+	}
+}
+
 export default async function AdminReviewsPage() {
 	const reviews = await prisma.review.findMany({
 		orderBy: { createdAt: "desc" },
@@ -15,9 +25,12 @@ export default async function AdminReviewsPage() {
 		},
 	})
 
+	const reviewRows: ReviewRow[] = reviews
+
 	return (
 		<div className="flex flex-col gap-6">
 			<h1 className="text-h2 text-white">Reviews</h1>
+
 			<div className="overflow-x-auto rounded-card border border-admin-border">
 				<table className="w-full text-small">
 					<thead>
@@ -27,12 +40,25 @@ export default async function AdminReviewsPage() {
 							<th className="p-4">Last reviewed</th>
 						</tr>
 					</thead>
+
 					<tbody>
-						{reviews.map((review) => (
-							<tr key={review.id} className="border-b border-admin-border last:border-0">
-								<td className="p-4 text-white">{review.tool.name}</td>
-								<td className="p-4 text-admin-muted">{review.tool.rating ?? "—"}</td>
-								<td className="p-4 text-admin-muted">{formatDate(review.tool.lastReviewedAt ?? review.updatedAt)}</td>
+						{reviewRows.map((review: ReviewRow) => (
+							<tr
+								key={review.id}
+								className="border-b border-admin-border last:border-0"
+							>
+								<td className="p-4 text-white">
+									{review.tool.name}
+								</td>
+								<td className="p-4 text-admin-muted">
+									{review.tool.rating ?? "—"}
+								</td>
+								<td className="p-4 text-admin-muted">
+									{formatDate(
+										review.tool.lastReviewedAt ??
+											review.updatedAt
+									)}
+								</td>
 							</tr>
 						))}
 					</tbody>
