@@ -6,20 +6,37 @@
   "compatibility_flags": [
     "global_fetch_strictly_public"
   ],
+
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
       "service": "nexora"
     }
   ],
+
   "images": {
     "binding": "IMAGES"
   },
+
   "observability": {
     "enabled": true
-  }
+  },
+
+  "find_additional_modules": true,
+  "base_dir": ".open-next/server-functions/default",
+
+  "rules": [
+    {
+      "type": "CompiledWasm",
+      "globs": [
+        "**/*.wasm"
+      ],
+      "fallthrough": true
+    }
+  ]
 }

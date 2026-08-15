@@ -94,7 +94,21 @@ export default async function ArticlePage({ params }: Props) {
 	const articleUrl = `${siteConfig.url}/articles/${article.slug}`
 
 	return (
-		<article className="pb-24 pt-8">
+		<article className="nexora-page relative min-h-screen overflow-hidden pb-24 pt-6 sm:pt-10">
+			{/* Ambient background */}
+			<div
+				className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+				aria-hidden="true"
+			>
+				<div className="absolute left-[-220px] top-[-180px] h-[560px] w-[560px] rounded-full bg-nexora-blue/10 blur-[150px]" />
+
+				<div className="absolute right-[-220px] top-[18%] h-[520px] w-[520px] rounded-full bg-nexora-turquoise/10 blur-[150px]" />
+
+				<div className="absolute bottom-[8%] left-[35%] h-[440px] w-[440px] rounded-full bg-nexora-vanilla/5 blur-[150px]" />
+
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,rgba(7,16,20,0.48)_100%)]" />
+			</div>
+
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{
@@ -121,107 +135,165 @@ export default async function ArticlePage({ params }: Props) {
 				}}
 			/>
 
+			{/* Article header */}
 			<header className="mx-auto w-full max-w-article px-4">
-				<Breadcrumbs
-					items={[
-						{
-							name: "Home",
-							href: "/",
-						},
-						{
-							name: article.category.name,
-							href: `/${article.category.slug}`,
-						},
-						{
-							name: article.title,
-						},
-					]}
-				/>
-
-				<span className="text-metadata font-semibold uppercase tracking-wide text-nexora-cyan">
-					{article.category.name}
-				</span>
-
-				<h1 className="mt-3 text-h1 leading-tight text-nexora-text">
-					{article.title}
-				</h1>
-
-				{article.excerpt ? (
-					<p className="mt-3 text-h4 font-normal text-nexora-muted">
-						{article.excerpt}
-					</p>
-				) : null}
-
-				<div className="mt-6 flex flex-wrap items-center gap-3 border-y border-nexora-border py-4 text-caption text-nexora-muted">
-					<span className="font-medium text-nexora-text">
-						{article.author.name}
-					</span>
-
-					<span aria-hidden="true">&middot;</span>
-
-					<span>
-						Published{" "}
-						{formatDate(
-							article.publishedAt ?? article.createdAt,
-						)}
-					</span>
-
-					{article.updatedAt &&
-					article.updatedAt !== article.publishedAt ? (
-						<>
-							<span aria-hidden="true">&middot;</span>
-
-							<span>
-								Updated {formatDate(article.updatedAt)}
-							</span>
-						</>
-					) : null}
-
-					<span aria-hidden="true">&middot;</span>
-
-					<span>{article.readingTime} min read</span>
-
-					<div className="ml-auto">
-						<ShareButtons
-							url={articleUrl}
-							title={article.title}
-						/>
-					</div>
+				<div className="mb-7">
+					<Breadcrumbs
+						items={[
+							{
+								name: "Home",
+								href: "/",
+							},
+							{
+								name: article.category.name,
+								href: `/${article.category.slug}`,
+							},
+							{
+								name: article.title,
+							},
+						]}
+					/>
 				</div>
+
+				<section className="nexora-glass nexora-3d relative overflow-hidden rounded-card border border-nexora-blue/15 p-6 sm:p-8 lg:p-10">
+					<div
+						className="pointer-events-none absolute -right-28 -top-28 h-80 w-80 rounded-full bg-nexora-turquoise/10 blur-[100px]"
+						aria-hidden="true"
+					/>
+
+					<div
+						className="pointer-events-none absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-nexora-blue/10 blur-[100px]"
+						aria-hidden="true"
+					/>
+
+					<div className="relative">
+						<span className="nexora-badge inline-flex rounded-pill border border-nexora-turquoise/20 bg-nexora-turquoise/5 px-3 py-1.5 text-metadata font-semibold uppercase tracking-[0.14em] text-nexora-turquoise">
+							{article.category.name}
+						</span>
+
+						<h1 className="nexora-glow-text mt-5 text-h1 leading-[1.08] text-nexora-text">
+							{article.title}
+						</h1>
+
+						{article.excerpt ? (
+							<p className="mt-5 max-w-3xl text-h4 font-normal leading-8 text-nexora-muted">
+								{article.excerpt}
+							</p>
+						) : null}
+
+						<div className="mt-7 flex flex-col gap-5 border-t border-nexora-border pt-5 lg:flex-row lg:items-center lg:justify-between">
+							<div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-caption text-nexora-muted">
+								<span className="font-semibold text-nexora-text">
+									{article.author.name}
+								</span>
+
+								<span
+									aria-hidden="true"
+									className="text-nexora-muted-2"
+								>
+									•
+								</span>
+
+								<span>
+									Published{" "}
+									{formatDate(
+										article.publishedAt ??
+											article.createdAt,
+									)}
+								</span>
+
+								{article.updatedAt &&
+								article.updatedAt !==
+									article.publishedAt ? (
+									<>
+										<span
+											aria-hidden="true"
+											className="text-nexora-muted-2"
+										>
+											•
+										</span>
+
+										<span>
+											Updated{" "}
+											{formatDate(
+												article.updatedAt,
+											)}
+										</span>
+									</>
+								) : null}
+
+								<span
+									aria-hidden="true"
+									className="text-nexora-muted-2"
+								>
+									•
+								</span>
+
+								<span className="text-nexora-turquoise">
+									{article.readingTime} min read
+								</span>
+							</div>
+
+							<div className="shrink-0">
+								<ShareButtons
+									url={articleUrl}
+									title={article.title}
+								/>
+							</div>
+						</div>
+					</div>
+				</section>
 			</header>
 
+			{/* Hero image */}
 			{article.heroImage ? (
-				<figure className="mx-auto mt-8 w-full max-w-hero px-4">
-					<OptimizedImage
-						src={article.heroImage}
-						alt={article.title}
-						priority
-						aspectRatio="16/9"
-					/>
+				<figure className="mx-auto mt-8 w-full max-w-hero px-4 sm:mt-10">
+					<div className="nexora-3d overflow-hidden rounded-card border border-nexora-border bg-nexora-surface/30 p-1.5">
+						<OptimizedImage
+							src={article.heroImage}
+							alt={article.title}
+							priority
+							aspectRatio="16/9"
+						/>
+					</div>
 				</figure>
 			) : null}
 
-			<div className="mx-auto mt-10 grid w-full max-w-hero gap-10 px-4 lg:grid-cols-[220px_1fr]">
-				<TableOfContents items={toc} />
+			{/* Reading layout */}
+			<div className="mx-auto mt-10 grid w-full max-w-hero gap-8 px-4 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10">
+				<aside className="lg:sticky lg:top-24 lg:h-fit">
+					<div className="nexora-glass rounded-card border border-nexora-border p-4">
+						<TableOfContents items={toc} />
+					</div>
+				</aside>
 
-				<div className="mx-auto w-full max-w-article">
-					<AdSlot placement="article-top" />
+				<div className="mx-auto w-full max-w-article min-w-0">
+					{/* Top advertisement */}
+					<div className="nexora-glass overflow-hidden rounded-card border border-nexora-border p-2">
+						<AdSlot placement="article-top" />
+					</div>
 
+					{/* Article body */}
 					<main
-						className="prose-nexora mt-6"
+						className="prose-nexora mt-8"
 						dangerouslySetInnerHTML={{
 							__html: sanitizeHtml(article.content),
 						}}
 					/>
 
-					<div className="mt-10">
+					{/* Bottom advertisement */}
+					<div className="nexora-glass mt-10 overflow-hidden rounded-card border border-nexora-border p-2">
 						<AdSlot placement="article-bottom" />
 					</div>
 
+					{/* Newsletter */}
 					<section className="mt-12">
-						<NewsletterForm placement="article" />
+						<div className="nexora-3d overflow-hidden rounded-card">
+							<NewsletterForm placement="article" />
+						</div>
 					</section>
 
+					{/* Author */}
 					<section
 						aria-labelledby="author-heading"
 						className="mt-12"
@@ -233,14 +305,20 @@ export default async function ArticlePage({ params }: Props) {
 							About the author
 						</h2>
 
-						<AuthorCard author={article.author} />
+						<div className="nexora-glass rounded-card border border-nexora-border p-2">
+							<AuthorCard author={article.author} />
+						</div>
 					</section>
 				</div>
 			</div>
 
-			<div className="mx-auto w-full max-w-hero px-4">
-				<RelatedArticles articles={related} />
+			{/* Related articles */}
+			<div className="mx-auto mt-16 w-full max-w-hero px-4">
+				<div className="nexora-glass nexora-3d rounded-card border border-nexora-border p-5 sm:p-7">
+					<RelatedArticles articles={related} />
+				</div>
 			</div>
 		</article>
 	)
 }
+

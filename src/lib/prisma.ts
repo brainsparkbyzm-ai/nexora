@@ -1,21 +1,31 @@
 import { PrismaClient } from "@prisma/client"
+import { PrismaNeon } from "@prisma/adapter-neon"
 
-/**
- * Prisma client singleton. In Next.js dev mode, modules can be re-evaluated
- * on every request; caching the client on `globalThis` avoids exhausting
- * the Postgres connection pool with repeated `new PrismaClient()` calls.
- */
 declare global {
 	// eslint-disable-next-line no-var
 	var __nexoraPrisma: PrismaClient | undefined
 }
 
-export const prisma =
-	globalThis.__nexoraPrisma ??
-	new PrismaClient({
-		log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+function createPrismaClient() {
+	const connectionString = process.env.DATABASE_URL
+
+	if (!connectionString) {
+		throw new Error("DATABASE_URL is not configured.")
+	}
+
+	const adapter = new PrismaNeon({
+		connectionString,
 	})
+
+	return new PrismaClient({
+		adapter,
+	})
+}
+
+export const prisma =
+	globalThis.__nexoraPrisma ?? createPrismaClient()
 
 if (process.env.NODE_ENV !== "production") {
 	globalThis.__nexoraPrisma = prisma
 }
+
