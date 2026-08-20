@@ -1,6 +1,19 @@
 // ============================================================
-// NEXORA — PRODUCTION SEED
+// NEXORA — PRODUCTION SEED (GENERATED FROM SPECIFICATION)
 // ============================================================
+//
+// Architecture notes:
+// - Core article categories are kept at 7 (ai-agents, automation, ai-tools,
+//   productivity, business-ai, reviews, guides) so the "35 articles / 5 per
+//   category" validation stays internally consistent (7 x 5 = 35).
+// - AI Coding, AI Image, AI Video, AI Research and Comparisons are covered
+//   as article topics and tags inside those 7 categories, and Comparisons is
+//   additionally represented by its own `comparison` model records, rather
+//   than as a duplicate/competing article category.
+// - No Prisma fields are invented beyond what earlier NEXORA seed revisions
+//   already relied on (slug, name/title, description/excerpt, content,
+//   websiteUrl, pricing, featured, trending, categoryId, authorId, tags,
+//   readingTime, heroImage, status, comparison fields, site settings).
 
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
@@ -20,11 +33,17 @@ function slugify(value: string): string {
 }
 
 type ArticleSection = [heading: string, body: string]
+type ArticleFaqItem = { question: string; answer: string }
 
-function articleContent(intro: string, sections: ArticleSection[]): string {
+function articleContent(
+	intro: string,
+	sections: ArticleSection[],
+	faq?: ArticleFaqItem[],
+): string {
 	return JSON.stringify({
 		intro,
 		sections: sections.map(([heading, body]) => ({ heading, body })),
+		...(faq && faq.length > 0 ? { faq } : {}),
 	})
 }
 
@@ -47,7 +66,35 @@ function assertUniqueSlugs(label: string, slugs: string[]): void {
 }
 
 // ============================================================
-// CATEGORIES
+// AUTHORS
+// ============================================================
+
+const AUTHORS = [
+	{
+		slug: "elena-cho",
+		name: "Elena Cho",
+		role: "Senior AI Editor",
+		bio: "Elena covers AI agents, automation, enterprise AI adoption and the future of work, with a focus on practical implementation over hype.",
+		isAdmin: true,
+	},
+	{
+		slug: "marcus-webb",
+		name: "Marcus Webb",
+		role: "AI Tools Reviewer",
+		bio: "Marcus reviews AI software against everyday workflows rather than marketing claims, focusing on productivity, writing and automation tools.",
+		isAdmin: false,
+	},
+	{
+		slug: "priya-nandan",
+		name: "Priya Nandan",
+		role: "AI Research & Coding Editor",
+		bio: "Priya writes about AI-assisted development, research tools and generative media, drawing on a background in software engineering.",
+		isAdmin: false,
+	},
+] as const
+
+// ============================================================
+// CORE CATEGORIES (7 — 5 articles each = 35 total)
 // ============================================================
 
 const CORE_CATEGORIES = [
@@ -67,25 +114,25 @@ const CORE_CATEGORIES = [
 		slug: "ai-tools",
 		name: "AI Tools",
 		description:
-			"The best AI software, assistants, generators and productivity tools.",
+			"The best AI software for writing, coding, image and video generation, research and productivity.",
 	},
 	{
 		slug: "productivity",
 		name: "Productivity",
 		description:
-			"AI-powered productivity systems, workflows, note-taking and knowledge management.",
+			"AI-powered productivity systems, workflows, note-taking, research and knowledge management.",
 	},
 	{
 		slug: "business-ai",
 		name: "Business AI",
 		description:
-			"Practical AI adoption, business workflows, strategy, operations and enterprise AI.",
+			"Practical AI adoption, business workflows, customer support, sales, marketing and operations.",
 	},
 	{
 		slug: "reviews",
 		name: "Reviews",
 		description:
-			"Independent AI software reviews, comparisons, pricing and practical testing.",
+			"Independent AI software reviews, comparisons, pricing and practical evaluation.",
 	},
 	{
 		slug: "guides",
@@ -100,11 +147,18 @@ const CORE_CATEGORIES = [
 // ============================================================
 
 const TOOL_CATEGORIES = [
-	{ slug: "chatbots", name: "Chatbots & Assistants" },
-	{ slug: "writing", name: "Writing & Content" },
-	{ slug: "productivity-tools", name: "Productivity" },
-	{ slug: "automation-tools", name: "Automation" },
-	{ slug: "design", name: "Design & Creative" },
+	{ slug: "ai-assistants", name: "AI Assistants" },
+	{ slug: "writing", name: "Writing" },
+	{ slug: "research", name: "Research" },
+	{ slug: "coding", name: "Coding" },
+	{ slug: "image-generation", name: "Image Generation" },
+	{ slug: "video-generation", name: "Video Generation" },
+	{ slug: "audio", name: "Audio" },
+	{ slug: "automation", name: "Automation" },
+	{ slug: "productivity", name: "Productivity" },
+	{ slug: "business", name: "Business" },
+	{ slug: "design", name: "Design" },
+	{ slug: "marketing", name: "Marketing" },
 ]
 
 // ============================================================
@@ -112,25 +166,24 @@ const TOOL_CATEGORIES = [
 // ============================================================
 
 const TAG_NAMES = [
+	"AI",
+	"AI Tools",
 	"AI Agents",
-	"Multi-Agent",
 	"LLM",
-	"Generative AI",
-	"No-Code",
-	"Enterprise",
 	"Automation",
 	"Productivity",
 	"Business AI",
-	"AI Tools",
-	"Reviews",
-	"Guides",
 	"Prompting",
 	"AI Writing",
+	"AI Coding",
 	"AI Image",
 	"AI Video",
 	"Research",
-	"Marketing",
-	"Developer Tools",
+	"Reviews",
+	"Guides",
+	"Comparisons",
+	"Software",
+	"SaaS",
 	"Future of Work",
 ]
 
@@ -146,102 +199,120 @@ const TOOLS: Array<{
 	pricing: "Free" | "Paid"
 	category: string
 }> = [
-	// ---------------- FREE ----------------
+	// ---------------- FREE (25) ----------------
 	{
 		slug: "chatgpt",
 		name: "ChatGPT",
 		description:
-			"General-purpose AI assistant for writing, research, coding, analysis and everyday productivity.",
+			"A general-purpose AI assistant for writing, research, coding and everyday questions, with a broad plugin and app ecosystem built around it.",
 		websiteUrl: "https://chatgpt.com",
 		pricing: "Free",
-		category: "chatbots",
+		category: "ai-assistants",
 	},
 	{
 		slug: "claude",
 		name: "Claude",
 		description:
-			"AI assistant for reasoning, long documents, writing, research and software development.",
+			"An AI assistant known for careful reasoning and strong performance on long documents, making it popular for writing, analysis and coding review.",
 		websiteUrl: "https://claude.ai",
 		pricing: "Free",
-		category: "chatbots",
+		category: "ai-assistants",
 	},
 	{
 		slug: "gemini",
 		name: "Google Gemini",
 		description:
-			"Google's AI assistant for research, writing, analysis, multimodal tasks and productivity.",
+			"Google's AI assistant, tightly integrated with Search, Workspace and Android, useful for users who want AI woven into tools they already use daily.",
 		websiteUrl: "https://gemini.google.com",
 		pricing: "Free",
-		category: "chatbots",
+		category: "ai-assistants",
 	},
 	{
 		slug: "microsoft-copilot",
 		name: "Microsoft Copilot",
 		description:
-			"AI assistant for research, writing, productivity and Microsoft ecosystem workflows.",
+			"An AI assistant embedded across Windows, Edge and Microsoft 365, aimed at users whose daily work already runs through the Microsoft ecosystem.",
 		websiteUrl: "https://copilot.microsoft.com",
 		pricing: "Free",
-		category: "chatbots",
-	},
-	{
-		slug: "perplexity",
-		name: "Perplexity",
-		description:
-			"AI-powered answer engine designed for research, web search and source-backed responses.",
-		websiteUrl: "https://www.perplexity.ai",
-		pricing: "Free",
-		category: "chatbots",
+		category: "ai-assistants",
 	},
 	{
 		slug: "meta-ai",
 		name: "Meta AI",
 		description:
-			"General-purpose AI assistant integrated across Meta's consumer ecosystem.",
+			"A general-purpose assistant built into Meta's consumer apps, designed for quick answers, image generation and casual everyday use.",
 		websiteUrl: "https://www.meta.ai",
 		pricing: "Free",
-		category: "chatbots",
+		category: "ai-assistants",
+	},
+	{
+		slug: "grok",
+		name: "Grok",
+		description:
+			"xAI's assistant, integrated with X, positioned around real-time information and a more conversational, less formal response style.",
+		websiteUrl: "https://x.ai/grok",
+		pricing: "Free",
+		category: "ai-assistants",
 	},
 	{
 		slug: "deepseek",
 		name: "DeepSeek",
 		description:
-			"AI assistant focused on reasoning, coding, mathematics and general-purpose tasks.",
+			"An AI assistant recognized for strong reasoning and coding performance relative to its cost, popular with technical users comparing model efficiency.",
 		websiteUrl: "https://www.deepseek.com",
 		pricing: "Free",
-		category: "chatbots",
+		category: "ai-assistants",
 	},
 	{
 		slug: "mistral-le-chat",
 		name: "Mistral Le Chat",
 		description:
-			"General-purpose AI assistant from Mistral for research, writing, reasoning and productivity.",
+			"Mistral's assistant, built on openly available European model research, appealing to users who care about model transparency and provenance.",
 		websiteUrl: "https://chat.mistral.ai",
 		pricing: "Free",
-		category: "chatbots",
+		category: "ai-assistants",
 	},
 	{
-		slug: "hugging-chat",
+		slug: "huggingchat",
 		name: "HuggingChat",
 		description:
-			"Open-model conversational AI interface for experimenting with a range of language models.",
+			"An interface for experimenting with a rotating set of open-source language models, useful for developers comparing models before committing to one.",
 		websiteUrl: "https://huggingface.co/chat",
 		pricing: "Free",
-		category: "chatbots",
+		category: "ai-assistants",
 	},
 	{
 		slug: "poe",
 		name: "Poe",
 		description:
-			"Multi-model AI platform that provides access to multiple assistants and specialized bots.",
+			"A multi-model platform that lets users switch between assistants like Claude, Gemini and GPT models in one place instead of juggling separate apps.",
 		websiteUrl: "https://poe.com",
 		pricing: "Free",
-		category: "chatbots",
+		category: "ai-assistants",
+	},
+	{
+		slug: "perplexity",
+		name: "Perplexity",
+		description:
+			"An AI answer engine that pairs responses with cited sources, sitting between a search engine and a chatbot for research-heavy questions.",
+		websiteUrl: "https://www.perplexity.ai",
+		pricing: "Free",
+		category: "research",
+	},
+	{
+		slug: "notebooklm",
+		name: "NotebookLM",
+		description:
+			"Google's research notebook tool that answers questions strictly from documents you upload, useful for staying grounded in a specific source set.",
+		websiteUrl: "https://notebooklm.google",
+		pricing: "Free",
+		category: "research",
 	},
 	{
 		slug: "grammarly",
 		name: "Grammarly",
 		description:
-			"AI-powered writing assistant for grammar, rewriting, tone and communication improvement.",
+			"A writing assistant that checks grammar, tone and clarity across the browser, desktop apps and email, aimed at everyday professional writing.",
 		websiteUrl: "https://www.grammarly.com",
 		pricing: "Free",
 		category: "writing",
@@ -250,7 +321,7 @@ const TOOLS: Array<{
 		slug: "quillbot",
 		name: "QuillBot",
 		description:
-			"AI writing tool for paraphrasing, summarization, grammar improvement and rewriting.",
+			"A paraphrasing and rewriting tool built for students and writers who need to restructure existing text while keeping the original meaning intact.",
 		websiteUrl: "https://quillbot.com",
 		pricing: "Free",
 		category: "writing",
@@ -259,7 +330,7 @@ const TOOLS: Array<{
 		slug: "copy-ai",
 		name: "Copy.ai",
 		description:
-			"AI-powered content and go-to-market platform for marketing and business workflows.",
+			"A content and go-to-market platform aimed at marketing teams that need drafts for ads, emails and landing pages at higher volume.",
 		websiteUrl: "https://www.copy.ai",
 		pricing: "Free",
 		category: "writing",
@@ -268,7 +339,7 @@ const TOOLS: Array<{
 		slug: "canva",
 		name: "Canva",
 		description:
-			"Visual design platform with AI-powered tools for presentations, graphics, images and content.",
+			"A visual design platform with AI-assisted layout, image and presentation tools, built for non-designers who still need polished visuals quickly.",
 		websiteUrl: "https://www.canva.com",
 		pricing: "Free",
 		category: "design",
@@ -277,89 +348,8 @@ const TOOLS: Array<{
 		slug: "gamma",
 		name: "Gamma",
 		description:
-			"AI-powered platform for creating presentations, documents and visual content.",
+			"An AI-assisted presentation and document builder that turns rough notes or outlines into a formatted deck without manual slide design.",
 		websiteUrl: "https://gamma.app",
-		pricing: "Free",
-		category: "design",
-	},
-	{
-		slug: "notion",
-		name: "Notion",
-		description:
-			"Workspace for notes, documents, project management and team knowledge.",
-		websiteUrl: "https://www.notion.so",
-		pricing: "Free",
-		category: "productivity-tools",
-	},
-	{
-		slug: "clickup",
-		name: "ClickUp",
-		description:
-			"Project management and productivity platform with AI-assisted work management.",
-		websiteUrl: "https://clickup.com",
-		pricing: "Free",
-		category: "productivity-tools",
-	},
-	{
-		slug: "trello",
-		name: "Trello",
-		description:
-			"Visual project management platform for organizing tasks, workflows and team projects.",
-		websiteUrl: "https://trello.com",
-		pricing: "Free",
-		category: "productivity-tools",
-	},
-	{
-		slug: "zapier",
-		name: "Zapier",
-		description:
-			"Workflow automation platform connecting applications and automating repetitive business tasks.",
-		websiteUrl: "https://zapier.com",
-		pricing: "Free",
-		category: "automation-tools",
-	},
-	{
-		slug: "make",
-		name: "Make",
-		description:
-			"Visual automation platform for building sophisticated integrations and business workflows.",
-		websiteUrl: "https://www.make.com",
-		pricing: "Free",
-		category: "automation-tools",
-	},
-	{
-		slug: "n8n",
-		name: "n8n",
-		description:
-			"Flexible workflow automation platform designed for technical teams and advanced integrations.",
-		websiteUrl: "https://n8n.io",
-		pricing: "Free",
-		category: "automation-tools",
-	},
-	{
-		slug: "tally",
-		name: "Tally",
-		description:
-			"Simple form builder for collecting structured information and connecting business workflows.",
-		websiteUrl: "https://tally.so",
-		pricing: "Free",
-		category: "productivity-tools",
-	},
-	{
-		slug: "descript",
-		name: "Descript",
-		description:
-			"AI-powered audio and video editor for transcription, editing and content production.",
-		websiteUrl: "https://www.descript.com",
-		pricing: "Free",
-		category: "design",
-	},
-	{
-		slug: "remove-bg",
-		name: "remove.bg",
-		description:
-			"AI-powered image background removal tool for fast visual asset preparation.",
-		websiteUrl: "https://www.remove.bg",
 		pricing: "Free",
 		category: "design",
 	},
@@ -367,54 +357,117 @@ const TOOLS: Array<{
 		slug: "photopea",
 		name: "Photopea",
 		description:
-			"Browser-based image editor supporting advanced design and photo-editing workflows.",
+			"A browser-based image editor with a Photoshop-like interface, useful for quick edits when installing full design software is not practical.",
 		websiteUrl: "https://www.photopea.com",
 		pricing: "Free",
 		category: "design",
 	},
+	{
+		slug: "remove-bg",
+		name: "remove.bg",
+		description:
+			"A focused tool that removes image backgrounds automatically, useful for product photos, profile pictures and quick asset preparation.",
+		websiteUrl: "https://www.remove.bg",
+		pricing: "Free",
+		category: "image-generation",
+	},
+	{
+		slug: "notion",
+		name: "Notion",
+		description:
+			"A flexible workspace for notes, documents and project tracking, with AI features layered on top of existing pages and databases.",
+		websiteUrl: "https://www.notion.com",
+		pricing: "Free",
+		category: "productivity",
+	},
+	{
+		slug: "clickup",
+		name: "ClickUp",
+		description:
+			"A project management platform with an AI assistant for summarizing tasks, drafting updates and reducing time spent on status reporting.",
+		websiteUrl: "https://clickup.com",
+		pricing: "Free",
+		category: "productivity",
+	},
+	{
+		slug: "trello",
+		name: "Trello",
+		description:
+			"A visual board-based project tool that stays simple by design, useful for smaller teams who want structure without heavy configuration.",
+		websiteUrl: "https://trello.com",
+		pricing: "Free",
+		category: "productivity",
+	},
+	{
+		slug: "zapier",
+		name: "Zapier",
+		description:
+			"A no-code automation platform connecting thousands of apps, popular with business teams that want integrations without writing code.",
+		websiteUrl: "https://zapier.com",
+		pricing: "Free",
+		category: "automation",
+	},
+	{
+		slug: "make",
+		name: "Make",
+		description:
+			"A visual automation builder that exposes more branching logic than typical no-code tools, suited to more complex multi-step workflows.",
+		websiteUrl: "https://www.make.com",
+		pricing: "Free",
+		category: "automation",
+	},
+	{
+		slug: "n8n",
+		name: "n8n",
+		description:
+			"A workflow automation tool aimed at technical teams that want self-hosting, deeper API control and fewer platform limits than typical no-code tools.",
+		websiteUrl: "https://n8n.io",
+		pricing: "Free",
+		category: "automation",
+	},
 
-	// ---------------- PAID ----------------
+	// ---------------- PAID (25) ----------------
 	{
 		slug: "chatgpt-plus",
 		name: "ChatGPT Plus",
 		description:
-			"Premium ChatGPT plan for users who need expanded access and advanced AI capabilities.",
+			"The paid ChatGPT tier for users who regularly hit free usage limits or want access to more advanced models and features for daily work.",
 		websiteUrl: "https://chatgpt.com",
 		pricing: "Paid",
-		category: "chatbots",
+		category: "ai-assistants",
 	},
 	{
 		slug: "claude-pro",
 		name: "Claude Pro",
 		description:
-			"Premium Claude plan for higher usage limits and advanced AI workflows.",
+			"The paid Claude tier offering higher usage limits, suited to users who lean on long documents and extended reasoning throughout the workday.",
 		websiteUrl: "https://claude.ai",
 		pricing: "Paid",
-		category: "chatbots",
+		category: "ai-assistants",
 	},
 	{
 		slug: "gemini-advanced",
 		name: "Google Gemini Advanced",
 		description:
-			"Premium Gemini experience with expanded capabilities for demanding AI workflows.",
+			"Google's premium Gemini tier with expanded model access, aimed at users already deep in Google Workspace who want more capable assistance there.",
 		websiteUrl: "https://gemini.google.com",
 		pricing: "Paid",
-		category: "chatbots",
+		category: "ai-assistants",
 	},
 	{
 		slug: "perplexity-pro",
 		name: "Perplexity Pro",
 		description:
-			"Premium research assistant with expanded access to advanced search and AI capabilities.",
+			"The paid Perplexity tier with more searches, stronger models and file upload support, aimed at people doing research as a regular part of their job.",
 		websiteUrl: "https://www.perplexity.ai",
 		pricing: "Paid",
-		category: "chatbots",
+		category: "research",
 	},
 	{
 		slug: "jasper",
 		name: "Jasper",
 		description:
-			"AI marketing platform for brand-aware content creation and marketing workflows.",
+			"An AI content platform built for marketing teams that need brand-consistent copy across campaigns, with workflow and collaboration features layered on top.",
 		websiteUrl: "https://www.jasper.ai",
 		pricing: "Paid",
 		category: "writing",
@@ -423,7 +476,7 @@ const TOOLS: Array<{
 		slug: "writesonic",
 		name: "Writesonic",
 		description:
-			"AI content platform for SEO writing, marketing content and business publishing workflows.",
+			"An AI writing platform focused on SEO content production, built for teams publishing articles and landing pages at volume.",
 		websiteUrl: "https://writesonic.com",
 		pricing: "Paid",
 		category: "writing",
@@ -432,17 +485,17 @@ const TOOLS: Array<{
 		slug: "surfer-seo",
 		name: "Surfer",
 		description:
-			"AI-powered SEO platform for content optimization, keyword research and organic growth.",
+			"An SEO content optimization tool that analyzes ranking pages and gives structural and keyword guidance while an article is being drafted.",
 		websiteUrl: "https://surferseo.com",
 		pricing: "Paid",
 		category: "writing",
 	},
 	{
-		slug: "grammarly-pro",
-		name: "Grammarly Pro",
+		slug: "grammarly-business",
+		name: "Grammarly Business",
 		description:
-			"Advanced Grammarly plan for professional writing, rewriting and communication workflows.",
-		websiteUrl: "https://www.grammarly.com",
+			"A team-focused Grammarly plan with brand tone controls and analytics, aimed at organizations standardizing writing quality across staff.",
+		websiteUrl: "https://www.grammarly.com/business",
 		pricing: "Paid",
 		category: "writing",
 	},
@@ -450,156 +503,171 @@ const TOOLS: Array<{
 		slug: "midjourney",
 		name: "Midjourney",
 		description:
-			"AI image generation platform known for highly creative and visually rich image generation.",
+			"An AI image generator known for distinctive, art-directed output, widely used by designers and creators who prioritize visual style over photorealism alone.",
 		websiteUrl: "https://www.midjourney.com",
 		pricing: "Paid",
-		category: "design",
+		category: "image-generation",
 	},
 	{
 		slug: "adobe-firefly",
 		name: "Adobe Firefly",
 		description:
-			"Generative AI tools for image creation, editing and creative production.",
+			"Adobe's generative image tools, integrated directly into Photoshop and Express, aimed at creative teams already working inside Adobe's ecosystem.",
 		websiteUrl: "https://firefly.adobe.com",
 		pricing: "Paid",
-		category: "design",
+		category: "image-generation",
+	},
+	{
+		slug: "leonardo-ai",
+		name: "Leonardo AI",
+		description:
+			"An AI image platform popular with game artists and designers for fine-grained control over style, models and consistent character generation.",
+		websiteUrl: "https://leonardo.ai",
+		pricing: "Paid",
+		category: "image-generation",
 	},
 	{
 		slug: "runway",
 		name: "Runway",
 		description:
-			"AI creative platform for video generation, editing and visual experimentation.",
+			"An AI video and creative editing platform used by filmmakers and marketing teams for generation, editing and visual effects experimentation.",
 		websiteUrl: "https://runwayml.com",
 		pricing: "Paid",
-		category: "design",
+		category: "video-generation",
 	},
 	{
 		slug: "pika",
 		name: "Pika",
 		description:
-			"AI video generation and creative editing platform for producing visual content.",
+			"An AI video generation tool focused on short, stylized clips, popular for social content and quick creative concepts rather than long-form production.",
 		websiteUrl: "https://pika.art",
 		pricing: "Paid",
-		category: "design",
+		category: "video-generation",
 	},
 	{
-		slug: "notion-ai",
-		name: "Notion AI",
+		slug: "synthesia",
+		name: "Synthesia",
 		description:
-			"AI assistance integrated into Notion for writing, summarization, search and knowledge work.",
-		websiteUrl: "https://www.notion.so/product/ai",
+			"An AI video platform built around presenter avatars, widely used for training videos and localized corporate content without filming crews.",
+		websiteUrl: "https://www.synthesia.io",
 		pricing: "Paid",
-		category: "productivity-tools",
+		category: "video-generation",
 	},
 	{
-		slug: "clickup-ai",
-		name: "ClickUp Brain",
+		slug: "elevenlabs",
+		name: "ElevenLabs",
 		description:
-			"AI workspace assistant for project management, knowledge retrieval and productivity.",
-		websiteUrl: "https://clickup.com/ai",
+			"A voice AI platform for realistic text-to-speech and voice cloning, commonly used for narration, dubbing and accessibility features.",
+		websiteUrl: "https://elevenlabs.io",
 		pricing: "Paid",
-		category: "productivity-tools",
+		category: "audio",
 	},
 	{
-		slug: "motion",
-		name: "Motion",
+		slug: "descript",
+		name: "Descript",
 		description:
-			"AI-powered productivity platform for scheduling, task planning and project management.",
-		websiteUrl: "https://www.usemotion.com",
+			"An audio and video editor that lets creators edit recordings by editing a text transcript, popular with podcasters and video producers.",
+		websiteUrl: "https://www.descript.com",
 		pricing: "Paid",
-		category: "productivity-tools",
+		category: "audio",
 	},
 	{
-		slug: "reclaim-ai",
-		name: "Reclaim AI",
+		slug: "cursor",
+		name: "Cursor",
 		description:
-			"AI scheduling assistant that automatically protects time for tasks, habits and meetings.",
-		websiteUrl: "https://reclaim.ai",
+			"An AI-native code editor built around chat-driven edits and multi-file changes, aimed at developers who want AI woven directly into their editor.",
+		websiteUrl: "https://cursor.com",
 		pricing: "Paid",
-		category: "productivity-tools",
+		category: "coding",
+	},
+	{
+		slug: "github-copilot",
+		name: "GitHub Copilot",
+		description:
+			"An AI coding assistant integrated into popular editors, offering inline suggestions and chat-based help without switching development environments.",
+		websiteUrl: "https://github.com/features/copilot",
+		pricing: "Paid",
+		category: "coding",
+	},
+	{
+		slug: "replit",
+		name: "Replit",
+		description:
+			"A cloud development environment with an AI coding agent built in, useful for prototyping and shipping small projects without local setup.",
+		websiteUrl: "https://replit.com",
+		pricing: "Paid",
+		category: "coding",
 	},
 	{
 		slug: "otter-ai",
 		name: "Otter.ai",
 		description:
-			"AI meeting assistant for transcription, summaries, action items and searchable conversations.",
+			"A meeting assistant that transcribes conversations in real time and produces summaries and action items automatically afterward.",
 		websiteUrl: "https://otter.ai",
 		pricing: "Paid",
-		category: "productivity-tools",
+		category: "productivity",
 	},
 	{
 		slug: "fireflies-ai",
 		name: "Fireflies.ai",
 		description:
-			"AI meeting assistant for transcription, summaries, search and automated meeting workflows.",
+			"A meeting recording and transcription tool that indexes past conversations, making it easier to search what was actually said in a prior call.",
 		websiteUrl: "https://fireflies.ai",
 		pricing: "Paid",
-		category: "productivity-tools",
+		category: "productivity",
 	},
 	{
-		slug: "zapier-premium",
-		name: "Zapier Premium",
+		slug: "motion",
+		name: "Motion",
 		description:
-			"Advanced Zapier automation for higher-volume workflows, integrations and business automation.",
-		websiteUrl: "https://zapier.com",
+			"An AI scheduling and task-planning tool that automatically rearranges a calendar around shifting priorities and deadlines.",
+		websiteUrl: "https://www.usemotion.com",
 		pricing: "Paid",
-		category: "automation-tools",
+		category: "productivity",
 	},
 	{
-		slug: "make-pro",
-		name: "Make Pro",
+		slug: "reclaim-ai",
+		name: "Reclaim AI",
 		description:
-			"Advanced Make automation capabilities for complex multi-step workflows and integrations.",
-		websiteUrl: "https://www.make.com",
+			"A calendar assistant that protects time for tasks, habits and focus work by automatically scheduling around existing meetings.",
+		websiteUrl: "https://reclaim.ai",
 		pricing: "Paid",
-		category: "automation-tools",
-	},
-	{
-		slug: "n8n-cloud",
-		name: "n8n Cloud",
-		description:
-			"Hosted n8n automation for technical teams building production AI and integration workflows.",
-		websiteUrl: "https://n8n.io",
-		pricing: "Paid",
-		category: "automation-tools",
+		category: "productivity",
 	},
 	{
 		slug: "hubspot-ai",
 		name: "HubSpot AI",
 		description:
-			"AI-powered CRM and business automation capabilities for marketing, sales and customer service.",
+			"AI features built into HubSpot's CRM and marketing tools, aimed at teams that want AI assistance inside a platform they already use for pipeline and campaigns.",
 		websiteUrl: "https://www.hubspot.com",
 		pricing: "Paid",
-		category: "automation-tools",
+		category: "marketing",
 	},
 	{
 		slug: "salesforce-einstein",
 		name: "Salesforce Einstein",
 		description:
-			"Enterprise AI capabilities integrated into Salesforce CRM and business workflows.",
+			"Enterprise AI features built into Salesforce, aimed at larger sales and service organizations that need AI inside existing CRM processes.",
 		websiteUrl: "https://www.salesforce.com/einstein/",
 		pricing: "Paid",
-		category: "automation-tools",
-	},
-	{
-		slug: "grammarly-business",
-		name: "Grammarly Business",
-		description:
-			"Team-focused AI writing and communication platform for organizations.",
-		websiteUrl: "https://www.grammarly.com/business",
-		pricing: "Paid",
-		category: "writing",
-	},
-	{
-		slug: "copy-ai-pro",
-		name: "Copy.ai Pro",
-		description:
-			"Advanced AI workflow and content capabilities for marketing and go-to-market teams.",
-		websiteUrl: "https://www.copy.ai",
-		pricing: "Paid",
-		category: "writing",
+		category: "business",
 	},
 ]
+
+const FEATURED_TOOL_SLUGS = new Set([
+	"chatgpt",
+	"claude",
+	"gemini",
+	"perplexity",
+	"notebooklm",
+	"notion",
+	"cursor",
+	"github-copilot",
+	"midjourney",
+	"runway",
+	"zapier",
+	"canva",
+])
 
 // ============================================================
 // HERO IMAGE SYSTEM
@@ -614,6 +682,8 @@ const HERO_IMAGES = [
 	"https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=85",
 	"https://images.unsplash.com/photo-1633412802994-5c058f151b66?auto=format&fit=crop&w=1600&q=85",
 	"https://images.unsplash.com/photo-1677442135703-1787eea5ce01?auto=format&fit=crop&w=1600&q=85",
+	"https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1600&q=85",
+	"https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1600&q=85",
 ] as const
 
 // ============================================================
@@ -626,105 +696,95 @@ const ARTICLE_DEFINITIONS = [
 	// ========================================================
 	{
 		categorySlug: "ai-agents",
-		title: "AI Agents in 2026: What They Are and How They Actually Work",
+		title: "What Are AI Agents? A Practical Introduction for 2026",
 		excerpt:
-			"Understand AI agents, how agentic systems differ from chatbots, and where businesses can use them today.",
+			"An AI agent is more than a chatbot with a longer memory. Here is what actually separates an agent from a normal assistant.",
 		authorSlug: "elena-cho",
-		tags: ["AI Agents", "LLM", "Guides"],
-		readingTime: 10,
+		tags: ["AI Agents", "AI", "Future of Work"],
+		readingTime: 9,
 		featured: true,
 		content: articleContent(
-			"AI agents are software systems that can interpret goals, use tools, make decisions and complete multi-step tasks.",
+			"An AI agent is a system built to pursue a goal by combining a language model with tools, data access and a defined process for taking action, not just answering questions.",
 			[
-				[
-					"What Is an AI Agent?",
-					"An AI agent combines a language model with instructions, context, tools and a process for completing tasks.",
-				],
-				[
-					"How Agents Differ From Chatbots",
-					"Traditional chatbots mainly respond to messages, while agents can take actions across connected systems.",
-				],
-				[
-					"Common Agent Workflows",
-					"Research, customer support, data processing, sales operations and internal knowledge tasks are common use cases.",
-				],
-				[
-					"Where Agents Struggle",
-					"Agents can make incorrect decisions, misuse tools or fail when instructions and available data are ambiguous.",
-				],
+				["Beyond the Chat Window", "Most people meet AI through a chat interface, but an agent's real work often happens outside that window, in the tools it calls and the decisions it makes on the way to a finished result."],
+				["The Building Blocks", "A typical agent needs a clear objective, a way to read relevant context, a limited set of tools it is allowed to use, and a stopping condition so it recognizes when a task is actually finished."],
+				["What Changes With Autonomy", "As an agent is given more freedom to act without approval at each step, the potential time savings grow, but so does the need for testing, monitoring and clear boundaries around what it can touch."],
+				["A Realistic Starting Point", "The most successful early agent projects tend to automate one well-understood task rather than attempt to replace an entire job function from day one."],
 			],
+			[{ question: "Is an AI agent the same as a chatbot?", answer: "No. A chatbot mainly generates responses, while an agent can also take actions, call tools and complete multi-step tasks toward a goal." }],
 		),
 	},
 	{
 		categorySlug: "ai-agents",
-		title: "AI Agents vs Chatbots: What's the Difference?",
+		title: "How AI Agents Actually Work, Step by Step",
 		excerpt:
-			"Learn the practical difference between AI chatbots and AI agents, including tools, memory, actions and autonomy.",
-		authorSlug: "marcus-webb",
-		tags: ["AI Agents", "LLM", "AI Tools"],
-		readingTime: 8,
-		content: articleContent(
-			"Chatbots and AI agents can use similar language models, but their responsibilities and capabilities are different.",
-			[
-				["Chatbots", "Chatbots are primarily designed to communicate with users and generate responses."],
-				["Agents", "Agents can combine reasoning, tools, data and actions to complete multi-step objectives."],
-				["Tool Use", "An agent may call APIs, search systems, update records or trigger workflows."],
-				["Autonomy", "Greater autonomy can increase usefulness but also increases the need for validation and controls."],
-			],
-		),
-	},
-	{
-		categorySlug: "ai-agents",
-		title: "How to Build Your First AI Agent: A Beginner's Guide",
-		excerpt:
-			"A practical beginner framework for designing an AI agent with a clear goal, tools, context and validation.",
-		authorSlug: "elena-cho",
-		tags: ["AI Agents", "Guides", "Automation"],
-		readingTime: 11,
-		content: articleContent(
-			"The best first AI agent is usually a narrow system designed to perform one useful job reliably.",
-			[
-				["Choose One Job", "Start with a specific task rather than trying to build a general autonomous employee."],
-				["Define the Tools", "Give the agent only the tools it actually needs to complete its job."],
-				["Provide Context", "Connect the agent to the documents, records and information required for accurate decisions."],
-				["Add Guardrails", "Limit permissions and require review before sensitive or irreversible actions."],
-				["Evaluate the Agent", "Test successful cases, failure cases, edge cases and tool-use behavior before deployment."],
-			],
-		),
-	},
-	{
-		categorySlug: "ai-agents",
-		title: "The Best AI Agent Frameworks in 2026",
-		excerpt:
-			"A practical overview of popular frameworks and approaches for building production AI agent systems.",
-		authorSlug: "marcus-webb",
-		tags: ["AI Agents", "Developer Tools", "Reviews"],
+			"A walk-through of what happens between a request and a finished result inside a working AI agent.",
+		authorSlug: "priya-nandan",
+		tags: ["AI Agents", "LLM", "AI"],
 		readingTime: 10,
 		content: articleContent(
-			"Agent frameworks help developers connect models, tools, memory and workflows into repeatable systems.",
+			"Underneath the marketing language, most AI agents run a fairly consistent loop: understand the goal, gather context, decide on an action, use a tool, and check whether the result actually solved the problem.",
 			[
-				["Agent Frameworks", "Frameworks provide reusable building blocks for tool calling, orchestration and state management."],
-				["Workflow-Oriented Systems", "Explicit workflows can be easier to evaluate and control than fully autonomous loops."],
-				["Choosing a Framework", "Consider reliability, observability, integrations, developer experience and production requirements."],
-				["Production Readiness", "Successful systems need testing, logging, permissions, cost controls and clear failure handling."],
+				["Understanding the Goal", "The agent first needs a specific enough instruction to act on. Vague goals tend to produce vague, unreliable behavior no matter how capable the underlying model is."],
+				["Gathering Context", "Before deciding anything, the agent typically pulls in relevant documents, records or previous messages so its next decision is grounded in real information rather than guesswork."],
+				["Deciding on an Action", "The model reasons about what to do next, whether that is asking a clarifying question, calling a tool or producing a final answer."],
+				["Using a Tool", "When a tool is called, the agent needs to correctly format the request, handle the response, and recover sensibly if the tool fails or returns something unexpected."],
+				["Checking the Result", "Reliable agents include some form of self-check or validation step before treating an action as complete, especially for anything with real-world consequences."],
 			],
 		),
 	},
 	{
 		categorySlug: "ai-agents",
-		title: "Multi-Agent Systems Explained: When One AI Agent Isn't Enough",
+		title: "The Best AI Agent Tools Worth Trying Right Now",
 		excerpt:
-			"Understand multi-agent architectures, their benefits, limitations and when multiple specialized agents make sense.",
+			"A practical look at agent platforms and frameworks worth evaluating, organized by the kind of team that tends to benefit most.",
+		authorSlug: "marcus-webb",
+		tags: ["AI Agents", "AI Tools", "Reviews"],
+		readingTime: 9,
+		trending: true,
+		content: articleContent(
+			"Agent tooling ranges from consumer-facing assistants that can browse and act on your behalf to developer frameworks for building custom agents from scratch.",
+			[
+				["Consumer-Facing Agent Features", "Several mainstream AI assistants now include agent-like features for browsing, shopping or research tasks, useful for people who do not want to build anything themselves."],
+				["Developer Frameworks", "Technical teams building custom agents typically reach for a framework that handles tool calling, memory and orchestration so they are not solving those problems from scratch."],
+				["Workflow Platforms With Agent Steps", "Automation platforms increasingly let you drop an AI reasoning step into an otherwise deterministic workflow, which can be a gentler starting point than a fully autonomous agent."],
+				["How to Actually Choose", "The right starting point depends less on which tool has the most features and more on how comfortable your team is with configuration, coding and ongoing maintenance."],
+			],
+		),
+	},
+	{
+		categorySlug: "ai-agents",
+		title: "AI Agents for Business: Where They Create Real Value",
+		excerpt:
+			"AI agents are most useful in businesses when they are pointed at narrow, repeatable work rather than asked to run an entire process unsupervised.",
 		authorSlug: "elena-cho",
-		tags: ["AI Agents", "Multi-Agent", "Enterprise"],
+		tags: ["AI Agents", "Business AI", "Future of Work"],
 		readingTime: 9,
 		content: articleContent(
-			"Multi-agent systems divide complex work between specialized AI agents instead of asking one agent to do everything.",
+			"The businesses getting real value from agents tend to start with a narrow, well-understood task rather than an ambitious attempt to automate an entire department at once.",
 			[
-				["Specialized Agents", "Different agents can focus on research, analysis, planning, execution or review."],
-				["Agent Coordination", "A reliable system needs clear rules for how agents communicate and transfer work."],
-				["When Multi-Agent Helps", "Multiple agents can be useful when a workflow naturally contains independent specialist responsibilities."],
-				["The Complexity Cost", "More agents also mean more orchestration, latency, debugging and opportunities for failure."],
+				["Research and Triage", "Agents are well suited to gathering and organizing information, such as summarizing incoming requests or researching a lead before a human takes over."],
+				["Internal Knowledge Work", "Retrieving answers from internal documentation and past decisions is a common and comparatively low-risk starting point for many teams."],
+				["Where Oversight Still Matters", "Anything involving money, customer commitments or irreversible actions tends to work best with a human reviewing the agent's proposed action before it happens."],
+				["Measuring Whether It's Working", "Track time saved and error rates directly rather than assuming a deployed agent is automatically paying for itself."],
+			],
+		),
+	},
+	{
+		categorySlug: "ai-agents",
+		title: "AI Agents vs Automation: Understanding the Real Difference",
+		excerpt:
+			"Automation and AI agents solve overlapping problems in different ways, and knowing which one fits a task avoids over-engineering simple workflows.",
+		authorSlug: "elena-cho",
+		tags: ["AI Agents", "Automation", "AI"],
+		readingTime: 8,
+		content: articleContent(
+			"Traditional automation follows fixed rules reliably, while AI agents can interpret ambiguous input and decide what to do next, and most real workflows benefit from a mix of both.",
+			[
+				["When Rules Are Enough", "If a process can be fully described with if-this-then-that logic, a traditional automation step is usually faster, cheaper and more predictable than an agent."],
+				["When Judgment Is Required", "Agents earn their complexity when a task involves interpreting unstructured input, like a support email or a scanned document, before a rule-based step can take over."],
+				["Combining Both", "A common and effective pattern uses an agent to interpret or classify input, then hands off to deterministic automation to actually execute the next step."],
+				["Avoiding Over-Engineering", "Adding an agent to a workflow that a simple rule could already handle usually adds cost and unpredictability without a matching benefit."],
 			],
 		),
 	},
@@ -734,96 +794,94 @@ const ARTICLE_DEFINITIONS = [
 	// ========================================================
 	{
 		categorySlug: "automation",
-		title: "AI Automation in 2026: The Complete Guide for Beginners",
+		title: "AI Automation Workflows: A Practical Framework for 2026",
 		excerpt:
-			"Learn where AI automation fits, which workflows to automate first, and how to avoid expensive implementation mistakes.",
+			"A framework for designing AI-assisted automation that survives contact with real, messy business data.",
 		authorSlug: "elena-cho",
 		tags: ["Automation", "AI Tools", "Guides"],
 		readingTime: 10,
 		featured: true,
 		content: articleContent(
-			"AI automation combines traditional workflow automation with AI systems that can understand text, classify information and generate decisions or content.",
+			"AI automation combines traditional workflow logic with AI steps that can interpret text, classify information and generate content, and the combination works best when each part does the job it is actually good at.",
 			[
-				["What Is AI Automation?", "AI automation uses software rules, integrations and AI models together to reduce manual work."],
-				["Best Workflows to Automate", "Email triage, lead qualification, document processing, reporting and customer support are common starting points."],
-				["AI vs Traditional Automation", "Traditional automation works well with predictable rules, while AI is useful when inputs require interpretation."],
-				["How to Measure ROI", "Track time saved, error reduction, processing volume, cost and employee adoption."],
+				["Trigger", "Every reliable workflow starts with a clearly defined event, such as a new form submission or an incoming email, rather than a vague notion of 'when needed'."],
+				["Context", "The AI step needs enough surrounding information to make a reasonable decision, not just the raw input on its own."],
+				["AI Reasoning", "Use the AI step specifically for the part of the task that requires interpretation, classification or drafting, and let deterministic logic handle the rest."],
+				["Action", "The workflow needs to actually connect to the system where the result matters, whether that is a CRM, a spreadsheet, or a support ticketing tool."],
+				["Validation", "Important actions should be checked, either automatically or by a person, before they are treated as final."],
 			],
 		),
 	},
 	{
 		categorySlug: "automation",
-		title: "25 AI Automation Ideas That Can Save Hours Every Week",
+		title: "How to Automate Repetitive Work Without Losing Control",
 		excerpt:
-			"Practical AI automation ideas for email, sales, marketing, customer support, documents and everyday business operations.",
+			"A cautious, staged approach to automating a process without breaking something that already works.",
 		authorSlug: "marcus-webb",
-		tags: ["Automation", "Productivity", "Business AI"],
-		readingTime: 12,
-		trending: true,
-		content: articleContent(
-			"Automation becomes valuable when it removes repetitive work without creating more maintenance than the original process required.",
-			[
-				["Email Automation", "Classify messages, summarize long threads, draft responses and route requests to the correct team."],
-				["Sales Automation", "Research prospects, enrich CRM records and prepare personalized outreach drafts."],
-				["Marketing Automation", "Repurpose content, classify leads and create campaign summaries."],
-				["Operations Automation", "Extract information from documents, generate reports and notify teams when thresholds are reached."],
-				["Customer Support", "Categorize tickets, retrieve knowledge-base information and prepare suggested responses."],
-			],
-		),
-	},
-	{
-		categorySlug: "automation",
-		title: "Zapier vs Make vs n8n: Which Automation Platform Is Best?",
-		excerpt:
-			"A practical comparison of Zapier, Make and n8n for no-code automation, integrations, AI workflows and technical teams.",
-		authorSlug: "marcus-webb",
-		tags: ["Automation", "AI Tools", "Reviews"],
-		readingTime: 9,
-		content: articleContent(
-			"Zapier, Make and n8n solve similar problems but target different types of automation users.",
-			[
-				["Zapier", "Zapier is especially approachable for business users who want fast integrations and simple workflows."],
-				["Make", "Make provides a highly visual approach that works well for more complex workflow logic."],
-				["n8n", "n8n is attractive to technical teams that want deeper control, APIs and self-hosting options."],
-				["Which One Should You Choose?", "The right platform depends on workflow complexity, technical skill, integrations, governance and budget."],
-			],
-		),
-	},
-	{
-		categorySlug: "automation",
-		title: "How to Automate Your Business Without Breaking Your Workflow",
-		excerpt:
-			"A safe framework for introducing automation while protecting data quality, reliability and human oversight.",
-		authorSlug: "elena-cho",
-		tags: ["Automation", "Business AI", "Enterprise"],
-		readingTime: 9,
-		content: articleContent(
-			"Successful automation changes a process gradually rather than replacing everything at once.",
-			[
-				["Map the Existing Process", "Document what people actually do before deciding which steps should be automated."],
-				["Identify Failure Points", "Look for exceptions, missing data and steps where human judgment is currently required."],
-				["Automate the Predictable Parts", "Rules and integrations should handle deterministic operations wherever possible."],
-				["Add AI Carefully", "Use AI for interpretation, classification and generation where it provides a measurable advantage."],
-				["Monitor Everything", "Logging, alerts and human review help catch problems before they become systemic."],
-			],
-		),
-	},
-	{
-		categorySlug: "automation",
-		title: "AI Workflow Automation: A Practical Framework That Actually Works",
-		excerpt:
-			"Use this framework to design reliable AI workflows from trigger to action, review and measurement.",
-		authorSlug: "elena-cho",
-		tags: ["Automation", "Guides", "AI Agents"],
+		tags: ["Automation", "Productivity", "Guides"],
 		readingTime: 8,
 		content: articleContent(
-			"A reliable AI workflow needs more than an AI model. It needs triggers, data, tools, validation and a clear stopping condition.",
+			"The safest way to automate repetitive work is to change one piece of the process at a time, watching closely for what breaks before moving on to the next piece.",
 			[
-				["Trigger", "Define exactly what event starts the workflow."],
-				["Context", "Give the AI the information required to make a useful decision."],
-				["Reasoning", "Use AI for interpretation or decisions where traditional rules are insufficient."],
-				["Action", "Connect the workflow to the application or system that needs to change."],
-				["Validation", "Verify the output before important actions are completed."],
+				["Document the Current Process First", "Write down what actually happens today, including the exceptions, before deciding what to automate. Skipping this step is where most automation projects go wrong."],
+				["Start With the Boring Part", "The most repetitive, least judgment-heavy step is usually the safest and most valuable place to start."],
+				["Keep a Manual Override", "Give people an easy way to intervene or override the automated result, at least until the workflow has proven itself over time."],
+				["Watch for Silent Failures", "Automations that fail quietly are more dangerous than ones that fail loudly, so build in some form of alerting from the start."],
+			],
+		),
+	},
+	{
+		categorySlug: "automation",
+		title: "AI Automation for Small Business: Where to Start",
+		excerpt:
+			"Small businesses rarely need a full automation platform on day one. Here is where the earliest, clearest wins tend to show up.",
+		authorSlug: "elena-cho",
+		tags: ["Automation", "Business AI", "SaaS"],
+		readingTime: 9,
+		content: articleContent(
+			"Small teams tend to see the fastest payoff from automating whichever task currently eats the most hours without requiring much judgment to complete.",
+			[
+				["Customer Communication", "Routing and drafting responses to common inbound questions is often the highest-leverage starting point for a small team."],
+				["Scheduling and Follow-Up", "Automated reminders and follow-up sequences can recover revenue that would otherwise be lost to simple forgetfulness."],
+				["Reporting", "Pulling numbers into a recurring summary is tedious for a person and straightforward to automate reliably."],
+				["Budgeting for Tools", "Most small businesses do better starting with one focused automation platform rather than several overlapping subscriptions."],
+			],
+		),
+	},
+	{
+		categorySlug: "automation",
+		title: "Building Reliable AI Workflows That Don't Break in Production",
+		excerpt:
+			"AI-assisted workflows fail in different ways than traditional automation, and the fixes look a little different too.",
+		authorSlug: "priya-nandan",
+		tags: ["Automation", "AI Agents", "Software"],
+		readingTime: 10,
+		content: articleContent(
+			"An AI-assisted workflow that works perfectly in a demo can still fail unpredictably in production, usually because of edge cases the demo never tested.",
+			[
+				["Expect Inconsistent Output", "Language models do not return the exact same output every time, so downstream steps need to tolerate some variation in format and phrasing."],
+				["Add Structured Validation", "Wherever possible, validate AI output against a defined schema before passing it to the next step, rather than trusting free-form text directly."],
+				["Log Everything", "Keeping a record of inputs, outputs and decisions makes debugging a failed run dramatically faster than trying to reconstruct what happened after the fact."],
+				["Plan for Partial Failure", "Design each step so a single failure does not silently corrupt the rest of the workflow or leave data in an inconsistent state."],
+			],
+		),
+	},
+	{
+		categorySlug: "automation",
+		title: "Zapier vs Make vs n8n: Choosing the Right Automation Platform",
+		excerpt:
+			"Three popular automation platforms, three different audiences. Here is how they actually differ in practice.",
+		authorSlug: "marcus-webb",
+		tags: ["Automation", "Comparisons", "Reviews"],
+		readingTime: 9,
+		trending: true,
+		content: articleContent(
+			"Zapier, Make and n8n solve similar problems but are built for noticeably different levels of technical comfort and workflow complexity.",
+			[
+				["Zapier", "Zapier prioritizes simplicity and a huge library of pre-built integrations, which makes it approachable for non-technical teams that want quick wins."],
+				["Make", "Make exposes more branching and data-transformation logic through a visual canvas, which suits more complex workflows without requiring code."],
+				["n8n", "n8n appeals to technical teams that want self-hosting, deeper API access and fewer platform-imposed limits, at the cost of a steeper learning curve."],
+				["Making the Call", "The right choice usually comes down to how complex your workflows actually are and how much your team is willing to configure versus simply click through."],
 			],
 		),
 	},
@@ -833,96 +891,94 @@ const ARTICLE_DEFINITIONS = [
 	// ========================================================
 	{
 		categorySlug: "ai-tools",
-		title: "Best AI Tools in 2026: 50 Tools Worth Knowing",
+		title: "The Best AI Tools Worth Knowing in 2026",
 		excerpt:
-			"Our practical guide to the AI tools worth knowing for writing, research, coding, design, automation and productivity.",
+			"A practical map of the AI tools worth learning across writing, coding, design, research and automation.",
 		authorSlug: "marcus-webb",
-		tags: ["AI Tools", "Reviews", "Guides"],
-		readingTime: 14,
+		tags: ["AI Tools", "AI", "Reviews"],
+		readingTime: 13,
 		featured: true,
 		trending: true,
 		content: articleContent(
-			"The AI software market is crowded, making it difficult to know which tools are actually worth learning.",
+			"The AI software market is crowded enough that most people benefit more from a short, well-chosen list than from trying every new tool that launches.",
 			[
-				["Best AI Assistants", "General assistants can help with writing, research, coding, analysis and everyday work."],
-				["Best AI Writing Tools", "Writing platforms focus on drafting, rewriting, SEO and marketing workflows."],
-				["Best AI Design Tools", "Image and video tools can dramatically reduce the time needed to create visual assets."],
-				["Best Automation Tools", "Automation platforms connect applications and turn repetitive processes into workflows."],
-				["How to Pick the Right Tool", "Choose based on your workflow rather than the number of AI features advertised on a product page."],
+				["General Assistants", "A single capable assistant can cover writing, research, coding help and everyday questions well enough for most people to start there."],
+				["Writing and Content Tools", "Dedicated writing tools tend to add value once you are producing content regularly enough that drafting speed and consistency start to matter."],
+				["Design and Visual Tools", "Image and video tools can meaningfully cut production time for teams that previously outsourced or hand-built every visual asset."],
+				["Automation Platforms", "Once a workflow is well understood, an automation platform can remove the manual, repetitive part of it almost entirely."],
+				["How to Actually Pick", "Choose based on a specific workflow you already have, not the length of a tool's feature list."],
 			],
 		),
 	},
 	{
 		categorySlug: "ai-tools",
-		title: "ChatGPT vs Claude vs Gemini: Which AI Is Best in 2026?",
+		title: "Best AI Coding Tools: A Practical Comparison for Developers",
 		excerpt:
-			"A practical comparison of three leading AI assistants across writing, coding, research, reasoning and everyday work.",
-		authorSlug: "marcus-webb",
-		tags: ["AI Tools", "LLM", "Reviews"],
-		readingTime: 10,
-		featured: true,
-		content: articleContent(
-			"ChatGPT, Claude and Gemini are all capable general-purpose AI assistants, but their strengths can differ depending on the workflow.",
-			[
-				["ChatGPT", "ChatGPT offers a broad ecosystem and supports a wide variety of everyday and professional workflows."],
-				["Claude", "Claude is particularly attractive for long-form writing, reasoning and large document workflows."],
-				["Gemini", "Gemini is closely connected to Google's ecosystem and can be useful for users already working across Google services."],
-				["Which One Wins?", "There is no universal winner. The best option depends on the applications, workflow and capabilities a user values most."],
-			],
-		),
-	},
-	{
-		categorySlug: "ai-tools",
-		title: "Best Free AI Tools You Can Use Right Now",
-		excerpt:
-			"Useful free AI tools for writing, research, coding, design, productivity and automation without an expensive subscription.",
-		authorSlug: "marcus-webb",
-		tags: ["AI Tools", "Productivity", "Guides"],
+			"AI coding assistants now range from inline autocomplete to full agentic editors. Here is how the main categories differ.",
+		authorSlug: "priya-nandan",
+		tags: ["AI Coding", "AI Tools", "Comparisons"],
 		readingTime: 11,
 		content: articleContent(
-			"You do not need a large AI budget to start using useful AI software.",
+			"AI coding tools have split into a few distinct categories, and picking the right one depends more on your existing workflow than on raw model quality.",
 			[
-				["Free AI Assistants", "Several leading AI assistants offer free access suitable for everyday questions and content work."],
-				["Free Writing Tools", "Grammar, paraphrasing and basic content tools can improve writing without requiring a subscription."],
-				["Free Developer Tools", "Open models and AI coding assistants can help developers experiment with AI workflows."],
-				["Free Design Tools", "Browser-based design platforms provide useful image and video capabilities at no initial cost."],
+				["Inline Autocomplete", "Tools like GitHub Copilot work inside your existing editor, suggesting code as you type without changing your overall workflow."],
+				["AI-Native Editors", "Editors like Cursor are built around AI from the ground up, supporting multi-file edits and chat-driven changes as a core feature rather than an add-on."],
+				["Cloud Agents and Sandboxes", "Platforms like Replit let an AI agent write and run code in an isolated environment, useful for prototyping without local setup."],
+				["What Actually Matters", "Context awareness, how well a tool understands your existing codebase, tends to matter more day-to-day than which model is technically the most advanced."],
 			],
 		),
 	},
 	{
 		categorySlug: "ai-tools",
-		title: "AI Tools for Small Businesses: The 15 Tools Worth Paying For",
+		title: "Best AI Image Generators for Creative and Commercial Work",
 		excerpt:
-			"Where small businesses should actually spend money on AI — from marketing and sales to support and operations.",
-		authorSlug: "elena-cho",
-		tags: ["AI Tools", "Business AI", "Enterprise"],
+			"Different AI image tools optimize for different things: artistic style, photorealism, or tight integration with an existing design workflow.",
+		authorSlug: "priya-nandan",
+		tags: ["AI Image", "AI Tools", "Reviews"],
 		readingTime: 10,
 		content: articleContent(
-			"Small businesses can benefit from AI without building complex internal systems.",
+			"No single AI image generator wins across every use case, since tools tend to optimize for different priorities like artistic style, precise control or integration with existing design software.",
 			[
-				["Marketing", "AI can accelerate content creation, campaign planning and customer research."],
-				["Sales", "AI tools can support lead research, CRM updates and personalized communication."],
-				["Operations", "Automation platforms can connect existing business applications and reduce repetitive work."],
-				["Customer Support", "AI assistants can help classify requests and prepare support responses."],
-				["Choosing What to Buy", "Start with the workflow that has the clearest financial or time-saving opportunity."],
+				["Style-Forward Generation", "Some tools lean into a distinctive, art-directed look that stands out visually but is less concerned with strict photorealism."],
+				["Precise Creative Control", "Other platforms prioritize letting artists fine-tune style, composition and character consistency across multiple generations."],
+				["Design-Suite Integration", "Tools built into existing design software reduce the friction of moving a generated image into a real production workflow."],
+				["Practical Buying Advice", "Try a tool against your actual use case, whether that is marketing assets, concept art or product photography, before comparing feature lists."],
 			],
 		),
 	},
 	{
 		categorySlug: "ai-tools",
-		title: "How to Choose the Right AI Tool Without Wasting Money",
+		title: "Best AI Video Generators for Marketing and Content Teams",
 		excerpt:
-			"A simple buying framework for comparing AI tools, pricing, features, integrations, privacy and real-world value.",
+			"AI video tools now cover everything from short social clips to full presenter-led training videos.",
 		authorSlug: "marcus-webb",
-		tags: ["AI Tools", "Guides", "Reviews"],
-		readingTime: 8,
+		tags: ["AI Video", "AI Tools", "Reviews"],
+		readingTime: 10,
 		content: articleContent(
-			"Choosing AI software based only on feature lists can lead to unnecessary subscriptions and poor adoption.",
+			"AI video generation has matured enough to cover distinct real needs, from short creative clips to structured training content, rather than being one general-purpose category.",
 			[
-				["Start With the Job", "Define exactly what you want the tool to accomplish."],
-				["Check the Workflow", "Make sure the tool fits into the applications and processes you already use."],
-				["Compare Total Cost", "Look beyond the advertised monthly price and consider usage limits and additional seats."],
-				["Check Privacy", "Understand how sensitive business or personal information is handled."],
+				["Short-Form Creative Clips", "Some tools are built for quick, stylized video generation suited to social content and early creative concepts."],
+				["Presenter and Avatar Video", "Avatar-based platforms are well suited to training and explainer content that would otherwise require a camera crew."],
+				["Editing and Post-Production", "AI-assisted editors that work from a transcript can dramatically speed up cutting and rearranging existing footage."],
+				["Where Quality Still Varies", "Motion consistency and fine detail remain the areas where AI-generated video is most likely to show visible artifacts."],
+			],
+		),
+	},
+	{
+		categorySlug: "ai-tools",
+		title: "Best AI Research Tools for Faster, More Reliable Answers",
+		excerpt:
+			"AI research tools work best when paired with a habit of checking sources, not as a replacement for that habit.",
+		authorSlug: "priya-nandan",
+		tags: ["Research", "AI Tools", "Guides"],
+		readingTime: 9,
+		content: articleContent(
+			"AI research tools can dramatically speed up gathering and organizing information, but the tools that cite their sources tend to be far more trustworthy than the ones that simply assert an answer.",
+			[
+				["Source-Grounded Answer Engines", "Tools that pair an answer with citations let you verify claims quickly, which matters far more than raw response speed."],
+				["Document-Constrained Research", "Tools that only answer from documents you provide are useful when you specifically need to stay within a known, trusted source set."],
+				["General Assistants for Early Research", "A general assistant can be a fine starting point for early, exploratory research, provided you treat its answers as a starting point rather than a conclusion."],
+				["Building a Verification Habit", "Spot-checking a portion of any AI-assisted research before relying on it is a small habit that avoids most embarrassing mistakes."],
 			],
 		),
 	},
@@ -932,92 +988,92 @@ const ARTICLE_DEFINITIONS = [
 	// ========================================================
 	{
 		categorySlug: "productivity",
-		title: "AI Productivity in 2026: How to Get More Done With Less Work",
+		title: "AI Productivity Tools That Actually Change Your Daily Workflow",
 		excerpt:
-			"Build a practical AI productivity system for planning, writing, research, meetings and repetitive tasks.",
-		authorSlug: "elena-cho",
-		tags: ["Productivity", "AI Tools", "Future of Work"],
-		readingTime: 10,
+			"Most AI productivity gains come from a handful of workflow changes, not from adopting the largest possible number of tools.",
+		authorSlug: "marcus-webb",
+		tags: ["Productivity", "AI Tools", "Software"],
+		readingTime: 9,
 		featured: true,
 		content: articleContent(
-			"AI productivity is less about generating more text and more about reducing the friction between an idea and a finished result.",
+			"AI productivity gains tend to come from a small number of well-chosen workflow changes rather than from accumulating as many tools as possible.",
 			[
-				["Use AI for Planning", "AI can turn goals into actionable task lists and help identify dependencies."],
-				["Use AI for Meetings", "Transcription and summarization tools can reduce the time spent reviewing conversations."],
-				["Use AI for Research", "AI assistants can organize information and help identify the most important points."],
-				["Automate Repetitive Work", "Connect AI with automation platforms to reduce manual data movement."],
+				["Planning", "AI can help turn a loosely defined goal into a concrete list of steps, which is often the hardest part of getting started on a task."],
+				["Meetings", "Automatic transcription and summarization reduce the time spent revisiting conversations to remember what was actually decided."],
+				["Research", "AI can organize scattered information into something readable far faster than doing it manually, provided the output is checked."],
+				["Repetitive Digital Work", "Pairing AI with a lightweight automation tool removes a surprising amount of manual copying and reformatting."],
 			],
 		),
 	},
 	{
 		categorySlug: "productivity",
-		title: "10 AI Workflows That Can Save You Hours Every Week",
+		title: "Using AI for Email: Practical Workflows That Save Real Time",
 		excerpt:
-			"Simple AI workflows for email, meetings, research, writing, planning and repetitive digital work.",
-		authorSlug: "marcus-webb",
-		tags: ["Productivity", "Automation", "Guides"],
-		readingTime: 9,
-		content: articleContent(
-			"Small workflow improvements can compound into significant productivity gains over a month.",
-			[
-				["Email Summaries", "Use AI to turn long threads into concise action-oriented summaries."],
-				["Meeting Notes", "Automatically convert conversations into decisions, action items and follow-ups."],
-				["Research Briefs", "Turn multiple sources into structured research notes."],
-				["Content Repurposing", "Transform one long piece of content into several smaller assets."],
-			],
-		),
-	},
-	{
-		categorySlug: "productivity",
-		title: "Best AI Note-Taking Apps in 2026",
-		excerpt:
-			"The best AI note-taking and knowledge-management tools for meetings, research and personal organization.",
-		authorSlug: "marcus-webb",
-		tags: ["Productivity", "AI Tools", "Reviews"],
-		readingTime: 9,
-		content: articleContent(
-			"AI note-taking tools are evolving from simple digital notebooks into systems that can search, summarize and connect information.",
-			[
-				["Meeting Notes", "AI transcription can automatically capture discussions and create useful summaries."],
-				["Knowledge Search", "Modern tools can retrieve information from a growing personal knowledge base."],
-				["Automatic Organization", "AI can categorize and connect notes without requiring manual filing."],
-				["Choosing an App", "Look for reliable search, export options, integrations and privacy controls."],
-			],
-		),
-	},
-	{
-		categorySlug: "productivity",
-		title: "How to Build an AI-Powered Personal Productivity System",
-		excerpt:
-			"A practical system for using AI to plan your week, organize information and automate repetitive digital work.",
+			"Email is one of the most reliable places to see immediate time savings from AI, if you focus on the right sub-tasks.",
 		authorSlug: "elena-cho",
-		tags: ["Productivity", "Guides", "Automation"],
-		readingTime: 10,
-		content: articleContent(
-			"An AI productivity system should support your existing habits rather than create another complicated workflow to maintain.",
-			[
-				["Capture", "Create one reliable place for ideas, tasks and incoming information."],
-				["Organize", "Use AI to classify and summarize information where helpful."],
-				["Plan", "Turn priorities into realistic daily and weekly schedules."],
-				["Execute", "Use AI to remove repetitive steps while keeping important decisions under human control."],
-			],
-		),
-	},
-	{
-		categorySlug: "productivity",
-		title: "AI Productivity Mistakes That Are Actually Making You Slower",
-		excerpt:
-			"More AI does not always mean more productivity. Avoid these common mistakes when adding AI to your workflow.",
-		authorSlug: "marcus-webb",
-		tags: ["Productivity", "AI Tools", "Guides"],
+		tags: ["Productivity", "Automation", "Guides"],
 		readingTime: 8,
 		content: articleContent(
-			"AI can save time, but poorly designed workflows can create more work instead.",
+			"Email tends to be one of the clearest early wins for AI because the tasks involved, summarizing, drafting and triaging, are exactly what current models handle well.",
 			[
-				["Using AI for Everything", "Not every task needs an AI model. Simple deterministic actions are often faster without one."],
-				["Over-Editing AI Output", "If an AI workflow requires extensive correction, the process may not be saving time."],
-				["Too Many Tools", "Switching between dozens of AI applications creates unnecessary friction."],
-				["No Workflow Measurement", "Measure actual time saved instead of assuming a new AI tool is improving productivity."],
+				["Summarizing Long Threads", "Turning a sprawling thread into a short summary saves real time for anyone who was copied but not closely following the conversation."],
+				["Drafting Responses", "AI-drafted replies work best as a starting point you edit, not as something sent unread."],
+				["Triage and Routing", "Classifying incoming messages by urgency or topic can meaningfully reduce the mental overhead of a full inbox."],
+				["Where to Be Careful", "Anything sensitive, personal or high-stakes still deserves a fully human-written response."],
+			],
+		),
+	},
+	{
+		categorySlug: "productivity",
+		title: "AI for Meetings: Transcription, Summaries and Action Items",
+		excerpt:
+			"AI meeting tools have moved past novelty transcription into genuinely useful summaries and action-item tracking.",
+		authorSlug: "marcus-webb",
+		tags: ["Productivity", "AI Tools", "Software"],
+		readingTime: 8,
+		content: articleContent(
+			"AI meeting assistants have moved well past simple transcription, now producing summaries and action items that hold up reasonably well against what was actually discussed.",
+			[
+				["Live Transcription", "Accurate real-time transcription is now table stakes, and most differentiation happens after the meeting ends."],
+				["Summaries", "A good summary should surface decisions and open questions, not just restate everything that was said in order."],
+				["Action Items", "Automatically extracted action items still benefit from a quick human review before being treated as assigned tasks."],
+				["Searchable History", "Being able to search past meetings for a specific topic is often the most underrated feature in daily use."],
+			],
+		),
+	},
+	{
+		categorySlug: "productivity",
+		title: "AI Knowledge Management: Turning Notes Into a Usable System",
+		excerpt:
+			"A pile of notes is not the same thing as a usable knowledge base. AI can help close that gap, with the right structure.",
+		authorSlug: "elena-cho",
+		tags: ["Productivity", "Guides", "AI"],
+		readingTime: 9,
+		content: articleContent(
+			"AI can help turn a pile of scattered notes into something closer to a real knowledge base, mainly by making retrieval and connection-finding far less manual.",
+			[
+				["Capture Without Friction", "The most reliable systems start with one low-friction place to capture ideas, since notes that never make it into the system provide no later value."],
+				["Let AI Handle Organization", "Automatic tagging and summarization can reduce the manual filing that causes many personal knowledge systems to quietly get abandoned."],
+				["Make It Searchable", "A knowledge base only pays off if you can actually find something later, so prioritize search quality over elaborate folder structures."],
+				["Review Periodically", "A short recurring review catches notes that were captured but never actually acted on."],
+			],
+		),
+	},
+	{
+		categorySlug: "productivity",
+		title: "AI for Research: How to Move From Question to Answer Faster",
+		excerpt:
+			"A practical process for using AI to speed up research without giving up the habit of checking your sources.",
+		authorSlug: "priya-nandan",
+		tags: ["Research", "Productivity", "Guides"],
+		readingTime: 9,
+		content: articleContent(
+			"AI can compress the early, exploratory phase of research from hours to minutes, but the value depends entirely on treating its output as a draft rather than a final answer.",
+			[
+				["Framing the Question", "A specific, well-scoped question produces a far more useful research session than a broad, open-ended one."],
+				["Gathering Initial Context", "Use AI to quickly map out the landscape of a topic before deciding where to dig in more carefully."],
+				["Verifying Key Claims", "Any fact you plan to rely on for a decision is worth checking against a primary source before moving forward."],
+				["Synthesizing Findings", "AI is genuinely useful for turning scattered notes and sources into a coherent summary once the research itself is done."],
 			],
 		),
 	},
@@ -1027,93 +1083,93 @@ const ARTICLE_DEFINITIONS = [
 	// ========================================================
 	{
 		categorySlug: "business-ai",
-		title: "Business AI in 2026: How Companies Are Actually Using AI Right Now",
+		title: "AI for Small Business: Where the Return Actually Shows Up",
 		excerpt:
-			"A practical look at how businesses are adopting AI across support, marketing, sales and operations.",
+			"Small businesses tend to see AI pay off fastest in a few specific, unglamorous places.",
 		authorSlug: "elena-cho",
-		tags: ["Business AI", "Enterprise", "Future of Work"],
-		readingTime: 10,
+		tags: ["Business AI", "Productivity", "SaaS"],
+		readingTime: 9,
 		featured: true,
 		content: articleContent(
-			"Business AI adoption tends to succeed when it starts from a specific operational problem rather than a general mandate to 'use AI'.",
+			"For most small businesses, AI's return shows up first in unglamorous, repetitive tasks rather than in anything resembling a dramatic transformation.",
 			[
-				["What Business AI Actually Means", "It covers the practical use of AI models and automation inside real company workflows."],
-				["Where Companies Start", "Customer support, content production and internal research are common early use cases."],
-				["Common Use Cases", "Document summarization, lead research, reporting and knowledge retrieval appear across industries."],
-				["Measuring Success", "Track time saved, cost per task and quality, not just how many tools were adopted."],
+				["Customer-Facing Communication", "Drafting and triaging routine customer messages tends to free up the most time relative to the effort required to set it up."],
+				["Back-Office Admin", "Scheduling, basic reporting and data entry are common candidates for quiet, reliable automation."],
+				["Marketing Content", "AI can meaningfully speed up the first draft of marketing content, though a human pass is still worth the time before publishing."],
+				["Setting Realistic Expectations", "AI tools tend to disappoint teams that expect a single subscription to replace an entire process overnight."],
 			],
 		),
 	},
 	{
 		categorySlug: "business-ai",
-		title: "How to Build an AI Adoption Strategy Without Wasting Budget",
+		title: "AI Customer Support: What Works and What Still Needs a Human",
 		excerpt:
-			"A grounded framework for piloting, evaluating and scaling AI initiatives inside a business.",
+			"AI has genuinely improved customer support, but the boundary between what it should and shouldn't handle alone still matters.",
 		authorSlug: "elena-cho",
-		tags: ["Business AI", "Enterprise", "Guides"],
+		tags: ["Business AI", "Automation", "AI"],
 		readingTime: 9,
 		content: articleContent(
-			"Many AI budgets are wasted on tools that never get adopted because the initiative never solved a specific business problem.",
+			"AI-assisted customer support has genuinely improved response times and consistency, but the line between what an AI system should resolve alone and what it should escalate remains an important design decision.",
 			[
-				["Start With a Business Problem", "Identify a costly or repetitive process before evaluating any AI tool."],
-				["Pilot Before You Scale", "Test with one team and a narrow use case before a company-wide rollout."],
-				["Involve the Right Teams", "Include the people who will actually use the tool in evaluation and rollout."],
-				["Track Real Outcomes", "Measure adoption, time saved and error rates rather than activity alone."],
+				["Where AI Excels", "Answering well-documented, frequently asked questions is where current AI support tools perform most reliably."],
+				["Where AI Struggles", "Emotionally charged situations and account-specific edge cases still tend to need a human who can exercise judgment."],
+				["Designing the Handoff", "A clear, fast path to a human agent matters more to customer satisfaction than trying to make the AI handle everything."],
+				["Measuring the Right Thing", "Resolution quality and customer satisfaction are more meaningful metrics than raw deflection rate alone."],
 			],
 		),
 	},
 	{
 		categorySlug: "business-ai",
-		title: "AI for Small Business: Where the ROI Actually Is",
+		title: "AI Sales Workflows: Research, Outreach and CRM Automation",
 		excerpt:
-			"Practical, budget-conscious ways small businesses are using AI in support, marketing, sales and operations.",
+			"AI can meaningfully speed up the unglamorous parts of a sales process without replacing the relationship-building that actually closes deals.",
 		authorSlug: "marcus-webb",
-		tags: ["Business AI", "Productivity", "AI Tools"],
+		tags: ["Business AI", "Automation", "Software"],
+		readingTime: 9,
+		content: articleContent(
+			"AI tends to help sales teams most in the research and preparation stages of a deal, rather than in the actual relationship-building that ultimately closes it.",
+			[
+				["Prospect Research", "AI can quickly assemble background on a prospect that would otherwise take a rep considerable manual searching."],
+				["Personalized Outreach Drafts", "Draft messages built from real context tend to perform far better than generic templates, but still benefit from a human edit."],
+				["CRM Hygiene", "Automatically updating records after a call or email removes one of the most commonly skipped administrative tasks."],
+				["Where Humans Still Win", "Complex negotiations and relationship-building remain squarely human territory, at least for now."],
+			],
+		),
+	},
+	{
+		categorySlug: "business-ai",
+		title: "AI Marketing Automation: Content, Campaigns and Measurement",
+		excerpt:
+			"AI marketing automation can multiply output, but only if quality control keeps pace with the increased volume.",
+		authorSlug: "elena-cho",
+		tags: ["Business AI", "Automation", "AI Writing"],
+		readingTime: 9,
+		content: articleContent(
+			"AI can dramatically increase how much marketing content a small team produces, but the teams that succeed treat higher output as a starting point for editing, not a finished product.",
+			[
+				["Content Repurposing", "One piece of long-form content can reasonably become several shorter assets with AI handling the reformatting."],
+				["Campaign Drafting", "AI can quickly generate variations of ad copy or subject lines to test, though human judgment should decide what actually ships."],
+				["Audience Segmentation", "AI-assisted analysis can help identify patterns in campaign performance that would take much longer to find manually."],
+				["Keeping Quality Consistent", "A lightweight review process becomes more important, not less, as content volume increases."],
+			],
+		),
+	},
+	{
+		categorySlug: "business-ai",
+		title: "AI Operations: Automating the Busywork Behind the Business",
+		excerpt:
+			"Operations teams often carry the most repetitive, least visible work in a company, which also makes it some of the best automation material.",
+		authorSlug: "elena-cho",
+		tags: ["Business AI", "Automation", "Future of Work"],
 		readingTime: 8,
-		content: articleContent(
-			"Small businesses rarely need enterprise AI infrastructure to see a meaningful return from AI tools.",
-			[
-				["Customer Support", "AI assistants can help draft responses and organize incoming requests."],
-				["Marketing Content", "AI can speed up drafting social posts, emails and campaign copy."],
-				["Sales Research", "AI tools can help prepare account research and outreach drafts."],
-				["Back-Office Operations", "Automation can reduce manual data entry and repetitive reporting work."],
-			],
-		),
-	},
-	{
-		categorySlug: "business-ai",
-		title: "Enterprise AI Governance: What Every Business Needs to Get Right",
-		excerpt:
-			"A practical overview of the data privacy, access control and oversight questions enterprise AI adoption raises.",
-		authorSlug: "elena-cho",
-		tags: ["Business AI", "Enterprise", "Future of Work"],
-		readingTime: 9,
-		content: articleContent(
-			"Governance becomes important as soon as AI tools touch real customer data, internal documents or decision-making.",
-			[
-				["Data Privacy", "Understand what data a tool stores, processes and shares before adoption."],
-				["Access Controls", "Limit who can use sensitive AI capabilities and what actions they can take."],
-				["Vendor Risk", "Evaluate a vendor's security practices, not just their feature set."],
-				["Employee Guidelines", "Give employees clear rules about what data can be shared with AI tools."],
-			],
-		),
-	},
-	{
-		categorySlug: "business-ai",
-		title: "The Future of Work: How AI Is Changing Day-to-Day Jobs",
-		excerpt:
-			"A grounded look at how AI is reshaping daily tasks, required skills and team structures.",
-		authorSlug: "marcus-webb",
-		tags: ["Business AI", "Future of Work", "AI Agents"],
-		readingTime: 9,
 		trending: true,
 		content: articleContent(
-			"AI is changing how many jobs are performed day to day, more often by reshaping tasks than by eliminating roles outright.",
+			"Operations work is full of repetitive, document-heavy tasks that rarely get attention until something breaks, which makes it one of the most reliable places to apply AI automation.",
 			[
-				["Changing Roles, Not Eliminating Them", "Many roles are shifting toward review, judgment and oversight of AI-assisted work."],
-				["New Skills in Demand", "Prompting, evaluation and workflow design are becoming valuable practical skills."],
-				["Where Humans Still Lead", "Judgment, relationships and accountability remain human responsibilities."],
-				["Preparing Your Team", "Training and clear guidelines help teams adopt AI tools responsibly."],
+				["Document Processing", "Extracting structured information from invoices, forms or contracts is a well-suited task for current AI systems."],
+				["Internal Reporting", "Recurring reports can often be generated automatically instead of consuming a person's time every week."],
+				["Vendor and Process Coordination", "AI can help track and summarize the state of multi-step processes that would otherwise require manual follow-up."],
+				["Where to Draw the Line", "Decisions with real financial or contractual consequences should still route through a person before being finalized."],
 			],
 		),
 	},
@@ -1125,90 +1181,92 @@ const ARTICLE_DEFINITIONS = [
 		categorySlug: "reviews",
 		title: "Claude Review 2026: Is It Better Than ChatGPT?",
 		excerpt:
-			"Our Claude review covering writing, coding, long documents, reasoning, pricing and everyday use.",
+			"A practical look at where Claude stands out from ChatGPT, and where the two are close enough that preference matters more than capability.",
 		authorSlug: "marcus-webb",
-		tags: ["Reviews", "AI Tools", "LLM"],
+		tags: ["Reviews", "LLM", "Comparisons"],
 		readingTime: 9,
 		featured: true,
 		content: articleContent(
-			"Claude has developed a strong reputation for long-form reasoning and structured writing.",
+			"Claude has built a strong reputation for careful, structured writing and long-document reasoning, though whether that makes it 'better' than ChatGPT depends heavily on the task.",
 			[
-				["Writing Quality", "Claude is particularly effective when instructions require structure and detailed explanation."],
-				["Long Documents", "Large-context workflows are one of the platform's major strengths."],
-				["Coding", "Claude can assist with generation, debugging and understanding larger software tasks."],
-				["Who Should Use It?", "Users who prioritize long documents, careful writing and structured reasoning may find Claude especially useful."],
+				["Writing Quality", "Claude tends to produce well-structured, carefully reasoned writing, particularly on tasks that benefit from a methodical approach."],
+				["Long Documents", "Large-context workflows, like reviewing lengthy reports or contracts, are one of the platform's clearest strengths."],
+				["Coding", "Claude performs well on both generating and explaining code, especially for tasks that require understanding a larger piece of context."],
+				["Everyday Use", "For quick, casual questions, the practical difference between Claude and ChatGPT is often small enough that either works fine."],
+				["Who Should Use It", "Users who regularly work with long documents or want more methodical reasoning may prefer Claude; others may find ChatGPT's ecosystem more convenient."],
 			],
+			[{ question: "Is Claude strictly better than ChatGPT?", answer: "No. Both are strong general-purpose assistants, and the better choice depends on your specific workflow rather than a single universal winner." }],
 		),
 	},
 	{
 		categorySlug: "reviews",
-		title: "Zapier Review 2026: Is It Still the Best Automation Tool?",
+		title: "Cursor Review: Is It Worth Switching From Your Current Editor?",
 		excerpt:
-			"A practical Zapier review covering integrations, ease of use, AI automation, pricing and real-world workflows.",
-		authorSlug: "marcus-webb",
-		tags: ["Reviews", "Automation", "AI Tools"],
-		readingTime: 8,
+			"Cursor's AI-native approach to editing changes how much of a workflow the AI touches, which is worth understanding before switching.",
+		authorSlug: "priya-nandan",
+		tags: ["Reviews", "AI Coding", "Comparisons"],
+		readingTime: 9,
 		content: articleContent(
-			"Zapier remains one of the most recognizable workflow automation platforms, but its value depends on the complexity of your needs.",
+			"Cursor's pitch is less about smarter autocomplete and more about restructuring the editor itself around AI-driven, multi-file changes.",
 			[
-				["Ease of Use", "Zapier is designed to make integrations accessible to non-technical users."],
-				["Integrations", "The platform supports a large ecosystem of connected applications."],
-				["AI Workflows", "AI-assisted automation can reduce manual configuration and enable more intelligent workflows."],
-				["Verdict", "Zapier is a strong option when simplicity and application connectivity are priorities."],
+				["Everyday Editing", "Cursor's inline suggestions feel similar to other AI coding tools for single-line completions, so the difference shows up mostly in larger changes."],
+				["Multi-File Changes", "Where Cursor stands out is coordinating edits across several files at once from a single instruction, which traditional autocomplete tools do not attempt."],
+				["Learning Curve", "Getting the most out of Cursor takes some adjustment in how you phrase requests compared to simply typing code directly."],
+				["Who Should Switch", "Developers frequently making larger, cross-file changes are more likely to benefit than those doing mostly small, localized edits."],
 			],
 		),
 	},
 	{
 		categorySlug: "reviews",
-		title: "Midjourney Review 2026: Is It Still the Best AI Image Generator?",
+		title: "GitHub Copilot Review: How Much Does It Actually Help?",
 		excerpt:
-			"A review of Midjourney for photorealistic images, creative design, prompting and professional visual work.",
+			"Copilot's inline suggestions are easy to adopt, but the real value depends heavily on the kind of code you write day to day.",
+		authorSlug: "priya-nandan",
+		tags: ["Reviews", "AI Coding", "Software"],
+		readingTime: 9,
+		content: articleContent(
+			"GitHub Copilot's biggest advantage is how little it asks you to change about your existing workflow, since it works inside the editor you already use.",
+			[
+				["Suggestion Quality", "Copilot performs best on common, well-documented patterns and noticeably worse on unusual or highly domain-specific code."],
+				["Chat and Explanation Features", "Beyond autocomplete, Copilot's chat features are useful for quickly understanding unfamiliar code or debugging an error."],
+				["Where It Falls Short", "Larger architectural decisions and multi-file refactors are still better suited to more agentic tools or careful manual work."],
+				["Everyday Verdict", "For most developers, Copilot is a low-friction way to get consistent, incremental time savings rather than a dramatic workflow change."],
+			],
+		),
+	},
+	{
+		categorySlug: "reviews",
+		title: "Midjourney Review: Is It Still the Best AI Image Generator?",
+		excerpt:
+			"Midjourney's distinctive visual style remains a strength, though newer tools have closed the gap in some areas.",
 		authorSlug: "marcus-webb",
 		tags: ["Reviews", "AI Image", "AI Tools"],
 		readingTime: 8,
 		content: articleContent(
-			"Midjourney remains one of the best-known AI image generation platforms for creative and visual work.",
+			"Midjourney built its reputation on a distinctive, art-directed visual style that still holds up well against newer competitors, even as the gap in some areas has narrowed.",
 			[
-				["Image Quality", "The platform is particularly well known for visually rich and highly stylized generations."],
-				["Prompting", "Users can influence composition, style and subject through carefully designed prompts."],
-				["Professional Use", "Creative teams can use generated imagery for concepts, campaigns and visual experimentation."],
-				["Verdict", "Midjourney remains compelling for creators who prioritize image quality and creative control."],
+				["Image Quality", "Midjourney's output tends to feel more deliberately stylized than some competitors, which suits creative and conceptual work particularly well."],
+				["Prompting", "Getting consistent results still rewards learning Midjourney's specific prompting conventions rather than relying on plain natural language alone."],
+				["Professional Use", "Creative teams commonly use Midjourney for early concepts and mood boards rather than final, client-ready deliverables without further editing."],
+				["Verdict", "Midjourney remains a strong choice for stylized, creative work, though teams needing tight integration with existing design software may prefer an alternative."],
 			],
 		),
 	},
 	{
 		categorySlug: "reviews",
-		title: "Notion AI Review 2026: Is It Worth Adding to Your Workspace?",
+		title: "Perplexity Review: Is It a Real Alternative to Traditional Search?",
 		excerpt:
-			"A practical review of Notion AI for notes, knowledge management, writing, search and team productivity.",
-		authorSlug: "marcus-webb",
-		tags: ["Reviews", "Productivity", "AI Tools"],
+			"Perplexity's source-backed answers make it genuinely useful for research, though it does not fully replace a traditional search engine.",
+		authorSlug: "priya-nandan",
+		tags: ["Reviews", "Research", "Comparisons"],
 		readingTime: 8,
 		content: articleContent(
-			"Notion AI is most useful when AI assistance is integrated directly into the workspace where your information already lives.",
+			"Perplexity's core idea, pairing an AI-generated answer with visible citations, makes it genuinely useful for research questions, even if it is not a complete replacement for a traditional search engine.",
 			[
-				["Writing", "Notion AI can help draft, rewrite and summarize documents."],
-				["Knowledge", "AI assistance can make large collections of internal notes easier to search and understand."],
-				["Team Work", "Teams can use AI to summarize projects and turn information into actionable content."],
-				["Verdict", "Notion AI is especially attractive to users already invested in the Notion workspace."],
-			],
-		),
-	},
-	{
-		categorySlug: "reviews",
-		title: "Grammarly vs QuillBot: Which AI Writing Assistant Should You Use?",
-		excerpt:
-			"A practical comparison of Grammarly and QuillBot for grammar, paraphrasing, tone and everyday writing.",
-		authorSlug: "marcus-webb",
-		tags: ["Reviews", "AI Writing", "AI Tools"],
-		readingTime: 8,
-		content: articleContent(
-			"Grammarly and QuillBot both improve everyday writing, but they emphasize slightly different parts of the writing process.",
-			[
-				["Grammar and Clarity", "Grammarly focuses heavily on grammar, tone and clarity suggestions across many surfaces."],
-				["Paraphrasing", "QuillBot is particularly known for paraphrasing and rewriting existing text."],
-				["Pricing", "Both offer free tiers with paid plans that unlock more advanced suggestions."],
-				["Verdict", "The right choice depends on whether you need broad writing support or focused rewriting."],
+				["Answer Quality", "For well-defined factual questions, Perplexity typically produces clear answers with sources you can actually check."],
+				["Citations", "Being able to click through to a cited source is the feature that most separates Perplexity from a typical chatbot."],
+				["Where Search Still Wins", "For browsing, shopping or highly local queries, a traditional search engine often remains more practical."],
+				["Verdict", "Perplexity is a strong addition to a research workflow, best used alongside rather than as a full replacement for traditional search."],
 			],
 		),
 	},
@@ -1218,39 +1276,74 @@ const ARTICLE_DEFINITIONS = [
 	// ========================================================
 	{
 		categorySlug: "guides",
-		title: "How to Use AI Like a Pro: 15 Practical Tips That Actually Work",
+		title: "How to Write Better AI Prompts: A Practical Beginner's Guide",
 		excerpt:
-			"Improve your AI results with better instructions, context, examples, verification and repeatable workflows.",
+			"A simple framework for turning a vague AI request into a clear specification that produces a more useful response.",
 		authorSlug: "elena-cho",
-		tags: ["Guides", "Prompting", "AI Tools"],
-		readingTime: 10,
+		tags: ["Guides", "Prompting", "LLM"],
+		readingTime: 9,
 		featured: true,
 		content: articleContent(
-			"Better AI results usually come from better workflow design rather than complicated prompting tricks.",
+			"Prompting becomes easier once you treat an AI request as a clear specification rather than a casual question tossed at a search box.",
 			[
-				["Give Clear Instructions", "State the objective, context and expected output clearly."],
-				["Provide Examples", "Examples help the model understand the style and structure you expect."],
-				["Break Large Tasks Down", "Complex work often produces better results when divided into smaller stages."],
-				["Ask for Verification", "Important outputs should be checked against reliable sources and requirements."],
-				["Create Repeatable Prompts", "Save successful instructions and turn them into reusable workflows."],
+				["Define the Goal", "State plainly what you want the AI to accomplish, rather than assuming it will infer your intent from a short question."],
+				["Add Context", "Provide the background information the model actually needs to give a relevant, specific answer instead of a generic one."],
+				["Specify the Format", "Tell the AI whether you want a list, a table, a short paragraph or code, since format matters as much as content."],
+				["Set Constraints", "Word limits, tone, audience and explicit exclusions all help narrow a response toward what you actually need."],
 			],
 		),
 	},
 	{
 		categorySlug: "guides",
-		title: "How to Write Better AI Prompts: The Complete Beginner's Guide",
+		title: "How to Research With AI Without Trusting It Blindly",
 		excerpt:
-			"Learn a simple prompt framework for getting clearer, more accurate and more useful AI responses.",
-		authorSlug: "elena-cho",
-		tags: ["Guides", "Prompting", "LLM"],
+			"AI-assisted research is fast, but the fastest way to get burned is treating a confident-sounding answer as automatically correct.",
+		authorSlug: "priya-nandan",
+		tags: ["Guides", "Research", "AI"],
 		readingTime: 9,
 		content: articleContent(
-			"Prompting becomes easier when you treat an AI request as a clear specification rather than a casual question.",
+			"AI research tools are fast enough to compress hours of searching into minutes, but that speed only pays off if you keep a habit of checking anything you plan to rely on.",
 			[
-				["Define the Goal", "Explain exactly what you want the AI to accomplish."],
-				["Add Context", "Provide the information the model needs to make an informed response."],
-				["Specify the Format", "Tell the AI whether you want a table, list, explanation, code or another output format."],
-				["Set Constraints", "Include word limits, tone, audience, exclusions and other important requirements."],
+				["Start Broad, Then Narrow", "Use AI to quickly map a topic's landscape before deciding which specific claims are actually important to verify."],
+				["Prefer Cited Answers", "Tools that show their sources make verification dramatically faster than tools that simply assert an answer."],
+				["Cross-Check Important Claims", "Anything that will inform a real decision deserves a second, independent source before you rely on it."],
+				["Know the Failure Modes", "AI models can produce confident, plausible-sounding answers that are simply wrong, especially on niche or fast-changing topics."],
+			],
+		),
+	},
+	{
+		categorySlug: "guides",
+		title: "AI Image Prompting: A Practical Guide to Better Results",
+		excerpt:
+			"Getting consistently good AI-generated images comes down to a handful of prompting habits, not luck.",
+		authorSlug: "priya-nandan",
+		tags: ["Guides", "AI Image", "Prompting"],
+		readingTime: 8,
+		content: articleContent(
+			"Consistently good AI-generated images come from a handful of specific prompting habits rather than trial and error.",
+			[
+				["Describe the Subject Clearly", "Specific, concrete descriptions of the subject produce more predictable results than vague or abstract language."],
+				["Specify Style and Mood", "Naming a visual style or reference point helps steer the output toward a coherent look rather than a generic default."],
+				["Iterate in Small Steps", "Small, targeted prompt adjustments tend to produce better results than rewriting the entire prompt after every attempt."],
+				["Know When to Stop Prompting and Start Editing", "Sometimes it is faster to generate a good base image and finish it in a traditional editor than to keep chasing a perfect prompt."],
+			],
+		),
+	},
+	{
+		categorySlug: "guides",
+		title: "AI Video Editing: A Practical Workflow for Getting Started",
+		excerpt:
+			"AI video tools can meaningfully speed up editing, provided you still plan the structure of a video before generating anything.",
+		authorSlug: "marcus-webb",
+		tags: ["Guides", "AI Video", "Software"],
+		readingTime: 8,
+		content: articleContent(
+			"AI video tools work best when they are used to speed up a plan you already have, rather than as a substitute for planning the video in the first place.",
+			[
+				["Start With a Script or Outline", "Even a rough outline gives an AI video or editing tool a much clearer target than an open-ended request."],
+				["Use Transcription-Based Editing", "Editing from a text transcript can dramatically speed up cutting and rearranging spoken-word footage."],
+				["Generate Supporting Clips Selectively", "AI-generated clips tend to work best as supporting material rather than as the entire finished video."],
+				["Review for Consistency", "Motion and detail artifacts are still the most common giveaway in AI-assisted video, so a final review pass matters."],
 			],
 		),
 	},
@@ -1258,60 +1351,22 @@ const ARTICLE_DEFINITIONS = [
 		categorySlug: "guides",
 		title: "How to Build an AI Workflow From Scratch",
 		excerpt:
-			"Create your first reliable AI workflow by combining triggers, context, AI reasoning, actions and validation.",
+			"A simple structure for building your first reliable AI-assisted workflow, from trigger to validated result.",
 		authorSlug: "elena-cho",
 		tags: ["Guides", "Automation", "AI Agents"],
 		readingTime: 10,
 		content: articleContent(
-			"AI workflows work best when every stage has a clearly defined responsibility.",
+			"A reliable AI workflow needs more than a capable model. It needs a clear trigger, relevant context, a defined action and a way to check the result before treating it as done.",
 			[
-				["Define the Trigger", "Start with a clear event that should begin the workflow."],
-				["Collect Context", "Gather the data the AI needs before making a decision."],
-				["Process With AI", "Use AI for interpretation, classification or generation."],
-				["Perform an Action", "Connect the workflow to the application where the result needs to be used."],
-				["Validate the Output", "Check important results before allowing high-impact actions."],
+				["Define the Trigger", "Start with a specific event that should kick off the workflow, rather than a loosely defined sense of 'whenever needed'."],
+				["Collect Context", "Gather the information the AI actually needs to make a good decision before asking it to act."],
+				["Process With AI", "Use the AI step specifically where judgment or interpretation is required, not for steps a simple rule could handle."],
+				["Perform an Action", "Connect the workflow to wherever the result actually needs to land, whether that is a database, a document or another tool."],
+				["Validate the Output", "Check the result before treating any consequential action as final, especially early on while you are still building trust in the workflow."],
 			],
 		),
 	},
-	{
-		categorySlug: "guides",
-		title: "How to Start an AI Side Hustle in 2026: A Practical Roadmap",
-		excerpt:
-			"A realistic roadmap for using AI to create services, content, automation systems and digital products.",
-		authorSlug: "marcus-webb",
-		tags: ["Guides", "Business AI", "AI Tools"],
-		readingTime: 11,
-		content: articleContent(
-			"AI can reduce the cost of starting small digital businesses, but success still depends on solving a real customer problem.",
-			[
-				["Choose a Valuable Problem", "Start with a service or workflow people are already willing to pay to improve."],
-				["Use AI to Increase Output", "AI can accelerate research, writing, design and repetitive production tasks."],
-				["Build a Repeatable Process", "Document successful workflows so delivery becomes faster and more consistent."],
-				["Find Customers", "Focus on a specific audience and communicate a clear business outcome."],
-				["Improve Over Time", "Customer feedback should determine which services and workflows you continue developing."],
-			],
-		),
-	},
-	{
-		categorySlug: "guides",
-		title: "How to Automate Content Creation With AI Without Losing Quality",
-		excerpt:
-			"Build an AI content workflow that speeds up research and production while keeping human editorial quality.",
-		authorSlug: "elena-cho",
-		tags: ["Guides", "AI Writing", "Automation"],
-		readingTime: 10,
-		content: articleContent(
-			"AI can accelerate content production, but quality depends on having a strong editorial process around the model.",
-			[
-				["Research First", "Collect reliable information before asking AI to create content."],
-				["Create an Outline", "Use AI to structure the article around reader intent and useful subtopics."],
-				["Draft", "Generate a first draft while keeping factual and editorial requirements explicit."],
-				["Fact Check", "Verify important claims rather than publishing AI-generated information blindly."],
-				["Human Edit", "Add original insight, examples, experience and editorial judgment before publishing."],
-			],
-		),
-	},
-] as const
+]
 
 // ============================================================
 // MAIN
@@ -1321,10 +1376,14 @@ async function main() {
 	console.log("[seed] Starting NEXORA seed...")
 
 	// ========================================================
-	// PRE-FLIGHT VALIDATION (fail fast on bad source data)
+	// PRE-FLIGHT VALIDATION
 	// ========================================================
 
-	assertUniqueSlugs("tool", TOOLS.map((tool) => tool.slug))
+	assertUniqueSlugs(
+		"tool",
+		TOOLS.map((tool) => tool.slug),
+	)
+
 	assertUniqueSlugs(
 		"article",
 		ARTICLE_DEFINITIONS.map((article) => slugify(article.title)),
@@ -1335,12 +1394,11 @@ async function main() {
 	// ========================================================
 
 	const adminEmail = process.env.ADMIN_EMAIL || "admin@nexora.dev"
-	const usingFallbackPassword = !process.env.ADMIN_PASSWORD
 	const adminPassword = process.env.ADMIN_PASSWORD || "NexoraAdmin!2026"
 
-	if (usingFallbackPassword) {
+	if (!process.env.ADMIN_PASSWORD) {
 		console.warn(
-			"[seed] ADMIN_PASSWORD not set — using a development-only fallback credential. Set ADMIN_EMAIL and ADMIN_PASSWORD before seeding production.",
+			"[seed] ADMIN_PASSWORD not set. Using a development-only default password. Set ADMIN_PASSWORD before seeding a production database.",
 		)
 	}
 
@@ -1356,37 +1414,28 @@ async function main() {
 	// AUTHORS
 	// ========================================================
 
-	const leadEditor = await prisma.author.upsert({
-		where: { slug: "elena-cho" },
-		update: {
-			name: "Elena Cho",
-			role: "Senior AI Editor",
-			bio: "Elena covers AI agents, automation, enterprise AI and the future of work.",
-			userId: adminUser.id,
-		},
-		create: {
-			slug: "elena-cho",
-			name: "Elena Cho",
-			role: "Senior AI Editor",
-			bio: "Elena covers AI agents, automation, enterprise AI and the future of work.",
-			userId: adminUser.id,
-		},
-	})
+	const authorIds = new Map<string, string>()
 
-	const contributingAuthor = await prisma.author.upsert({
-		where: { slug: "marcus-webb" },
-		update: {
-			name: "Marcus Webb",
-			role: "AI Tools Reviewer",
-			bio: "Marcus tests AI software and reviews tools based on practical workflows rather than marketing claims.",
-		},
-		create: {
-			slug: "marcus-webb",
-			name: "Marcus Webb",
-			role: "AI Tools Reviewer",
-			bio: "Marcus tests AI software and reviews tools based on practical workflows rather than marketing claims.",
-		},
-	})
+	for (const author of AUTHORS) {
+		const row = await prisma.author.upsert({
+			where: { slug: author.slug },
+			update: {
+				name: author.name,
+				role: author.role,
+				bio: author.bio,
+				...(author.isAdmin ? { userId: adminUser.id } : {}),
+			},
+			create: {
+				slug: author.slug,
+				name: author.name,
+				role: author.role,
+				bio: author.bio,
+				...(author.isAdmin ? { userId: adminUser.id } : {}),
+			},
+		})
+
+		authorIds.set(author.slug, row.id)
+	}
 
 	// ========================================================
 	// CORE CATEGORIES
@@ -1442,14 +1491,6 @@ async function main() {
 		toolCategoryIds.set(category.slug, row.id)
 	}
 
-	const developerCategory = await prisma.toolCategory.upsert({
-		where: { slug: "developer-tools" },
-		update: { name: "Developer Tools" },
-		create: { slug: "developer-tools", name: "Developer Tools" },
-	})
-
-	toolCategoryIds.set("developer-tools", developerCategory.id)
-
 	// ========================================================
 	// TOOLS
 	// ========================================================
@@ -1466,9 +1507,7 @@ async function main() {
 			throw new Error(`[seed] Missing tool category: ${tool.category}`)
 		}
 
-		const isPaid = tool.pricing === "Paid"
-
-		if (isPaid) {
+		if (tool.pricing === "Paid") {
 			paidTools++
 		} else {
 			freeTools++
@@ -1481,7 +1520,7 @@ async function main() {
 				description: tool.description,
 				websiteUrl: tool.websiteUrl,
 				pricing: tool.pricing,
-				featured: index < 12,
+				featured: FEATURED_TOOL_SLUGS.has(tool.slug),
 				categoryId,
 			},
 			create: {
@@ -1490,7 +1529,7 @@ async function main() {
 				description: tool.description,
 				websiteUrl: tool.websiteUrl,
 				pricing: tool.pricing,
-				featured: index < 12,
+				featured: FEATURED_TOOL_SLUGS.has(tool.slug),
 				categoryId,
 			},
 		})
@@ -1515,8 +1554,11 @@ async function main() {
 			throw new Error(`[seed] Missing article category: ${article.categorySlug}`)
 		}
 
-		const authorId =
-			article.authorSlug === "elena-cho" ? leadEditor.id : contributingAuthor.id
+		const authorId = authorIds.get(article.authorSlug)
+
+		if (!authorId) {
+			throw new Error(`[seed] Missing article author: ${article.authorSlug}`)
+		}
 
 		const tagConnect = article.tags
 			.map((tag) => tagIds.get(tag))
@@ -1536,9 +1578,6 @@ async function main() {
 		const slug = slugify(article.title)
 		const heroImage = HERO_IMAGES[articleIndex % HERO_IMAGES.length]
 
-		const featured = "featured" in article ? Boolean(article.featured) : false
-		const trending = "trending" in article ? Boolean(article.trending) : false
-
 		await prisma.article.upsert({
 			where: { slug },
 			update: {
@@ -1548,15 +1587,13 @@ async function main() {
 				categoryId,
 				authorId,
 				status: "PUBLISHED",
-				featured,
-				trending,
+				featured: article.featured ?? false,
+				trending: article.trending ?? false,
 				readingTime: article.readingTime,
 				heroImage,
 				tags: {
 					deleteMany: {},
-					create: tagConnect.map((tagId) => ({
-						tag: { connect: { id: tagId } },
-					})),
+					create: tagConnect.map((tagId) => ({ tag: { connect: { id: tagId } } })),
 				},
 			},
 			create: {
@@ -1567,14 +1604,12 @@ async function main() {
 				categoryId,
 				authorId,
 				status: "PUBLISHED",
-				featured,
-				trending,
+				featured: article.featured ?? false,
+				trending: article.trending ?? false,
 				readingTime: article.readingTime,
 				heroImage,
 				tags: {
-					create: tagConnect.map((tagId) => ({
-						tag: { connect: { id: tagId } },
-					})),
+					create: tagConnect.map((tagId) => ({ tag: { connect: { id: tagId } } })),
 				},
 			},
 		})
@@ -1583,11 +1618,15 @@ async function main() {
 	console.log(`[seed] Articles created/updated: ${ARTICLE_DEFINITIONS.length}`)
 
 	// ========================================================
-	// COMPARISON
+	// COMPARISONS
 	// ========================================================
 
 	const chatgptId = toolIds.get("chatgpt")
 	const claudeId = toolIds.get("claude")
+	const cursorId = toolIds.get("cursor")
+	const githubCopilotId = toolIds.get("github-copilot")
+
+	let comparisonsCreated = 0
 
 	if (chatgptId && claudeId) {
 		const comparisonData = {
@@ -1599,16 +1638,18 @@ async function main() {
 			winnerToolId: null,
 			featureTable: [
 				{ feature: "General use", toolA: "Excellent", toolB: "Excellent" },
-				{ feature: "Long-form writing", toolA: "Excellent", toolB: "Excellent" },
+				{ feature: "Long-form writing", toolA: "Strong", toolB: "Excellent" },
 				{ feature: "Coding", toolA: "Excellent", toolB: "Excellent" },
-				{ feature: "Research", toolA: "Excellent", toolB: "Excellent" },
+				{ feature: "Research", toolA: "Strong", toolB: "Strong" },
+				{ feature: "Ecosystem and integrations", toolA: "Excellent", toolB: "Strong" },
 			],
 			verdict:
-				"<p>Both are excellent general-purpose AI assistants. The better choice depends on your workflow, preferred ecosystem and the type of work you do most often.</p>",
+				"<p>Both are excellent general-purpose AI assistants. Claude tends to have an edge on long documents and structured reasoning, while ChatGPT offers a broader ecosystem of integrations. The better choice depends on your workflow rather than a single universal winner.</p>",
 			faq: [
 				{
 					question: "Can I use both ChatGPT and Claude?",
-					answer: "Yes. Many users use both assistants for different workflows.",
+					answer:
+						"Yes. Many users rely on both assistants for different parts of their workflow rather than choosing exclusively.",
 				},
 			],
 		}
@@ -1619,11 +1660,47 @@ async function main() {
 			create: { slug: "chatgpt-vs-claude", ...comparisonData },
 		})
 
+		comparisonsCreated++
 		console.log("[seed] Comparison created/updated: chatgpt-vs-claude")
 	} else {
-		console.warn(
-			"[seed] Skipping comparison because ChatGPT or Claude tool was not found.",
-		)
+		console.warn("[seed] Skipping comparison because ChatGPT or Claude tool was not found.")
+	}
+
+	if (cursorId && githubCopilotId) {
+		const comparisonData = {
+			title: "Cursor vs GitHub Copilot: Which AI Coding Tool Fits Your Workflow?",
+			summary:
+				"A practical comparison of Cursor and GitHub Copilot for everyday coding, multi-file changes and editor workflow.",
+			toolAId: cursorId,
+			toolBId: githubCopilotId,
+			winnerToolId: null,
+			featureTable: [
+				{ feature: "Inline suggestions", toolA: "Strong", toolB: "Excellent" },
+				{ feature: "Multi-file edits", toolA: "Excellent", toolB: "Limited" },
+				{ feature: "Editor familiarity", toolA: "Requires switching", toolB: "Works in existing editor" },
+				{ feature: "Chat-based help", toolA: "Excellent", toolB: "Strong" },
+			],
+			verdict:
+				"<p>GitHub Copilot is the lower-friction choice for developers who want to keep their current editor and get steady, incremental help. Cursor asks for more of a workflow change but rewards it with stronger support for larger, multi-file edits.</p>",
+			faq: [
+				{
+					question: "Do I have to give up my current editor to use Cursor?",
+					answer:
+						"Cursor is a separate editor built on a familiar code-editing foundation, so switching requires some adjustment even though the interface will feel familiar.",
+				},
+			],
+		}
+
+		await prisma.comparison.upsert({
+			where: { slug: "cursor-vs-github-copilot" },
+			update: comparisonData,
+			create: { slug: "cursor-vs-github-copilot", ...comparisonData },
+		})
+
+		comparisonsCreated++
+		console.log("[seed] Comparison created/updated: cursor-vs-github-copilot")
+	} else {
+		console.warn("[seed] Skipping comparison because Cursor or GitHub Copilot tool was not found.")
 	}
 
 	// ========================================================
@@ -1674,22 +1751,26 @@ async function main() {
 	}
 
 	if (ARTICLE_DEFINITIONS.length !== 35) {
-		throw new Error(
-			`[seed] Expected 35 articles, found ${ARTICLE_DEFINITIONS.length}`,
-		)
+		throw new Error(`[seed] Expected 35 articles, found ${ARTICLE_DEFINITIONS.length}`)
 	}
 
 	for (const category of CORE_CATEGORIES) {
 		const count = categoryArticleCounts.get(category.slug) || 0
 
 		if (count !== 5) {
-			throw new Error(
-				`[seed] Category ${category.slug} expected 5 articles, found ${count}`,
-			)
+			throw new Error(`[seed] Category ${category.slug} expected 5 articles, found ${count}`)
 		}
 	}
 
-	console.log("[seed] Validation passed: 35 articles + 50 tools.")
+	if (!chatgptId || !claudeId) {
+		throw new Error("[seed] Expected both ChatGPT and Claude tools to exist for the core comparison.")
+	}
+
+	if (comparisonsCreated === 0) {
+		throw new Error("[seed] Expected at least one comparison to be created.")
+	}
+
+	console.log("[seed] Validation passed: 35 articles + 50 tools + comparisons.")
 	console.log(`[seed] Admin account seeded for ${adminEmail}.`)
 	console.log("[seed] NEXORA seed completed successfully.")
 }
