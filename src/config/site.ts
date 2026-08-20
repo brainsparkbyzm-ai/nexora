@@ -3,13 +3,13 @@
  *
  * Editorial/product changes (renaming a nav item, reordering the homepage,
  * enabling/disabling a section, changing SEO defaults) happen HERE, not by
- * editing page components. Longer term, `homepageSections` and `nav` are
- * designed to be moved into `SiteSettings` (see prisma/schema.prisma) and
- * edited from /admin/settings without a deploy — src/services/settingsService.ts
- * already reads through this shape so that migration is additive.
+ * editing page components.
  */
 
-export type NavItem = { label: string; href: string }
+export type NavItem = {
+	label: string
+	href: string
+}
 
 export type HomepageSectionKey =
 	| "hero"
@@ -28,9 +28,32 @@ export type HomepageSectionKey =
 export type HomepageSectionConfig = {
 	key: HomepageSectionKey
 	enabled: boolean
-	// For category-backed sections, the Category.slug to pull articles from.
 	categorySlug?: string
 	title?: string
+}
+
+/**
+ * Production site URL.
+ *
+ * Set NEXT_PUBLIC_SITE_URL in your deployment environment.
+ * Example:
+ * https://your-domain.com
+ *
+ * The fallback keeps local development and builds from crashing when the
+ * environment variable has not been configured yet.
+ */
+const siteUrl =
+	process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://nexora.com"
+
+const normalizedSiteUrl = siteUrl.replace(/\/$/, "")
+
+let siteDomain = "nexora.com"
+
+try {
+	siteDomain = new URL(normalizedSiteUrl).hostname
+} catch {
+	// Keep a safe fallback instead of crashing the build.
+	siteDomain = "nexora.com"
 }
 
 export const siteConfig = {
@@ -38,25 +61,34 @@ export const siteConfig = {
 	tagline: "The Future of Work Is Agentic",
 	description:
 		"NEXORA is a premium AI technology publication covering AI agents, automation, productivity, business AI, and the software reshaping how people work.",
-	url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://nexora.com",
-	domain: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://nexora.com").hostname,
+
+	url: normalizedSiteUrl,
+	domain: siteDomain,
+
 	locale: "en_US",
 	twitterHandle: "@nexoraAI",
+
 	socialLinks: {
 		twitter: "https://twitter.com/nexoraAI",
 		linkedin: "https://linkedin.com/company/nexora",
 		youtube: "https://youtube.com/@nexoraAI",
 	},
+
 	logo: {
 		light: "/brand/nexora-logo-light.svg",
 		dark: "/brand/nexora-logo-dark.svg",
 		mark: "/brand/nexora-mark.svg",
 	},
+
 	seoDefaults: {
 		titleTemplate: "%s | NEXORA",
-		defaultTitle: "NEXORA — AI Agents, Automation & the Future of Work",
+
+		defaultTitle:
+			"NEXORA — AI Agents, Automation & the Future of Work",
+
 		defaultDescription:
 			"In-depth AI agent guides, automation workflows, tool reviews and comparisons for people building the future of work.",
+
 		defaultOgImage: "/og/default-og.png",
 	},
 } as const
@@ -84,12 +116,14 @@ export const footerNav = {
 		{ label: "Productivity", href: "/productivity" },
 		{ label: "Business AI", href: "/business-ai" },
 	] satisfies NavItem[],
+
 	resources: [
 		{ label: "Guides", href: "/guides" },
 		{ label: "Reviews", href: "/reviews" },
 		{ label: "Comparisons", href: "/tools" },
 		{ label: "Search", href: "/search" },
 	] satisfies NavItem[],
+
 	company: [
 		{ label: "About", href: "/about" },
 		{ label: "Contact", href: "/contact" },
@@ -101,27 +135,81 @@ export const footerNav = {
 	] satisfies NavItem[],
 }
 
-// Default homepage layout — order + enabled state drive src/app/page.tsx.
-// Reordering or disabling a section is a config change, never a code change.
+// Default homepage layout.
 export const defaultHomepageSections: HomepageSectionConfig[] = [
 	{ key: "hero", enabled: true },
-	{ key: "trending", enabled: true, title: "Trending Now" },
-	{ key: "featured", enabled: true, title: "Featured Story" },
-	{ key: "latest", enabled: true, title: "Latest Articles" },
-	{ key: "aiAgents", enabled: true, categorySlug: "ai-agents", title: "AI Agents" },
-	{ key: "automation", enabled: true, categorySlug: "automation", title: "Automation" },
-	{ key: "productivity", enabled: true, categorySlug: "productivity", title: "AI Productivity" },
-	{ key: "toolReviews", enabled: true, title: "AI Tool Reviews" },
-	{ key: "bestTools", enabled: true, title: "Best AI Tools" },
-	{ key: "businessAI", enabled: true, categorySlug: "business-ai", title: "Business AI" },
-	{ key: "guides", enabled: true, categorySlug: "guides", title: "AI Guides" },
-	{ key: "newsletter", enabled: true },
+
+	{
+		key: "trending",
+		enabled: true,
+		title: "Trending Now",
+	},
+
+	{
+		key: "featured",
+		enabled: true,
+		title: "Featured Story",
+	},
+
+	{
+		key: "latest",
+		enabled: true,
+		title: "Latest Articles",
+	},
+
+	{
+		key: "aiAgents",
+		enabled: true,
+		categorySlug: "ai-agents",
+		title: "AI Agents",
+	},
+
+	{
+		key: "automation",
+		enabled: true,
+		categorySlug: "automation",
+		title: "Automation",
+	},
+
+	{
+		key: "productivity",
+		enabled: true,
+		categorySlug: "productivity",
+		title: "AI Productivity",
+	},
+
+	{
+		key: "toolReviews",
+		enabled: true,
+		title: "AI Tool Reviews",
+	},
+
+	{
+		key: "bestTools",
+		enabled: true,
+		title: "Best AI Tools",
+	},
+
+	{
+		key: "businessAI",
+		enabled: true,
+		categorySlug: "business-ai",
+		title: "Business AI",
+	},
+
+	{
+		key: "guides",
+		enabled: true,
+		categorySlug: "guides",
+		title: "AI Guides",
+	},
+
+	{
+		key: "newsletter",
+		enabled: true,
+	},
 ]
 
-// Fixed top-level categories referenced throughout the app (seed data,
-// category routes, nav). Editors can still add further categories from
-// /admin/categories; those simply won't appear in primaryNav until added
-// there, but will work at /[category].
 export const coreCategorySlugs = [
 	"ai-agents",
 	"automation",
