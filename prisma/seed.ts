@@ -28,6 +28,15 @@ function articleContent(intro: string, sections: ArticleSection[]): string {
 	})
 }
 
+function logoUrlFromWebsite(websiteUrl: string): string {
+	try {
+		const domain = new URL(websiteUrl).hostname
+		return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`
+	} catch {
+		return ""
+	}
+}
+
 function assertUniqueSlugs(label: string, slugs: string[]): void {
 	const seen = new Set<string>()
 	const duplicates = new Set<string>()
@@ -606,41 +615,55 @@ const TOOLS: Array<{
 // ============================================================
 
 const HERO_IMAGES = [
-	"https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1633412802994-5c058f151b66?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1677442135703-1787eea5ce01?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1516321165247-4aa89a48be28?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1545235617-9465d2a55698?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1655720828018-edd2daec9349?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1676299081847-824916de030a?auto=format&fit=crop&w=1600&q=85",
-	"https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=1600&q=85",
+	"https://picsum.photos/seed/nexora-ai-agents-01/1600/900",
+	"https://picsum.photos/seed/nexora-ai-agents-02/1600/900",
+	"https://picsum.photos/seed/nexora-ai-agents-03/1600/900",
+	"https://picsum.photos/seed/nexora-ai-agents-04/1600/900",
+	"https://picsum.photos/seed/nexora-ai-agents-05/1600/900",
+	"https://picsum.photos/seed/nexora-ai-agents-06/1600/900",
+	"https://picsum.photos/seed/nexora-ai-agents-07/1600/900",
+	"https://picsum.photos/seed/nexora-automation-01/1600/900",
+	"https://picsum.photos/seed/nexora-automation-02/1600/900",
+	"https://picsum.photos/seed/nexora-automation-03/1600/900",
+	"https://picsum.photos/seed/nexora-automation-04/1600/900",
+	"https://picsum.photos/seed/nexora-automation-05/1600/900",
+	"https://picsum.photos/seed/nexora-automation-06/1600/900",
+	"https://picsum.photos/seed/nexora-automation-07/1600/900",
+	"https://picsum.photos/seed/nexora-ai-tools-01/1600/900",
+	"https://picsum.photos/seed/nexora-ai-tools-02/1600/900",
+	"https://picsum.photos/seed/nexora-ai-tools-03/1600/900",
+	"https://picsum.photos/seed/nexora-ai-tools-04/1600/900",
+	"https://picsum.photos/seed/nexora-ai-tools-05/1600/900",
+	"https://picsum.photos/seed/nexora-ai-tools-06/1600/900",
+	"https://picsum.photos/seed/nexora-ai-tools-07/1600/900",
+	"https://picsum.photos/seed/nexora-productivity-01/1600/900",
+	"https://picsum.photos/seed/nexora-productivity-02/1600/900",
+	"https://picsum.photos/seed/nexora-productivity-03/1600/900",
+	"https://picsum.photos/seed/nexora-productivity-04/1600/900",
+	"https://picsum.photos/seed/nexora-productivity-05/1600/900",
+	"https://picsum.photos/seed/nexora-productivity-06/1600/900",
+	"https://picsum.photos/seed/nexora-productivity-07/1600/900",
+	"https://picsum.photos/seed/nexora-business-ai-01/1600/900",
+	"https://picsum.photos/seed/nexora-business-ai-02/1600/900",
+	"https://picsum.photos/seed/nexora-business-ai-03/1600/900",
+	"https://picsum.photos/seed/nexora-business-ai-04/1600/900",
+	"https://picsum.photos/seed/nexora-business-ai-05/1600/900",
+	"https://picsum.photos/seed/nexora-business-ai-06/1600/900",
+	"https://picsum.photos/seed/nexora-business-ai-07/1600/900",
+	"https://picsum.photos/seed/nexora-reviews-01/1600/900",
+	"https://picsum.photos/seed/nexora-reviews-02/1600/900",
+	"https://picsum.photos/seed/nexora-reviews-03/1600/900",
+	"https://picsum.photos/seed/nexora-reviews-04/1600/900",
+	"https://picsum.photos/seed/nexora-reviews-05/1600/900",
+	"https://picsum.photos/seed/nexora-reviews-06/1600/900",
+	"https://picsum.photos/seed/nexora-reviews-07/1600/900",
+	"https://picsum.photos/seed/nexora-guides-01/1600/900",
+	"https://picsum.photos/seed/nexora-guides-02/1600/900",
+	"https://picsum.photos/seed/nexora-guides-03/1600/900",
+	"https://picsum.photos/seed/nexora-guides-04/1600/900",
+	"https://picsum.photos/seed/nexora-guides-05/1600/900",
+	"https://picsum.photos/seed/nexora-guides-06/1600/900",
+	"https://picsum.photos/seed/nexora-guides-07/1600/900",
 ] as const
 
 // ============================================================
@@ -1337,7 +1360,284 @@ const ARTICLE_DEFINITIONS = [
 				["Human Edit", "Add original insight, examples, experience and editorial judgment before publishing."],
 			],
 		),
+	},,
+
+	// ========================================================
+	// ADDITIONAL SEO ARTICLES — 2 PER CORE CATEGORY
+	// ========================================================
+	{
+		categorySlug: "ai-agents",
+		title: "7 AI Agent Use Cases That Are Finally Practical for Real Businesses",
+		excerpt:
+			"Seven practical AI agent workflows that can save time, reduce repetitive work and improve operations without handing everything to an autonomous system.",
+		authorSlug: "elena-cho",
+		tags: ["AI Agents", "Business AI", "Automation"],
+		readingTime: 10,
+		trending: true,
+		content: articleContent(
+			"AI agents become useful when they are assigned a narrow job, given the right context and kept inside clear operational boundaries.",
+			[
+				["Research and Monitoring", "Agents can monitor approved sources, summarize changes and surface items that need human attention."],
+				["Lead Qualification", "A controlled agent can classify inbound leads and prepare useful context for a sales team."],
+				["Support Triage", "Agents can categorize requests, retrieve approved knowledge and route complex cases to people."],
+				["Document Workflows", "Agents can extract structured information from recurring documents and prepare it for review."],
+				["Reporting", "An agent can collect approved data sources and prepare recurring management summaries."],
+			],
+		),
 	},
+	{
+		categorySlug: "ai-agents",
+		title: "AI Agent Memory Explained: What to Store, What to Forget and Why",
+		excerpt:
+			"Learn how useful AI agent memory works, which information belongs in context, and how to avoid turning memory into a reliability problem.",
+		authorSlug: "marcus-webb",
+		tags: ["AI Agents", "LLM", "Enterprise"],
+		readingTime: 9,
+		content: articleContent(
+			"Agent memory is not simply a larger chat history. Good memory stores useful state while controlling stale, irrelevant and sensitive information.",
+			[
+				["Working Context", "Short-lived task information should remain close to the current workflow."],
+				["Long-Term Knowledge", "Stable preferences and approved reference information can be stored separately from temporary task state."],
+				["Retrieval", "Agents should retrieve relevant information instead of blindly loading everything they know."],
+				["Freshness", "Old information needs review rules so an agent does not treat stale data as current truth."],
+				["Privacy", "Sensitive information should have explicit retention, access and deletion rules."],
+			],
+		),
+	},
+	{
+		categorySlug: "automation",
+		title: "AI Automation Mistakes: 12 Problems That Quietly Kill ROI",
+		excerpt:
+			"Before automating a business process with AI, check these twelve failure points that can create more work instead of saving it.",
+		authorSlug: "marcus-webb",
+		tags: ["Automation", "Business AI", "Guides"],
+		readingTime: 11,
+		content: articleContent(
+			"Automation fails when teams automate a broken process, ignore exceptions or measure activity instead of business outcomes.",
+			[
+				["Automating the Wrong Process", "Start with a stable, repetitive workflow rather than a process that is still changing every week."],
+				["Too Many Exceptions", "If most cases require manual intervention, the workflow may not be ready for automation."],
+				["Weak Inputs", "Poor source data produces poor classifications, summaries and decisions."],
+				["No Human Review", "High-impact actions should have appropriate approval and escalation paths."],
+				["No ROI Baseline", "Measure the original time, error rate and cost before judging whether automation created value."],
+			],
+		),
+	},
+	{
+		categorySlug: "automation",
+		title: "Zapier vs Make vs n8n: Which Automation Platform Fits Your Workflow?",
+		excerpt:
+			"Compare three popular automation approaches across ease of use, flexibility, integrations and control.",
+		authorSlug: "marcus-webb",
+		tags: ["Automation", "Reviews", "No-Code"],
+		readingTime: 10,
+		content: articleContent(
+			"Zapier, Make and n8n can all connect applications, but their workflow design and control models suit different users.",
+			[
+				["Ease of Use", "Visual simplicity matters when non-technical teams need to own and maintain workflows."],
+				["Workflow Complexity", "More complex branching and data transformations can favor platforms with deeper workflow controls."],
+				["Integrations", "Compare the applications your business actually uses rather than relying on a generic integration count."],
+				["Control and Hosting", "Technical teams may value greater control over execution and infrastructure."],
+				["Best Choice", "Choose the platform that matches your team's technical ability, workflow complexity and maintenance expectations."],
+			],
+		),
+	},
+	{
+		categorySlug: "ai-tools",
+		title: "The 15 AI Tools Worth Trying Before You Pay for Anything",
+		excerpt:
+			"A practical shortlist of free and freemium AI tools for writing, research, coding, design, productivity and automation.",
+		authorSlug: "marcus-webb",
+		tags: ["AI Tools", "Reviews", "Productivity"],
+		readingTime: 12,
+		featured: true,
+		content: articleContent(
+			"You do not need a large AI software budget to build a useful toolkit. Start with free tiers and upgrade only when a workflow proves its value.",
+			[
+				["Writing", "Free AI writing assistants can handle outlining, rewriting, summarization and first drafts."],
+				["Research", "AI research tools can accelerate discovery while important claims still require source verification."],
+				["Coding", "Free coding assistants can help explain code, generate small snippets and speed up routine development."],
+				["Creative Work", "Freemium image and design tools can cover many lightweight creative tasks."],
+				["Automation", "Free automation allowances are useful for testing workflows before committing to a paid plan."],
+			],
+		),
+	},
+	{
+		categorySlug: "ai-tools",
+		title: "AI Tool Stack 2026: How to Build a Smaller Toolkit That Does More",
+		excerpt:
+			"Stop collecting dozens of AI apps. Build a focused stack around research, creation, execution and review.",
+		authorSlug: "elena-cho",
+		tags: ["AI Tools", "Productivity", "Future of Work"],
+		readingTime: 9,
+		content: articleContent(
+			"A strong AI stack is not the longest list of subscriptions. It is the smallest set of tools that consistently improves important workflows.",
+			[
+				["One General Assistant", "Choose one primary assistant for everyday reasoning, writing and analysis."],
+				["One Research Layer", "Use a research-focused tool when source discovery and verification are central to the task."],
+				["One Creative Layer", "Add a dedicated design, image or video tool only when the workflow needs it."],
+				["One Automation Layer", "Connect repetitive applications instead of manually moving information between them."],
+				["A Review Process", "Keep human review as the final quality layer for important outputs."],
+			],
+		),
+	},
+	{
+		categorySlug: "productivity",
+		title: "AI Productivity Systems: 9 Workflows That Give Your Day Back",
+		excerpt:
+			"Use AI for planning, meeting notes, research, writing and task triage without turning your entire workday into automation.",
+		authorSlug: "elena-cho",
+		tags: ["Productivity", "AI Tools", "Future of Work"],
+		readingTime: 10,
+		content: articleContent(
+			"AI productivity works best when it removes friction from decisions and repetitive preparation rather than replacing thoughtful work.",
+			[
+				["Morning Planning", "Turn priorities, deadlines and unfinished work into a realistic plan for the day."],
+				["Meeting Capture", "Summarize approved meeting notes into decisions, owners and next actions."],
+				["Inbox Triage", "Classify messages and surface the conversations that require a response."],
+				["Research Compression", "Convert long source material into structured notes while keeping the original sources available."],
+				["End-of-Day Review", "Use a short review to identify unfinished priorities and prepare the next working session."],
+			],
+		),
+	},
+	{
+		categorySlug: "productivity",
+		title: "AI Note-Taking vs Traditional Notes: What Actually Makes You Faster?",
+		excerpt:
+			"Compare AI-assisted notes with traditional note-taking and learn where automation helps and where thinking still matters.",
+		authorSlug: "marcus-webb",
+		tags: ["Productivity", "AI Tools", "Research"],
+		readingTime: 8,
+		content: articleContent(
+			"AI note-taking can reduce the effort required to capture information, but faster capture does not automatically create better understanding.",
+			[
+				["Capture", "AI can summarize conversations and organize information with less manual effort."],
+				["Understanding", "Writing your own notes can still be valuable when the act of summarizing helps you think."],
+				["Retrieval", "Structured metadata and searchable transcripts can make large knowledge collections easier to revisit."],
+				["Action Items", "AI can identify tasks, decisions and open questions from approved meeting content."],
+				["Best Hybrid", "Use AI for capture and organization while keeping deliberate human synthesis for important work."],
+			],
+		),
+	},
+	{
+		categorySlug: "business-ai",
+		title: "How Small Businesses Can Use AI Without Hiring an AI Team",
+		excerpt:
+			"A practical AI adoption plan for small businesses that want measurable gains without building a large technical department.",
+		authorSlug: "elena-cho",
+		tags: ["Business AI", "Automation", "AI Tools"],
+		readingTime: 10,
+		featured: true,
+		content: articleContent(
+			"Small businesses can gain from AI by improving a few high-value workflows rather than attempting a company-wide transformation at once.",
+			[
+				["Find the Bottleneck", "Identify repetitive work that consumes meaningful staff time every week."],
+				["Start With Existing Tools", "Use software your team already understands before adding another complex platform."],
+				["Pilot One Workflow", "A narrow pilot makes cost, quality and adoption easier to measure."],
+				["Protect Sensitive Data", "Define what information can enter AI services and what must remain restricted."],
+				["Measure the Outcome", "Track time saved, response speed, quality and revenue-related outcomes where possible."],
+			],
+		),
+	},
+	{
+		categorySlug: "business-ai",
+		title: "AI ROI Calculator Thinking: How to Know If an AI Project Is Worth It",
+		excerpt:
+			"Use a practical framework for estimating AI project value, implementation cost, maintenance and hidden operational risk.",
+		authorSlug: "marcus-webb",
+		tags: ["Business AI", "Automation", "Enterprise"],
+		readingTime: 9,
+		content: articleContent(
+			"AI ROI should be measured against the complete workflow, not just the price of the AI subscription.",
+			[
+				["Baseline Cost", "Measure the current labor, delays, errors and software costs associated with the process."],
+				["Implementation Cost", "Include integration, setup, testing, training and change-management effort."],
+				["Ongoing Cost", "Account for usage, monitoring, maintenance and human review."],
+				["Quality Impact", "Time saved is not valuable if the resulting work creates expensive errors."],
+				["Decision Threshold", "Define the expected improvement required before scaling beyond the pilot."],
+			],
+		),
+	),
+	{
+		categorySlug: "reviews",
+		title: "ChatGPT Review 2026: What It Is Actually Good at Today",
+		excerpt:
+			"A practical review of ChatGPT across writing, coding, research, analysis, productivity and everyday AI workflows.",
+		authorSlug: "marcus-webb",
+		tags: ["Reviews", "AI Tools", "LLM"],
+		readingTime: 11,
+		content: articleContent(
+			"ChatGPT is most useful when treated as a flexible assistant inside a defined workflow rather than as an unquestionable source of truth.",
+			[
+				["Writing", "It can accelerate outlining, rewriting, editing and structured drafting."],
+				["Coding", "It can explain code, generate examples and help investigate implementation problems."],
+				["Research", "It can organize research tasks, but important claims should still be checked against reliable sources."],
+				["Productivity", "It can turn messy instructions into plans, checklists and structured work."],
+				["Verdict", "Its broad capability makes it a strong general-purpose tool, especially when the user provides clear context."],
+			],
+		),
+	},
+	{
+		categorySlug: "reviews",
+		title: "Perplexity Review 2026: Is AI Search Better for Research?",
+		excerpt:
+			"Explore where AI search helps, where source quality matters most and how to use an answer engine responsibly.",
+		authorSlug: "elena-cho",
+		tags: ["Reviews", "Research", "AI Tools"],
+		readingTime: 9,
+		content: articleContent(
+			"AI search can shorten the path from a question to a useful research starting point, but source evaluation remains essential.",
+			[
+				["Research Speed", "An answer engine can quickly surface candidate sources and organize a research direction."],
+				["Citations", "Readers should inspect cited sources instead of treating citations as automatic proof."],
+				["Current Information", "Time-sensitive topics require checking the freshness and authority of the underlying sources."],
+				["Deep Research", "Complex questions still benefit from reading primary documents and comparing independent evidence."],
+				["Verdict", "AI search is most valuable as a research accelerator, not as a replacement for source judgment."],
+			],
+		),
+	},
+	{
+		categorySlug: "guides",
+		title: "How to Choose the Right AI Tool: A 7-Step Decision Framework",
+		excerpt:
+			"Stop comparing AI tools by hype. Use this seven-step framework to choose software based on your actual workflow.",
+		authorSlug: "elena-cho",
+		tags: ["Guides", "AI Tools", "Productivity"],
+		readingTime: 9,
+		content: articleContent(
+			"The best AI tool is the one that solves a real problem reliably enough to justify its cost and complexity.",
+			[
+				["Define the Job", "Write down the exact task the software must improve."],
+				["Check Input Requirements", "Understand what documents, data and context the tool needs."],
+				["Compare Output Quality", "Test realistic examples rather than relying on marketing demonstrations."],
+				["Measure Workflow Fit", "Consider integrations, export options, permissions and team adoption."],
+				["Calculate Total Cost", "Include subscriptions, implementation, usage and human review."],
+				["Test Before Scaling", "Use a small pilot with representative work."],
+				["Review Regularly", "AI products change quickly, so revisit important tools periodically."],
+			],
+		),
+	},
+	{
+		categorySlug: "guides",
+		title: "How to Fact-Check AI Content Before You Publish It",
+		excerpt:
+			"A practical editorial workflow for checking AI-generated claims, citations, numbers and sources before publication.",
+		authorSlug: "marcus-webb",
+		tags: ["Guides", "Research", "AI Writing"],
+		readingTime: 10,
+		content: articleContent(
+			"AI can accelerate drafting, but publishing requires an independent verification step for factual claims.",
+			[
+				["Separate Facts From Drafting", "Treat generated prose as a draft until important claims have been checked."],
+				["Check Primary Sources", "Prefer official documentation, original studies and first-party announcements when available."],
+				["Verify Numbers", "Recalculate important statistics and confirm their dates and definitions."],
+				["Inspect Citations", "Make sure a cited source actually supports the claim being made."],
+				["Human Editorial Review", "A final editor should assess accuracy, usefulness, clarity and originality before publication."],
+			],
+		),
+	},
+] as const
+
 ] as const
 
 // ============================================================
@@ -1424,16 +1724,11 @@ async function main() {
 	for (const category of CORE_CATEGORIES) {
 		const row = await prisma.category.upsert({
 			where: { slug: category.slug },
-			update: {
-				name: category.name,
-				description: category.description,
-				heroImage: HERO_IMAGES[CORE_CATEGORIES.indexOf(category)],
-			},
+			update: { name: category.name, description: category.description },
 			create: {
 				slug: category.slug,
 				name: category.name,
 				description: category.description,
-				heroImage: HERO_IMAGES[CORE_CATEGORIES.indexOf(category)],
 			},
 		})
 
@@ -1513,13 +1808,10 @@ async function main() {
 				description: tool.description,
 				websiteUrl: tool.websiteUrl,
 				pricing: tool.pricing,
-				rating: 4.5,
-				pros: ["Strong core capabilities", "Useful for real workflows", "Active product development"],
-				cons: ["Feature availability varies by plan", "Results can require human review"],
-				bestFor: "Professionals and teams evaluating AI workflows",
-				features: ["AI-assisted workflows", "Modern web interface", "Productivity integrations"],
-				affiliateDisclosure: null,
-				lastReviewedAt: new Date(),
+				features: {
+					logoUrl: logoUrlFromWebsite(tool.websiteUrl),
+					websiteUrl: tool.websiteUrl,
+				},
 				featured: index < 12,
 				categoryId,
 			},
@@ -1529,13 +1821,10 @@ async function main() {
 				description: tool.description,
 				websiteUrl: tool.websiteUrl,
 				pricing: tool.pricing,
-				rating: 4.5,
-				pros: ["Strong core capabilities", "Useful for real workflows", "Active product development"],
-				cons: ["Feature availability varies by plan", "Results can require human review"],
-				bestFor: "Professionals and teams evaluating AI workflows",
-				features: ["AI-assisted workflows", "Modern web interface", "Productivity integrations"],
-				affiliateDisclosure: null,
-				lastReviewedAt: new Date(),
+				features: {
+					logoUrl: logoUrlFromWebsite(tool.websiteUrl),
+					websiteUrl: tool.websiteUrl,
+				},
 				featured: index < 12,
 				categoryId,
 			},
@@ -1598,11 +1887,11 @@ async function main() {
 				trending,
 				readingTime: article.readingTime,
 				heroImage,
-				seoTitle: article.title.length > 60 ? `${article.title.slice(0, 57).trimEnd()}...` : article.title,
-				seoDescription: article.excerpt.slice(0, 160),
-				canonicalUrl: null,
+				seoTitle: article.title,
+				seoDescription: article.excerpt,
+				canonicalUrl: `https://nexora.ai/articles/${slug}`,
 				schemaType: "Article",
-				publishedAt: new Date(),
+				publishedAt: new Date(Date.now() - articleIndex * 86_400_000),
 				tags: {
 					deleteMany: {},
 					create: tagConnect.map((tagId) => ({
@@ -1622,11 +1911,11 @@ async function main() {
 				trending,
 				readingTime: article.readingTime,
 				heroImage,
-				seoTitle: article.title.length > 60 ? `${article.title.slice(0, 57).trimEnd()}...` : article.title,
-				seoDescription: article.excerpt.slice(0, 160),
-				canonicalUrl: null,
+				seoTitle: article.title,
+				seoDescription: article.excerpt,
+				canonicalUrl: `https://nexora.ai/articles/${slug}`,
 				schemaType: "Article",
-				publishedAt: new Date(),
+				publishedAt: new Date(Date.now() - articleIndex * 86_400_000),
 				tags: {
 					create: tagConnect.map((tagId) => ({
 						tag: { connect: { id: tagId } },
@@ -1717,6 +2006,12 @@ async function main() {
 	// VALIDATION
 	// ========================================================
 
+	if (new Set(HERO_IMAGES).size !== ARTICLE_DEFINITIONS.length) {
+		throw new Error(
+			`[seed] Expected ${ARTICLE_DEFINITIONS.length} unique hero images, found ${new Set(HERO_IMAGES).size}`,
+		)
+	}
+
 	if (TOOLS.length !== 50) {
 		throw new Error(`[seed] Expected 50 tools, found ${TOOLS.length}`)
 	}
@@ -1729,23 +2024,23 @@ async function main() {
 		throw new Error(`[seed] Expected 25 paid tools, found ${paidTools}`)
 	}
 
-	if (ARTICLE_DEFINITIONS.length !== 35) {
+	if (ARTICLE_DEFINITIONS.length !== 49) {
 		throw new Error(
-			`[seed] Expected 35 articles, found ${ARTICLE_DEFINITIONS.length}`,
+			`[seed] Expected 49 articles, found ${ARTICLE_DEFINITIONS.length}`,
 		)
 	}
 
 	for (const category of CORE_CATEGORIES) {
 		const count = categoryArticleCounts.get(category.slug) || 0
 
-		if (count !== 5) {
+		if (count !== 7) {
 			throw new Error(
-				`[seed] Category ${category.slug} expected 5 articles, found ${count}`,
+				`[seed] Category ${category.slug} expected 7 articles, found ${count}`,
 			)
 		}
 	}
 
-	console.log("[seed] Validation passed: 35 articles + 50 tools.")
+	console.log("[seed] Validation passed: 49 articles + 50 tools.")
 	console.log(`[seed] Admin account seeded for ${adminEmail}.`)
 	console.log("[seed] NEXORA seed completed successfully.")
 }
