@@ -935,7 +935,7 @@ type ArticleDef = {
 };
 const ARTICLE_DEFINITIONS: ArticleDef[] = [
 // ====== AI ASSISTANTS (5) ======
-{
+article({
     slug: "chatgpt-review-2026",
     title: "ChatGPT Review 2026: Still the King of AI Assistants?",
     excerpt: "Two years after GPT-4's release, ChatGPT has evolved into a sprawling AI platform. We test every major feature to answer whether the $20/month Plus plan is still worth it in 2026.",
