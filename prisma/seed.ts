@@ -896,6 +896,7 @@ const TOOLS: ToolDef[] = [
     featured: false,
     toolCategoryName: "AI Assistants",
 },
+{
     slug: "openai-api",
     name: "OpenAI API",
     description: "OpenAI's API provides access to GPT-4o, o1, DALL-E 3, Whisper and Embeddings for developers building AI-powered applications. The most widely adopted AI API in the world with extensive tooling and documentation.",
