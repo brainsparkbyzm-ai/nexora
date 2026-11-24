@@ -118,8 +118,8 @@ export const footerNav = {
 	] satisfies NavItem[],
 
 	resources: [
-		{ label: "Guides", href: "/guides" },
-		{ label: "Reviews", href: "/reviews" },
+		{ label: "AI Coding", href: "/ai-coding" },
+		{ label: "AI Image", href: "/ai-image" },
 		{ label: "Comparisons", href: "/tools" },
 		{ label: "Search", href: "/search" },
 	] satisfies NavItem[],
