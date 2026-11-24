@@ -94,26 +94,26 @@ export const siteConfig = {
 } as const
 
 export const primaryNav: NavItem[] = [
-	{ label: "AI Agents", href: "/ai-agents" },
+	{ label: "AI Assistants", href: "/ai-assistants" },
 	{ label: "Automation", href: "/automation" },
 	{ label: "AI Tools", href: "/tools" },
-	{ label: "Productivity", href: "/productivity" },
+	{ label: "AI Writing", href: "/ai-writing" },
 	{ label: "Business", href: "/business-ai" },
-	{ label: "Reviews", href: "/reviews" },
+	{ label: "Future of Work", href: "/future-of-work" },
 ]
 
 export const mobileNav: NavItem[] = [
 	...primaryNav,
-	{ label: "Guides", href: "/guides" },
+	{ label: "AI Image", href: "/ai-image" },
 	{ label: "About", href: "/about" },
 ]
 
 export const footerNav = {
 	explore: [
-		{ label: "AI Agents", href: "/ai-agents" },
+		{ label: "AI Assistants", href: "/ai-assistants" },
 		{ label: "Automation", href: "/automation" },
 		{ label: "AI Tools", href: "/tools" },
-		{ label: "Productivity", href: "/productivity" },
+		{ label: "Future of Work", href: "/future-of-work" },
 		{ label: "Business AI", href: "/business-ai" },
 	] satisfies NavItem[],
 
