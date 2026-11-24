@@ -38,7 +38,7 @@ type QuickLink = {
 }
 
 const quickLinks: QuickLink[] = [
-	{ label: "AI Agents", href: "/ai-agents" },
+	{ label: "AI Assistants", href: "/ai-assistants" },
 	{ label: "Automation", href: "/automation" },
 	{ label: "AI Tools", href: "/tools" },
 ]
