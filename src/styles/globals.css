@@ -3,28 +3,27 @@
 @tailwind utilities;
 
 :root {
-  --nexora-red-dark: #07111f;
-  --nexora-white: #f4f7fb;
-  --nexora-red: #5b8cff;
-  --nexora-pink: #a8c1ff;
-  --nexora-coral: #56e0d2;
+  --nexora-red-dark: #222223;
+  --nexora-white: #fefefe;
+  --nexora-red: #b62a2d;
+  --nexora-pink: #e6a8a8;
+  --nexora-coral: #d5575e;
 
-  --nexora-black: #050b14;
-  --nexora-cream: #dde7f0;
-  --nexora-brown: #2d5f8a;
+  --nexora-black: #1b191a;
+  --nexora-cream: #e9e4e0;
+  --nexora-brown: #943a1f;
 
-  --nexora-yellow: #f4c96b;
-  --nexora-green-dark: #0b2632;
-  --nexora-green: #1b7c7b;
-  --nexora-sage: #8ce5d7;
+  --nexora-yellow: #f1b24a;
+  --nexora-green-dark: #164a41;
+  --nexora-green: #4d774e;
+  --nexora-sage: #9dc88d;
 
   --nexora-bg: var(--nexora-red-dark);
-  --nexora-surface: #0e2030;
-  --nexora-surface-soft: #142b3d;
+  --nexora-surface: #2b292a;
+  --nexora-surface-soft: #353233;
   --nexora-text: var(--nexora-white);
-  --nexora-muted: rgba(221, 231, 240, 0.72);
-  --nexora-border: rgba(221, 231, 240, 0.13);
-  --nexora-font-sans: Inter, Aptos, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --nexora-muted: rgba(254, 254, 254, 0.68);
+  --nexora-border: rgba(254, 254, 254, 0.12);
 
   --nexora-radius-xs: 4px;
   --nexora-radius-sm: 8px;
@@ -50,7 +49,6 @@
 html {
   color-scheme: dark;
   scroll-behavior: smooth;
-  font-family: var(--nexora-font-sans);
   background: var(--nexora-bg);
 }
 
@@ -63,9 +61,6 @@ body {
   min-height: 100vh;
   margin: 0;
   color: var(--nexora-text);
-  font-family: var(--nexora-font-sans);
-  font-feature-settings: "ss01" on, "cv11" on;
-  font-kerning: normal;
   overflow-x: hidden;
   background:
     radial-gradient(50rem 38rem at -10% -10%, rgba(182, 42, 45, 0.25), transparent 65%),
@@ -1285,16 +1280,4 @@ select:focus {
   .nexora-card::after {
     display: none;
   }
-}
-
-/* Global editorial polish and accessible motion defaults. */
-:where(h1, h2, h3, h4, h5, h6) { letter-spacing: -0.035em; }
-:where(p, li) { line-height: 1.7; }
-:where(button, input, textarea, select) { font: inherit; }
-.prose-nexora { max-width: 74ch; margin-inline: auto; color: var(--nexora-cream); line-height: 1.82; }
-.prose-nexora :where(h2, h3, h4) { color: var(--nexora-white); line-height: 1.2; }
-.prose-nexora :where(a) { color: var(--nexora-coral); text-decoration-thickness: 1px; text-underline-offset: 3px; }
-.prose-nexora :where(img, figure) { border-radius: 1rem; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
