@@ -60,11 +60,11 @@ export default async function HomePage() {
 		listTrendingArticles(8),
 		getFeaturedArticle(),
 		listLatestArticles(6),
-		listArticlesForCategory("ai-agents", 1, 3),
+		listArticlesForCategory("ai-assistants", 1, 3),
 		listArticlesForCategory("automation", 1, 3),
-		listArticlesForCategory("productivity", 1, 3),
+		listArticlesForCategory("future-of-work", 1, 3),
 		listArticlesForCategory("business-ai", 1, 3),
-		listArticlesForCategory("guides", 1, 3),
+		listArticlesForCategory("ai-writing", 1, 3),
 		listToolsDirectory({
 			featuredOnly: true,
 			pageSize: 6,
@@ -155,7 +155,7 @@ export default async function HomePage() {
 
 								<div className="flex flex-wrap justify-center gap-3 sm:gap-4 lg:justify-start">
 									<Link
-										href="/ai-agents"
+										href="/ai-assistants"
 										className="nexora-button group relative overflow-hidden rounded-pill bg-gradient-to-r from-nexora-blue via-nexora-turquoise to-nexora-blue bg-[length:200%_100%] px-6 py-3 text-small font-semibold text-[#071014] shadow-glow-blue transition-all duration-smooth hover:bg-right hover:shadow-glow-turquoise"
 									>
 										<span className="relative z-10">
@@ -312,7 +312,7 @@ export default async function HomePage() {
 				{enabled.has("aiAgents") && aiAgents.length > 0 ? (
 					<section className="nexora-section mx-auto w-full max-w-content px-4 animate-fade-up">
 						<SectionHeader
-							title="AI Agents"
+							title="AI Assistants"
 							href="/ai-agents"
 						/>
 
@@ -342,7 +342,7 @@ export default async function HomePage() {
 				{enabled.has("productivity") && productivity.length > 0 ? (
 					<section className="nexora-section mx-auto w-full max-w-content px-4 animate-fade-up">
 						<SectionHeader
-							title="AI Productivity"
+							title="Future of Work"
 							href="/productivity"
 						/>
 
@@ -399,7 +399,7 @@ export default async function HomePage() {
 				{enabled.has("guides") && guides.length > 0 ? (
 					<section className="nexora-section mx-auto w-full max-w-content px-4 animate-fade-up">
 						<SectionHeader
-							title="AI Guides"
+							title="AI Writing"
 							href="/guides"
 						/>
 
