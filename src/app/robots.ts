@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next"
 import { siteConfig } from "@/config/site"
 
 /**
- * Production robots.txt (Rule 32/36). Blocks admin, API, and the search
- * results endpoint (duplicate/thin content, see Rule 9) while keeping every
- * indexable public route crawlable.
+ * Keep public content crawlable. Admin and API endpoints are private app
+ * surfaces; search pages are crawlable so Google can observe their noindex
+ * metadata instead of discovering blocked URLs without that directive.
  */
 export default function robots(): MetadataRoute.Robots {
 	return {
@@ -12,10 +12,9 @@ export default function robots(): MetadataRoute.Robots {
 			{
 				userAgent: "*",
 				allow: "/",
-				disallow: ["/admin", "/admin/", "/api/", "/search"],
+				disallow: ["/admin", "/admin/", "/api/"],
 			},
 		],
-		sitemap: siteConfig.url + "/sitemap.xml",
-		host: siteConfig.url,
+		sitemap: new URL("/sitemap.xml", siteConfig.url).toString(),
 	}
 }
