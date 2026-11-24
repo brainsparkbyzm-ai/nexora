@@ -447,21 +447,6 @@ export default async function HomePage() {
 					</section>
 				) : null}
 
-				{/* ============================================================
-				    ADMIN
-				============================================================ */}
-
-				<div className="mx-auto mt-[-1rem] w-full max-w-content px-4">
-					<div className="flex justify-center">
-						<Link
-							href="/admin/login"
-							className="nexora-glass nexora-hover-lift inline-flex items-center gap-2 rounded-pill border border-nexora-wine-ash/10 px-4 py-2 text-caption font-medium text-nexora-muted transition-all duration-normal hover:border-nexora-turquoise/40 hover:text-nexora-wine-ash"
-						>
-							<span aria-hidden="true">⚙</span>
-							Admin
-						</Link>
-					</div>
-				</div>
 			</div>
 		</div>
 	)
