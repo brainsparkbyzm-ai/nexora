@@ -43,17 +43,17 @@ export type HomepageSectionConfig = {
  * environment variable has not been configured yet.
  */
 const siteUrl =
-	process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://nexora.com"
+	process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://nexorahub.space"
 
 const normalizedSiteUrl = siteUrl.replace(/\/$/, "")
 
-let siteDomain = "nexora.com"
+let siteDomain = "nexorahub.space"
 
 try {
 	siteDomain = new URL(normalizedSiteUrl).hostname
 } catch {
 	// Keep a safe fallback instead of crashing the build.
-	siteDomain = "nexora.com"
+	siteDomain = "nexorahub.space"
 }
 
 export const siteConfig = {
