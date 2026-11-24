@@ -313,7 +313,7 @@ export default async function HomePage() {
 					<section className="nexora-section mx-auto w-full max-w-content px-4 animate-fade-up">
 						<SectionHeader
 							title="AI Assistants"
-							href="/ai-agents"
+							href="/ai-assistants"
 						/>
 
 						<ArticleGrid articles={aiAgents} />
