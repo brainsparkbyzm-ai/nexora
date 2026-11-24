@@ -174,7 +174,7 @@ export const defaultHomepageSections: HomepageSectionConfig[] = [
 	{
 		key: "productivity",
 		enabled: true,
-		categorySlug: "productivity",
+		categorySlug: "future-of-work",
 		title: "AI Productivity",
 	},
 
@@ -200,7 +200,7 @@ export const defaultHomepageSections: HomepageSectionConfig[] = [
 	{
 		key: "guides",
 		enabled: true,
-		categorySlug: "guides",
+		categorySlug: "ai-writing",
 		title: "AI Guides",
 	},
 
