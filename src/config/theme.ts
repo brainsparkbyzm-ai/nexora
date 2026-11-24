@@ -8,66 +8,60 @@
 
 export const theme = {
   colors: {
-    bg: "#07111F",
-    "bg-deep": "#050B14",
-    "bg-secondary": "#0B1D2B",
+    bg: "#222223",
+    "bg-deep": "#1B191A",
+    "bg-secondary": "#164A41",
 
-    surface: "#0E2030",
-    "surface-soft": "#142B3D",
-    "surface-raised": "#1A3448",
-    "surface-elevated": "#23445A",
+    surface: "#2B292A",
+    "surface-soft": "#343132",
+    "surface-raised": "#3D393A",
+    "surface-elevated": "#4A4445",
 
     border: "rgba(254, 254, 254, 0.12)",
     "border-soft": "rgba(254, 254, 254, 0.07)",
     "border-strong": "rgba(254, 254, 254, 0.22)",
 
-    red: "#5B8CFF",
-    "red-soft": "#A8C1FF",
-    coral: "#56E0D2",
+    red: "#B62A2D",
+    "red-soft": "#E6A8A8",
+    coral: "#D5575E",
 
-    cream: "#DDE7F0",
-    brown: "#2D5F8A",
-    black: "#050B14",
+    cream: "#E9E4E0",
+    brown: "#943A1F",
+    black: "#1B191A",
 
-    yellow: "#F4C96B",
-    green: "#0B2632",
-    "green-muted": "#1B7C7B",
-    sage: "#8CE5D7",
+    yellow: "#F1B24A",
+    green: "#164A41",
+    "green-muted": "#4D774E",
+    sage: "#9DC88D",
 
-    white: "#F4F7FB",
+    white: "#FEFEFE",
 
-    text: "#F4F7FB",
-    "text-soft": "#DDE7F0",
-    muted: "#A9B9C8",
-    "muted-2": "#7F93A6",
-    "muted-3": "#61778B",
+    text: "#FEFEFE",
+    "text-soft": "#E9E4E0",
+    muted: "#B9B1AD",
+    "muted-2": "#918985",
+    "muted-3": "#6F6966",
 
-    success: "#8CE5D7",
-    warning: "#F4C96B",
-    danger: "#F07878",
-    info: "#7AA8FF",
-    blue: "#5B8CFF",
-    "candy-blue": "#A8C1FF",
-    turquoise: "#56E0D2",
-    vanilla: "#F4C96B",
-    cyan: "#63D9E8",
-    "wine-ash": "#DDE7F0",
+    success: "#9DC88D",
+    warning: "#F1B24A",
+    danger: "#B62A2D",
+    info: "#4D774E",
 
     gradients: {
       brand:
-        "linear-gradient(135deg, #5B8CFF 0%, #56E0D2 48%, #F4C96B 100%)",
+        "linear-gradient(135deg, #B62A2D 0%, #F1B24A 48%, #164A41 100%)",
 
       red:
-        "linear-gradient(135deg, #5B8CFF 0%, #56E0D2 55%, #2D5F8A 100%)",
+        "linear-gradient(135deg, #B62A2D 0%, #D5575E 55%, #943A1F 100%)",
 
       green:
-        "linear-gradient(135deg, #0B2632 0%, #1B7C7B 55%, #8CE5D7 100%)",
+        "linear-gradient(135deg, #164A41 0%, #4D774E 55%, #9DC88D 100%)",
 
       warm:
-        "linear-gradient(135deg, #2D5F8A 0%, #F4C96B 100%)",
+        "linear-gradient(135deg, #943A1F 0%, #F1B24A 100%)",
 
       editorial:
-        "linear-gradient(135deg, #050B14 0%, #DDE7F0 100%)",
+        "linear-gradient(135deg, #1B191A 0%, #E9E4E0 100%)",
 
       hero:
         "radial-gradient(circle at 18% 20%, rgba(182,42,45,0.24), transparent 38%), radial-gradient(circle at 82% 15%, rgba(241,178,74,0.16), transparent 34%), radial-gradient(circle at 50% 82%, rgba(22,74,65,0.20), transparent 42%)",
@@ -139,8 +133,6 @@ export const theme = {
   fontFamily: {
     display: [
       "Inter",
-      "Aptos",
-      "Segoe UI",
       "ui-sans-serif",
       "system-ui",
       "sans-serif",
