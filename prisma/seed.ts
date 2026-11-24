@@ -882,6 +882,21 @@ const TOOLS: ToolDef[] = [
     toolCategoryName: "Developer Tools",
 },
 {
+{
+    slug: "poe-ai",
+    name: "Poe",
+    description: "Poe is a multi-model AI chat platform that gives users access to assistants and bots from multiple model providers through one interface. Availability and model access depend on the current plan and provider terms.",
+    websiteUrl: "https://poe.com",
+    pricing: "Freemium",
+    rating: 4.3,
+    pros: ["Access to multiple model families in one place", "Custom bots and prompt-based assistants", "Useful for comparing different model responses"],
+    cons: ["Model availability and usage limits can change", "Subscription credits may be difficult to compare", "Output quality varies by underlying model"],
+    bestFor: "People who want to experiment with several AI models from one interface",
+    features: ["Multi-model chat", "Custom bots", "Prompt sharing", "Web and mobile access"],
+    lastReviewedAt: new Date("2026-11-01"),
+    featured: false,
+    toolCategoryName: "AI Assistants",
+},
     slug: "openai-api",
     name: "OpenAI API",
     description: "OpenAI's API provides access to GPT-4o, o1, DALL-E 3, Whisper and Embeddings for developers building AI-powered applications. The most widely adopted AI API in the world with extensive tooling and documentation.",
@@ -2911,7 +2926,7 @@ throw new Error(
 if (TOOLS.length !== 50) {
 throw new Error("[VALIDATION] TOOLS array must have exactly 50 entries.");
 }
-if (ARTICLE_DEFINITIONS.length !== 35) {
+if (ARTICLE_DEFINITIONS.length !== 46) {
 throw new Error("[VALIDATION] ARTICLE_DEFINITIONS must have exactly 35 entries.");
 }
 // Validate free/paid split (25 free/freemium, 25 paid)
