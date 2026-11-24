@@ -2392,9 +2392,9 @@ const ARTICLE_DEFINITIONS: ArticleDef[] = [
     tagNames: ["Business AI", "Productivity", "Enterprise AI"],
     toolSlugs: ["chatgpt", "notion-ai", "n8n"],
 },
-if (ARTICLE_DEFINITIONS.length !== 45) {
+if (ARTICLE_DEFINITIONS.length !== 46) {
 throw new Error(
-"[SEED CONFIG ERROR] ARTICLE_DEFINITIONS must have exactly 45 entries. Found: " +
+"[SEED CONFIG ERROR] ARTICLE_DEFINITIONS must have exactly 46 entries. Found: " +
 ARTICLE_DEFINITIONS.length
 );
 }
