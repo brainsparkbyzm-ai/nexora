@@ -96,7 +96,7 @@ export const siteConfig = {
 export const primaryNav: NavItem[] = [
 	{ label: "AI Agents", href: "/ai-agents" },
 	{ label: "Automation", href: "/automation" },
-	{ label: "AI Tools", href: "/ai-tools" },
+	{ label: "AI Tools", href: "/tools" },
 	{ label: "Productivity", href: "/productivity" },
 	{ label: "Business", href: "/business-ai" },
 	{ label: "Reviews", href: "/reviews" },
@@ -112,7 +112,7 @@ export const footerNav = {
 	explore: [
 		{ label: "AI Agents", href: "/ai-agents" },
 		{ label: "Automation", href: "/automation" },
-		{ label: "AI Tools", href: "/ai-tools" },
+		{ label: "AI Tools", href: "/tools" },
 		{ label: "Productivity", href: "/productivity" },
 		{ label: "Business AI", href: "/business-ai" },
 	] satisfies NavItem[],
@@ -211,11 +211,11 @@ export const defaultHomepageSections: HomepageSectionConfig[] = [
 ]
 
 export const coreCategorySlugs = [
-	"ai-agents",
+	"ai-assistants",
+	"ai-coding",
+	"ai-writing",
+	"ai-image",
 	"automation",
-	"ai-tools",
-	"productivity",
 	"business-ai",
-	"reviews",
-	"guides",
+	"future-of-work",
 ] as const
