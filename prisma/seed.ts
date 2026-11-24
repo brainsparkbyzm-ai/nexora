@@ -2102,8 +2102,6 @@ const ARTICLE_DEFINITIONS: ArticleDef[] = [
     tagNames: ["AI Productivity", "Productivity", "Guides", "Future of Work"],
     toolSlugs: ["chatgpt-plus", "perplexity-pro", "fireflies-ai", "zapier-ai"],
 },
-];
-
 {
     slug: "choose-the-right-ai-assistant-for-work",
     title: "How to Choose the Right AI Assistant for Your Work",
@@ -2407,6 +2405,7 @@ const ARTICLE_DEFINITIONS: ArticleDef[] = [
     tagNames: ["Business AI", "Productivity", "Enterprise AI"],
     toolSlugs: ["chatgpt", "notion-ai", "n8n"],
 },
+];
 if (ARTICLE_DEFINITIONS.length !== 46) {
 throw new Error(
 "[SEED CONFIG ERROR] ARTICLE_DEFINITIONS must have exactly 46 entries. Found: " +
