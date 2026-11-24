@@ -169,7 +169,7 @@ export default async function HomePage() {
 									</Link>
 
 									<Link
-										href="/guides"
+										href="/ai-writing"
 										className="nexora-button nexora-glass group rounded-pill border border-nexora-blue/20 px-6 py-3 text-small font-semibold text-nexora-text transition-all duration-smooth hover:-translate-y-0.5 hover:border-nexora-turquoise/50 hover:text-nexora-vanilla"
 									>
 										Latest Research
@@ -343,7 +343,7 @@ export default async function HomePage() {
 					<section className="nexora-section mx-auto w-full max-w-content px-4 animate-fade-up">
 						<SectionHeader
 							title="Future of Work"
-							href="/productivity"
+							href="/future-of-work"
 						/>
 
 						<ArticleGrid articles={productivity} />
