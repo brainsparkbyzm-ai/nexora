@@ -882,7 +882,6 @@ const TOOLS: ToolDef[] = [
     toolCategoryName: "Developer Tools",
 },
 {
-{
     slug: "poe-ai",
     name: "Poe",
     description: "Poe is a multi-model AI chat platform that gives users access to assistants and bots from multiple model providers through one interface. Availability and model access depend on the current plan and provider terms.",
