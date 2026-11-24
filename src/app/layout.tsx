@@ -21,6 +21,10 @@ export const metadata: Metadata = {
 		description: siteConfig.seoDefaults.defaultDescription,
 		path: "/",
 	}),
+	title: {
+		default: siteConfig.seoDefaults.defaultTitle,
+		template: siteConfig.seoDefaults.titleTemplate,
+	},
 	metadataBase: new URL(siteConfig.url),
 	formatDetection: {
 		telephone: false,
@@ -53,11 +57,6 @@ export default async function RootLayout({
 					}}
 				/>
 
-				<script
-  async
-  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6880923496795622"
-  crossOrigin="anonymous"
-/>
 
 				<script
 					type="application/ld+json"
