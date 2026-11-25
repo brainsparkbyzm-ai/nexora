@@ -1,6 +1,6 @@
 // prisma/seed.ts
 // NEXORA — Production Seed | Prisma 6 + TypeScript + bcryptjs
-// Idempotent · 50 Tools · 45 Articles · 7 Categories · Full editorial structure
+// Idempotent · 50 Tools · 46 Articles · 7 Categories · Full editorial structure
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import * as crypto from "crypto";
@@ -26,7 +26,7 @@ if (!val) throw new Error("[SEED] Missing required record: " + label);
 return val;
 }
 // ─────────────────────────────────────────────
-// CORE CATEGORIES  (7 → 5 articles each = 35)
+// CORE CATEGORIES (7 categories; 46 published article definitions)
 // ─────────────────────────────────────────────
 const CORE_CATEGORIES = [
 {
