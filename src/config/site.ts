@@ -45,7 +45,19 @@ export type HomepageSectionConfig = {
 const siteUrl =
 	process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://www.nexorahub.space"
 
-const normalizedSiteUrl = siteUrl.replace(/\/$/, "")
+const normalizedSiteUrl = (() => {
+	try {
+		const url = new URL(siteUrl)
+		// Production serves the www hostname; normalize the apex host so
+		// canonicals, sitemap entries, robots.txt and structured data agree.
+		if (url.hostname.toLowerCase() === "nexorahub.space") {
+			url.hostname = "www.nexorahub.space"
+		}
+		return url.toString().replace(/\/$/, "")
+	} catch {
+		return "https://www.nexorahub.space"
+	}
+})()
 
 let siteDomain = "www.nexorahub.space"
 
