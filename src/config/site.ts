@@ -43,17 +43,17 @@ export type HomepageSectionConfig = {
  * environment variable has not been configured yet.
  */
 const siteUrl =
-	process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://nexorahub.space"
+	process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://www.nexorahub.space"
 
 const normalizedSiteUrl = siteUrl.replace(/\/$/, "")
 
-let siteDomain = "nexorahub.space"
+let siteDomain = "www.nexorahub.space"
 
 try {
 	siteDomain = new URL(normalizedSiteUrl).hostname
 } catch {
 	// Keep a safe fallback instead of crashing the build.
-	siteDomain = "nexorahub.space"
+	siteDomain = "www.nexorahub.space"
 }
 
 export const siteConfig = {
@@ -160,8 +160,8 @@ export const defaultHomepageSections: HomepageSectionConfig[] = [
 	{
 		key: "aiAgents",
 		enabled: true,
-		categorySlug: "ai-agents",
-		title: "AI Agents",
+		categorySlug: "ai-assistants",
+		title: "AI Assistants",
 	},
 
 	{
