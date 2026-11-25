@@ -2434,11 +2434,20 @@ console.log("\n▶ NEXORA seed starting...");
 // 1. ADMIN USER
 // ─────────────────────────────────────────────
 const adminEmail = process.env.ADMIN_EMAIL ?? "admin@nexora.io";
-const adminPassword = process.env.ADMIN_PASSWORD ?? "ChangeMe_Seed_2026!";
-const hashedPassword = await bcrypt.hash(adminPassword, 12);
+const adminPassword = process.env.ADMIN_PASSWORD?.trim();
+if (process.env.NODE_ENV === "production" && !adminPassword) {
+  throw new Error(
+    "[SEED SECURITY ERROR] Set ADMIN_PASSWORD before running the production seed."
+  );
+}
+const hashedPassword = await bcrypt.hash(
+  adminPassword ?? "ChangeMe_Seed_2026!",
+  12
+);
 const adminUser = await prisma.user.upsert({
     where: { email: adminEmail },
-    update: { passwordHash: hashedPassword, role: "ADMIN" },
+    // Never reset an existing administrator's password during a routine seed.
+    update: { role: "ADMIN" },
     create: {
       email: adminEmail,
       passwordHash: hashedPassword,
