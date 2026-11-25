@@ -174,14 +174,14 @@ export async function listRelatedArticlesForTool(
 	// even when no explicit ArticleTool mapping exists yet.
 	const tool = await prisma.tool.findUnique({
 		where: { id: toolId },
-		select: { categoryId: true },
+		select: { category: { select: { slug: true } } },
 	})
-	if (!tool) return directlyLinked
+	if (!tool?.category.slug) return directlyLinked
 
 	const fallbackArticles = await prisma.article.findMany({
 		where: {
 			status: "PUBLISHED",
-			categoryId: tool.categoryId,
+			category: { slug: tool.category.slug },
 			...(directlyLinked.length > 0
 				? { id: { notIn: directlyLinked.map((article) => article.id) } }
 				: {}),
