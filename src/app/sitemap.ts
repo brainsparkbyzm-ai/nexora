@@ -43,7 +43,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		{ url: new URL("/editorial-policy", siteConfig.url).toString(), changeFrequency: "yearly", priority: 0.2 },
 	]
 
-	const categoryRoutes: MetadataRoute.Sitemap = categories.map((category) => ({
+	// Legacy category slugs permanently redirect to their current canonical routes.
+	// Keep redirect-only URLs out of the sitemap so crawlers see final destinations.
+	const legacyRedirectCategorySlugs = new Set([
+		"ai-agents",
+		"ai-tools",
+		"guides",
+		"productivity",
+		"reviews",
+	])
+
+	const categoryRoutes: MetadataRoute.Sitemap = categories
+		.filter((category) => !legacyRedirectCategorySlugs.has(category.slug))
+		.map((category) => ({
 		url: new URL(`/${category.slug}`, siteConfig.url).toString(),
 		lastModified: category.updatedAt,
 		changeFrequency: "weekly",

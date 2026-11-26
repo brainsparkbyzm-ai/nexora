@@ -2595,8 +2595,19 @@ const authorId = authorMap.get(art.authorSlug);
 if (!authorId) {
 throw new Error("[SEED] Missing author: " + art.authorSlug);
 }
-const siteBase = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://nexorahub.space").replace(/\/$/, "");
-const canonicalUrl = siteBase + "/articles/" + art.slug;
+const configuredSiteBase = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://www.nexorahub.space";
+const canonicalSiteBase = (() => {
+  try {
+    const url = new URL(configuredSiteBase);
+    if (url.hostname.toLowerCase() === "nexorahub.space") {
+      url.hostname = "www.nexorahub.space";
+    }
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return "https://www.nexorahub.space";
+  }
+})();
+const canonicalUrl = canonicalSiteBase + "/articles/" + art.slug;
 const record = await prisma.article.upsert({
       where: { slug: art.slug },
       update: {
