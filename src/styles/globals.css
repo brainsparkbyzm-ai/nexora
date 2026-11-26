@@ -1347,3 +1347,11 @@ select:focus {
   .prose-nexora, .prose-nexora p, .prose-nexora li { font-size: 1rem; line-height: 1.75; }
   .prose-nexora table { font-size: 0.9rem; }
 }
+
+
+.nexora-article-header h1,
+.nexora-article-header h2,
+.nexora-article-header h3 {
+  font-family: Calibri, Candara, "Segoe UI", Arial, sans-serif;
+  font-weight: 700;
+}
