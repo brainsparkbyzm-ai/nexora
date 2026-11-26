@@ -34,6 +34,33 @@ type Props = {
 	}>
 }
 
+const articleSeoTitles: Record<string, string> = {
+	"25-ai-automation-ideas-that-can-save-hours-every-week": "25 AI Automation Ideas to Save Time",
+	"ai-agents-explained-what-they-are-how-they-work-and-what-they-can-do": "AI Agents Explained: How They Work",
+	"ai-automation-in-2026-the-complete-guide-for-beginners": "AI Automation in 2026: Beginner's Guide",
+	"ai-in-customer-support-what-companies-should-automate-first": "AI for Customer Support: What to Automate",
+	"ai-productivity-in-2026-how-to-get-more-done-with-less-work": "AI Productivity: Get More Done in 2026",
+	"ai-productivity-mistakes-that-are-actually-making-you-slower": "AI Productivity Mistakes to Avoid",
+	"ai-roi-how-to-measure-whether-your-ai-investment-is-paying-off": "AI ROI: Measure the Value of AI",
+	"ai-tools-for-small-businesses-the-15-tools-worth-paying-for": "15 AI Tools for Small Businesses",
+	"ai-workflow-automation-a-practical-framework-that-actually-works": "AI Workflow Automation: A Practical Guide",
+	"best-ai-agents-in-2026-10-systems-worth-trying-right-now": "10 Best AI Agents to Try in 2026",
+	"chatgpt-review-2026-is-chatgpt-still-worth-paying-for": "ChatGPT Review 2026: Is It Worth It?",
+	"chatgpt-vs-claude-vs-gemini-which-ai-is-best-in-2026": "ChatGPT vs Claude vs Gemini: 2026 Guide",
+	"how-to-automate-your-business-without-breaking-your-workflow": "How to Automate Your Business with AI",
+	"how-to-build-an-ai-agent-a-beginner-s-step-by-step-guide": "How to Build an AI Agent: Step-by-Step",
+	"how-to-build-an-ai-powered-personal-productivity-system": "Build an AI-Powered Productivity System",
+	"how-to-build-an-ai-strategy-for-your-business-in-2026": "Build an AI Strategy for Your Business",
+	"how-to-choose-the-right-ai-tool-without-wasting-money": "How to Choose the Right AI Tool",
+	"how-to-use-ai-like-a-pro-15-practical-tips-that-actually-work": "15 Practical Ways to Use AI Better",
+	"how-to-write-better-ai-prompts-the-complete-beginner-s-guide": "How to Write Better AI Prompts",
+	"midjourney-review-2026-is-it-still-the-best-ai-image-generator": "Midjourney Review 2026: Is It Worth It?",
+	"notion-ai-review-2026-is-it-worth-adding-to-your-workspace": "Notion AI Review 2026: Is It Worth It?",
+	"the-business-ai-playbook-from-first-experiment-to-production": "The Business AI Playbook: Pilot to Scale",
+	"zapier-review-2026-is-it-still-the-best-automation-tool": "Zapier Review 2026: Is It Worth It?",
+	"zapier-vs-make-vs-n8n-which-automation-platform-is-best": "Zapier vs Make vs n8n: Automation Tools",
+}
+
 function extractTableOfContents(html: string) {
 	if (!html || typeof html !== "string") {
 		return []
@@ -71,7 +98,7 @@ export async function generateMetadata({
 	}
 
 	return buildMetadata({
-		title: article.seoTitle || article.title,
+		title: articleSeoTitles[article.slug] ?? article.seoTitle ?? article.title,
 		description: article.seoDescription || article.excerpt,
 		path: `/articles/${article.slug}`,
 		image: article.heroImage || undefined,
