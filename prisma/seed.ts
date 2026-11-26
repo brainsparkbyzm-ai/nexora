@@ -2476,9 +2476,12 @@ if (process.env.NEXORA_SAFE_CONTENT_ONLY === "1") {
     select: { slug: true },
   });
   const existingSlugs = new Set(existing.map((article) => article.slug));
-  const siteBase = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://www.nexorahub.space")
-    .replace(/\\/$/, "");
-  const canonicalSiteBase = siteBase.replace(/^https?:\\/\\/nexorahub\\.space(?=\\/|$)/i, "https://www.nexorahub.space");
+  const configuredSiteBase = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://www.nexorahub.space";
+  const canonicalUrlBase = new URL(configuredSiteBase);
+  if (canonicalUrlBase.hostname.toLowerCase() === "nexorahub.space") {
+    canonicalUrlBase.hostname = "www.nexorahub.space";
+  }
+  const canonicalSiteBase = canonicalUrlBase.toString().replace(/\/$/, "");
 
   const missingArticles = ARTICLE_DEFINITIONS.filter((article) => !existingSlugs.has(article.slug));
   const articleRows = missingArticles.map((article) => {
