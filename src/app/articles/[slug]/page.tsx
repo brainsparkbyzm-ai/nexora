@@ -276,7 +276,7 @@ export default async function ArticlePage({ params }: Props) {
 
 			{/* Hero image */}
 			{article.heroImage ? (
-				<figure className="mx-auto mt-8 w-full max-w-hero px-4 sm:mt-10">
+				<figure className="mx-auto mt-8 w-full max-w-article px-4 sm:mt-10">
 					<div className="nexora-3d overflow-hidden rounded-card border border-nexora-border bg-nexora-surface/30 p-1.5">
 						<OptimizedImage
 							src={article.heroImage}
@@ -289,14 +289,14 @@ export default async function ArticlePage({ params }: Props) {
 			) : null}
 
 			{/* Reading layout */}
-			<div className="mx-auto mt-10 grid w-full max-w-hero gap-8 px-4 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10">
-				<aside className="lg:sticky lg:top-24 lg:h-fit">
+			<div className="mx-auto mt-10 w-full max-w-article px-4">
+				<aside className="mb-8 w-full">
 					<div className="nexora-glass rounded-card border border-nexora-border p-4">
 						<TableOfContents items={toc} />
 					</div>
 				</aside>
 
-				<div className="mx-auto w-full max-w-article min-w-0">
+				<div className="mx-auto w-full min-w-0">
 					{/* Top advertisement */}
 					<div className="nexora-glass overflow-hidden rounded-card border border-nexora-border p-2">
 						<AdSlot placement="article-top" />
