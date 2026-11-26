@@ -2,9 +2,16 @@
 // NEXORA — Production Seed | Prisma 6 + TypeScript + bcryptjs
 // Idempotent · 50 Tools · 46 Articles · 7 Categories · Full editorial structure
 import { PrismaClient } from "@prisma/client";
+import { PrismaNeon } from "@prisma/adapter-neon";
 import bcrypt from "bcryptjs";
 import * as crypto from "crypto";
-const prisma = new PrismaClient();
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not configured.");
+}
+const adapter = new PrismaNeon({ connectionString });
+const prisma = new PrismaClient({ adapter });
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
