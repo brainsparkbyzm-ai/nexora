@@ -2437,6 +2437,116 @@ throw new Error("[SEED CONFIG ERROR] Duplicate tool slugs detected in TOOLS arra
 // ─────────────────────────────────────────────
 async function main() {
 console.log("\n▶ NEXORA seed starting...");
+
+// SAFE CONTENT-ONLY MODE: inserts missing records; never updates existing content,
+// users, tools, reviews, comparisons, settings, or existing article relations.
+if (process.env.NEXORA_SAFE_CONTENT_ONLY === "1") {
+  console.log("  Safe content-only mode enabled.");
+  await prisma.category.createMany({
+    data: CORE_CATEGORIES.map((cat) => ({
+      slug: cat.slug, name: cat.name, description: cat.description, heroImage: cat.heroImage,
+    })),
+    skipDuplicates: true,
+  });
+
+  const authorDefinitions = [
+    { slug: "elena-cho", name: "Elena Cho", role: "Senior AI Editor", bio: "Elena Cho has spent seven years covering AI and technology for editorial publications. She leads NEXORA's AI tools coverage and specialises in AI assistant reviews, editorial workflow integration and AI literacy. She holds an MSc in Human-Computer Interaction from UCL." },
+    { slug: "marcus-webb", name: "Marcus Webb", role: "AI Tools Reviewer", bio: "Marcus Webb is a developer-turned-journalist who has shipped production code in four languages and now writes about the tools that help developers work faster. At NEXORA he covers AI coding tools, automation platforms and developer-focused AI. He is based in Toronto." },
+  ];
+  await prisma.author.createMany({ data: authorDefinitions, skipDuplicates: true });
+  await prisma.tag.createMany({
+    data: TAG_NAMES.map((name) => ({ slug: slugify(name), name })),
+    skipDuplicates: true,
+  });
+
+  const categories = await prisma.category.findMany({
+    where: { slug: { in: CORE_CATEGORIES.map((cat) => cat.slug) } },
+    select: { id: true, slug: true },
+  });
+  const authors = await prisma.author.findMany({
+    where: { slug: { in: authorDefinitions.map((author) => author.slug) } },
+    select: { id: true, slug: true },
+  });
+  const categoryIds = new Map(categories.map((record) => [record.slug, record.id]));
+  const authorIds = new Map(authors.map((record) => [record.slug, record.id]));
+
+  const slugs = ARTICLE_DEFINITIONS.map((article) => article.slug);
+  const existing = await prisma.article.findMany({
+    where: { slug: { in: slugs } },
+    select: { slug: true },
+  });
+  const existingSlugs = new Set(existing.map((article) => article.slug));
+  const configuredSiteBase = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://www.nexorahub.space";
+  const canonicalUrlBase = new URL(configuredSiteBase);
+  if (canonicalUrlBase.hostname.toLowerCase() === "nexorahub.space") {
+    canonicalUrlBase.hostname = "www.nexorahub.space";
+  }
+  const canonicalSiteBase = canonicalUrlBase.toString().replace(/\/$/, "");
+
+  const missingArticles = ARTICLE_DEFINITIONS.filter((article) => !existingSlugs.has(article.slug));
+  const articleRows = missingArticles.map((article) => {
+    const categoryId = categoryIds.get(article.categorySlug);
+    const authorId = authorIds.get(article.authorSlug);
+    if (!categoryId) throw new Error("[SAFE SEED] Missing category: " + article.categorySlug);
+    if (!authorId) throw new Error("[SAFE SEED] Missing author: " + article.authorSlug);
+    return {
+      slug: article.slug,
+      title: article.title,
+      excerpt: article.excerpt,
+      content: article.content,
+      categoryId,
+      authorId,
+      status: "PUBLISHED" as const,
+      featured: article.featured,
+      trending: article.trending,
+      readingTime: article.readingTime,
+      heroImage: article.heroImage,
+      seoTitle: article.seoTitle,
+      seoDescription: article.seoDescription,
+      canonicalUrl: canonicalSiteBase + "/articles/" + article.slug,
+      schemaType: article.schemaType,
+      publishedAt: article.publishedAt,
+    };
+  });
+  if (articleRows.length) {
+    await prisma.article.createMany({ data: articleRows, skipDuplicates: true });
+  }
+
+  const newSlugs = missingArticles.map((article) => article.slug);
+  const newArticles = newSlugs.length
+    ? await prisma.article.findMany({
+        where: { slug: { in: newSlugs } },
+        select: { id: true, slug: true },
+      })
+    : [];
+  const tagIds = new Map(
+    (await prisma.tag.findMany({ select: { id: true, slug: true } }))
+      .map((tag) => [tag.slug, tag.id]),
+  );
+  const tagRelations = [];
+  for (const article of missingArticles) {
+    const articleId = newArticles.find((record) => record.slug === article.slug)?.id;
+    if (!articleId) continue;
+    for (const tagName of article.tagNames) {
+      const tagId = tagIds.get(slugify(tagName));
+      if (tagId) tagRelations.push({ articleId, tagId });
+    }
+  }
+  if (tagRelations.length) {
+    await prisma.articleTag.createMany({ data: tagRelations, skipDuplicates: true });
+  }
+
+  const publishedByCategory = await prisma.category.findMany({
+    where: { slug: { in: CORE_CATEGORIES.map((cat) => cat.slug) } },
+    select: { slug: true, _count: { select: { articles: { where: { status: "PUBLISHED" } } } } },
+  });
+  console.log("  ✓ Categories checked:", categories.length);
+  console.log("  ✓ New articles inserted:", articleRows.length);
+  console.log("  ✓ New article-tag links:", tagRelations.length);
+  console.log("  ✓ Published articles per category:", publishedByCategory.map((cat) => cat.slug + "=" + cat._count.articles).join(", "));
+  console.log("  ✔ Safe content-only seed complete. Existing records were not updated.");
+  return;
+}
 // ─────────────────────────────────────────────
 // 1. ADMIN USER
 // ─────────────────────────────────────────────
