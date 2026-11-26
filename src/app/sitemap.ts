@@ -3,6 +3,9 @@ import type { MetadataRoute } from "next"
 import { siteConfig } from "@/config/site"
 import { prisma } from "@/lib/prisma"
 
+// Refresh database-backed URLs after content is seeded or published.
+export const revalidate = 300
+
 /**
  * Include only URLs backed by real public records. Category and author
  * archives with no published articles are excluded to avoid thin/empty URLs.
