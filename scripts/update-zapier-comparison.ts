@@ -14,7 +14,8 @@ const prisma = new PrismaClient({
   adapter: new PrismaNeon({ connectionString }),
 })
 
-const slugs = ["zapier-vs-make-vs-n8n", "zapier-vs-make-vs-n8n-which-automation-platform-is-best"]
+// Target only the article whose current title matches the reviewed source record.
+const slugs = ["zapier-vs-make-vs-n8n"]
 const expectedTitle = "Zapier vs Make vs n8n: Which Automation Tool Is Right for You?"
 
 const title = "Zapier vs Make vs n8n: Which Automation Tool Is Best in 2026?"
