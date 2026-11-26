@@ -27,6 +27,11 @@ export function OptimizedImage({
 				placeholder="empty"
 				loading={props.priority ? undefined : "lazy"}
 				{...props}
+				unoptimized={
+					typeof props.src === "string" && /^https?:\\/\\//i.test(props.src)
+						? true
+						: props.unoptimized
+				}
 			/>
 		</div>
 	)
