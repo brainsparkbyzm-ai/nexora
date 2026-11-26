@@ -162,7 +162,7 @@ async function main() {
     const article = await prisma.article.findFirst({ where: { slug: { in: slugs } } })
     if (!article) throw new Error(`Comparison article not found under either known slug. No changes made.`)
     if (article.title !== expectedTitle) {
-      throw new Error(`Unexpected article title for ${slug}. No changes made.`)
+      throw new Error(`Unexpected article title for ${article.slug}. No changes made.`)
     }
 
     const wordCount = content.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length
