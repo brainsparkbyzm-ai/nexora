@@ -60,6 +60,7 @@ const articleSeoTitles: Record<string, string> = {
 	"the-business-ai-playbook-from-first-experiment-to-production": "The Business AI Playbook: Pilot to Scale",
 	"zapier-review-2026-is-it-still-the-best-automation-tool": "Zapier Review 2026: Is It Worth It?",
 	"zapier-vs-make-vs-n8n": "Zapier vs Make vs n8n: Best Automation Tool (2026)",
+	"zapier-vs-make-vs-n8n-which-automation-platform-is-best": "Zapier vs Make vs n8n: Best Automation Tool (2026)",
 }
 
 function extractTableOfContents(html: string) {
