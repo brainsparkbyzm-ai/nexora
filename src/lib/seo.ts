@@ -13,18 +13,26 @@ export type SeoInput = {
 
 /** Builds a Next.js Metadata object with consistent canonical/OG/Twitter tags. */
 export function buildMetadata(input: SeoInput): Metadata {
-	const url = input.canonicalUrl ? new URL(input.canonicalUrl, siteConfig.url).toString() : new URL(input.path, siteConfig.url).toString()
+	const url = new URL(input.canonicalUrl ?? input.path, siteConfig.url)
+
+	// NEXORA uses one production canonical host: HTTPS www.
+	// Normalize stored/custom canonical URLs as well as generated page URLs.
+	url.protocol = "https:"
+	url.hostname = "www.nexorahub.space"
+	url.port = ""
+
+	const canonicalUrl = url.toString()
 	const image = input.image ?? siteConfig.seoDefaults.defaultOgImage
 
 	return {
 		title: input.title,
 		description: input.description,
-		alternates: { canonical: url },
+		alternates: { canonical: canonicalUrl },
 		robots: input.noindex ? { index: false, follow: false } : { index: true, follow: true },
 		openGraph: {
 			title: input.title,
 			description: input.description,
-			url,
+			url: canonicalUrl,
 			siteName: siteConfig.name,
 			type: input.type ?? "website",
 			images: image ? [{ url: image }] : undefined,
