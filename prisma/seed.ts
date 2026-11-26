@@ -1,6 +1,6 @@
 // prisma/seed.ts
 // NEXORA — Production Seed | Prisma 6 + TypeScript + bcryptjs
-// Idempotent · 50 Tools · 35 Articles · 7 Categories · Full editorial structure
+// Idempotent · 50 Tools · 46 Articles · 7 Categories · Full editorial structure
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import * as crypto from "crypto";
@@ -26,7 +26,7 @@ if (!val) throw new Error("[SEED] Missing required record: " + label);
 return val;
 }
 // ─────────────────────────────────────────────
-// CORE CATEGORIES  (7 → 5 articles each = 35)
+// CORE CATEGORIES (7 categories; 46 published article definitions)
 // ─────────────────────────────────────────────
 const CORE_CATEGORIES = [
 {
@@ -880,6 +880,21 @@ const TOOLS: ToolDef[] = [
     lastReviewedAt: new Date("2026-06-01"),
     featured: false,
     toolCategoryName: "Developer Tools",
+},
+{
+    slug: "poe-ai",
+    name: "Poe",
+    description: "Poe is a multi-model AI chat platform that gives users access to assistants and bots from multiple model providers through one interface. Availability and model access depend on the current plan and provider terms.",
+    websiteUrl: "https://poe.com",
+    pricing: "Freemium",
+    rating: 4.3,
+    pros: ["Access to multiple model families in one place", "Custom bots and prompt-based assistants", "Useful for comparing different model responses"],
+    cons: ["Model availability and usage limits can change", "Subscription credits may be difficult to compare", "Output quality varies by underlying model"],
+    bestFor: "People who want to experiment with several AI models from one interface",
+    features: ["Multi-model chat", "Custom bots", "Prompt sharing", "Web and mobile access"],
+    lastReviewedAt: new Date("2026-11-01"),
+    featured: false,
+    toolCategoryName: "AI Assistants",
 },
 {
     slug: "openai-api",
@@ -2087,10 +2102,313 @@ const ARTICLE_DEFINITIONS: ArticleDef[] = [
     tagNames: ["AI Productivity", "Productivity", "Guides", "Future of Work"],
     toolSlugs: ["chatgpt-plus", "perplexity-pro", "fireflies-ai", "zapier-ai"],
 },
+{
+    slug: "choose-the-right-ai-assistant-for-work",
+    title: "How to Choose the Right AI Assistant for Your Work",
+    excerpt: "A practical framework for matching an AI assistant to the tasks you actually do, testing its limits and avoiding subscriptions you will not use.",
+    content: `<h2>Start With the Work, Not the Brand</h2>
+<p>The most useful AI assistant is not necessarily the one with the most features or the loudest launch. It is the one that performs reliably on the tasks that consume your time. List three recurring activities: drafting, research, coding, analysis, meeting follow-up or planning. Use those tasks as your evaluation set.</p>
+<h2>Build a Small, Fair Test</h2>
+<p>Prepare the same representative prompt and source material for each candidate. Evaluate factual accuracy, clarity, ability to follow constraints, handling of long context and how much editing the result needs. Repeat each test more than once; one impressive answer is not enough evidence.</p>
+<h2>Check the Workflow Fit</h2>
+<p>Consider file support, integrations, export options, privacy controls, usage limits and accessibility. A model that performs well but cannot fit your daily workflow may create more friction than it removes. For team use, check admin controls and data-handling terms before uploading company material.</p>
+<h2>Free or Paid?</h2>
+<p>Start with a free tier where possible. Upgrade only when a specific limit blocks a valuable task or a paid feature saves enough time to justify its recurring cost. Track actual use for two weeks rather than deciding from a feature list.</p>
+<h2>A Simple Decision Rule</h2>
+<p>Choose the assistant that gives the best verified results on your own tasks, fits your security requirements and is easy to use consistently. Reassess when your work changes, not every time a new model is announced.</p>`,
+    categorySlug: "ai-assistants",
+    authorSlug: "elena-cho",
+    featured: false,
+    trending: false,
+    readingTime: 6,
+    heroImage: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1200&q=80",
+    seoTitle: "How to Choose the Right AI Assistant for Work",
+    seoDescription: "Compare AI assistants using your real work tasks, accuracy, privacy, integrations and cost with this practical selection framework.",
+    schemaType: "Article",
+    publishedAt: new Date("2026-11-18"),
+    tagNames: ["AI Tools", "Guides", "Productivity"],
+    toolSlugs: ["chatgpt", "claude", "perplexity-ai"],
+},
+{
+    slug: "safe-ai-prompting-sensitive-information",
+    title: "How to Use AI Tools Without Exposing Sensitive Information",
+    excerpt: "A practical privacy checklist for using AI at work: minimise inputs, remove identifiers, review settings and keep confidential data out of public prompts.",
+    content: `<h2>Assume Prompts May Be Stored</h2>
+<p>Before entering information into an AI service, understand the provider's current data controls, retention terms and whether submitted content may be used to improve models. Settings and policies differ by product, account type and region, so verify the terms that apply to your account instead of relying on general assumptions.</p>
+<h2>Minimise What You Share</h2>
+<p>Give the model only the context required to complete the task. Replace names with roles, remove account numbers and redact customer identifiers. If a task can be completed with a short excerpt or synthetic example, do not upload an entire database, contract folder or mailbox.</p>
+<h2>Separate Public and Confidential Work</h2>
+<p>Never paste passwords, API keys, authentication codes, private keys or unrestricted personal records into a general chat. Follow your employer's approved-tool list and data classification rules. If no approved process exists, ask the responsible security or privacy owner before processing sensitive material.</p>
+<h2>Review Outputs and Sharing</h2>
+<p>AI output can repeat sensitive input or introduce incorrect details. Check the result before copying it into a document, ticket or external message. Review shared links, connected apps and workspace permissions so information is not exposed to unintended recipients.</p>
+<h2>Make Privacy a Habit</h2>
+<p>Use a short pre-submit check: is this data necessary, is this tool approved, have identifiers been removed, and do I understand the account's controls? That small pause reduces avoidable exposure without preventing useful AI work.</p>`,
+    categorySlug: "business-ai",
+    authorSlug: "marcus-webb",
+    featured: false,
+    trending: false,
+    readingTime: 6,
+    heroImage: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&q=80",
+    seoTitle: "AI Privacy Checklist: Use AI Without Exposing Sensitive Data",
+    seoDescription: "Learn practical ways to protect confidential information when using AI tools, including data minimisation, redaction and account controls.",
+    schemaType: "Article",
+    publishedAt: new Date("2026-11-16"),
+    tagNames: ["Business AI", "Guides", "Enterprise AI"],
+    toolSlugs: ["chatgpt", "claude"],
+},
+{
+    slug: "evaluate-ai-tools-before-paying",
+    title: "The AI Tool Evaluation Checklist: What to Test Before You Pay",
+    excerpt: "Avoid subscription regret with a repeatable checklist covering output quality, reliability, privacy, integrations, limits and total cost.",
+    content: `<h2>Define the Job to Be Done</h2>
+<p>Write down the problem the tool should solve and how you will recognise success. "Improve productivity" is too broad. "Turn a 30-minute meeting into accurate notes and assigned actions in under five minutes" is testable.</p>
+<h2>Test With Representative Inputs</h2>
+<p>Use real but appropriately anonymised examples from your workflow. Include an ordinary case, a difficult edge case and a case where the correct response is to admit uncertainty. Score accuracy, completeness, consistency and the amount of human correction required.</p>
+<h2>Inspect the Practical Limits</h2>
+<p>Check usage caps, file sizes, export formats, collaboration features, integrations, support and downtime history where available. Confirm that the advertised feature is included in the plan you intend to buy. Trial periods and feature names can change.</p>
+<h2>Review Privacy and Ownership</h2>
+<p>Read the current terms for data retention, model training, deletion, access controls and commercial usage. For business use, confirm that the product meets your organisation's requirements before uploading confidential information or customer data.</p>
+<h2>Calculate the Real Cost</h2>
+<p>Include seats, add-ons, usage-based charges, implementation time and the cost of reviewing errors. Compare the subscription with the time or quality improvement you can actually measure.</p>
+<h2>Run a Short Pilot</h2>
+<p>Test for one or two weeks, collect feedback from intended users and define a stop condition. Buy only when the tool produces repeatable value that alternatives do not provide at a lower total cost.</p>`,
+    categorySlug: "future-of-work",
+    authorSlug: "elena-cho",
+    featured: false,
+    trending: false,
+    readingTime: 7,
+    heroImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80",
+    seoTitle: "AI Tool Evaluation Checklist Before You Subscribe",
+    seoDescription: "A practical framework for testing AI software before paying: quality, reliability, privacy, integrations, limits and total cost.",
+    schemaType: "Article",
+    publishedAt: new Date("2026-11-14"),
+    tagNames: ["AI Tools", "Guides", "Productivity"],
+    toolSlugs: ["chatgpt", "notion-ai", "perplexity-ai"],
+},
+{
+    slug: "n8n-first-workflow-beginners",
+    title: "Build Your First n8n Workflow: A Beginner-Friendly Blueprint",
+    excerpt: "Learn the building blocks of a reliable n8n automation, from triggers and credentials to validation, error handling and safe testing.",
+    content: `<h2>Understand the Workflow Shape</h2>
+<p>An automation usually has a trigger, one or more processing steps and an outcome. In n8n, a trigger can be a schedule, webhook or app event. Processing nodes transform or route the data, while the final node sends a message, creates a record or updates another system.</p>
+<h2>Start With a Low-Risk Task</h2>
+<p>Choose something reversible, such as sending yourself a notification when a test form is submitted. Avoid starting with payments, deleting records or sending bulk customer messages. Build the smallest workflow that proves the data can travel from trigger to destination.</p>
+<h2>Connect Credentials Carefully</h2>
+<p>Use n8n's credential manager rather than hard-coding tokens in node fields or expressions. Grant only the permissions required, keep credentials out of exported screenshots and rotate them if they are exposed.</p>
+<h2>Validate Every Step</h2>
+<p>Run nodes with sample data and inspect the output shape. Handle missing fields, empty results, duplicate events and unexpected data types. Add clear filters before actions that affect real systems.</p>
+<h2>Add Error Handling</h2>
+<p>Decide what should happen when an external service is unavailable or returns an error. Use retries only where repeating the action is safe; otherwise check for duplicate creation and notify an owner for manual review.</p>
+<h2>Test Before Going Live</h2>
+<p>Use test accounts and a small number of events. Confirm the workflow's permissions, execution history and failure notifications. Document what it does and who owns it before enabling production traffic.</p>`,
+    categorySlug: "automation",
+    authorSlug: "marcus-webb",
+    featured: false,
+    trending: false,
+    readingTime: 7,
+    heroImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80",
+    seoTitle: "Build Your First n8n Workflow: Beginner Guide",
+    seoDescription: "A step-by-step beginner blueprint for building safer n8n workflows with triggers, credentials, validation and error handling.",
+    schemaType: "Article",
+    publishedAt: new Date("2026-11-12"),
+    tagNames: ["Automation", "No-Code", "Guides"],
+    toolSlugs: ["n8n", "make-com"],
+},
+{
+    slug: "ai-meeting-notes-accuracy-checklist",
+    title: "AI Meeting Notes: A Checklist for Accurate Summaries and Action Items",
+    excerpt: "Use meeting transcription tools more responsibly by checking speaker attribution, decisions, deadlines, consent and follow-up ownership.",
+    content: `<h2>Transcription Is Not the Same as Understanding</h2>
+<p>AI meeting tools can save time, but a transcript is only a machine-generated record. Names, technical terms, accents, overlapping speech and poor audio can all produce errors. Treat summaries as drafts that need review, especially when decisions or commitments are involved.</p>
+<h2>Check the Important Details</h2>
+<p>Verify attendee names, project terminology, numbers, dates and quoted commitments. Listen to the relevant recording segment when a sentence changes the meaning of a decision. Do not assume a confident summary is an accurate one.</p>
+<h2>Separate Decisions From Discussion</h2>
+<p>A useful summary distinguishes confirmed decisions, open questions, proposals and background discussion. Action items should include an owner and due date only when those were actually agreed. If no owner was assigned, mark it as unassigned rather than inventing one.</p>
+<h2>Respect Consent and Retention</h2>
+<p>Follow applicable laws, workplace policies and meeting expectations before recording or transcribing. Tell participants when required, restrict access to recordings and transcripts, and apply appropriate retention and deletion practices.</p>
+<h2>Close the Loop</h2>
+<p>Send the reviewed notes to attendees with a clear way to correct mistakes. Store the final decisions in the team's approved system of record. This human review step turns a convenient transcript into a dependable working document.</p>`,
+    categorySlug: "business-ai",
+    authorSlug: "elena-cho",
+    featured: false,
+    trending: false,
+    readingTime: 6,
+    heroImage: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80",
+    seoTitle: "AI Meeting Notes: Accuracy and Privacy Checklist",
+    seoDescription: "Improve AI meeting summaries by verifying decisions, names, action owners, consent and retention before sharing notes.",
+    schemaType: "Article",
+    publishedAt: new Date("2026-11-10"),
+    tagNames: ["Productivity", "Business AI", "Guides"],
+    toolSlugs: ["fireflies-ai", "otter-ai"],
+},
+{
+    slug: "human-review-ai-generated-content",
+    title: "A Human Review Workflow for AI-Generated Content",
+    excerpt: "A practical editorial process for checking claims, sources, originality, tone and usefulness before AI-assisted content is published.",
+    content: `<h2>Use AI for Assistance, Not Automatic Approval</h2>
+<p>AI can help with outlining, research organisation and first drafts, but it can also invent sources, flatten nuance and repeat common phrasing. A publishing workflow needs a named human editor who is responsible for the final work.</p>
+<h2>Verify Every Material Claim</h2>
+<p>Trace factual statements to primary or authoritative sources. Open the cited source, confirm it supports the exact claim and check the date. Remove unsupported statistics and quotations. If evidence is mixed, explain the uncertainty instead of presenting a definitive conclusion.</p>
+<h2>Add Original Value</h2>
+<p>Improve the draft with practical examples, firsthand testing, original analysis or a clear explanation of trade-offs. Rephrasing generic AI output is not a substitute for expertise. Ask whether the article answers the reader's real question better than the pages already available.</p>
+<h2>Review Structure and Language</h2>
+<p>Check that the introduction sets expectations, headings follow a logical order and each section adds something useful. Remove repetition, vague claims and unnatural keyword use. Confirm that images, quotations and third-party material have appropriate rights and attribution.</p>
+<h2>Final Publication Checks</h2>
+<p>Review the title, description, canonical URL, internal links, author details, dates and mobile presentation. Make sure the page is accurate and useful before requesting indexing. Search visibility should follow editorial quality, not replace it.</p>`,
+    categorySlug: "ai-writing",
+    authorSlug: "marcus-webb",
+    featured: false,
+    trending: false,
+    readingTime: 7,
+    heroImage: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1200&q=80",
+    seoTitle: "Human Review Workflow for AI-Generated Content",
+    seoDescription: "A practical editorial checklist to verify AI-assisted content, improve originality and publish accurate, genuinely useful articles.",
+    schemaType: "Article",
+    publishedAt: new Date("2026-11-08"),
+    tagNames: ["AI Writing", "Guides", "Reviews"],
+    toolSlugs: ["grammarly", "chatgpt"],
+},
+{
+    slug: "ai-coding-assistant-code-review-checklist",
+    title: "AI Coding Assistants: A Safer Code Review Checklist",
+    excerpt: "Use AI coding tools productively without trusting generated code blindly. Review security, tests, dependencies, edge cases and maintainability.",
+    content: `<h2>Generated Code Is a Proposal</h2>
+<p>AI coding assistants can accelerate boilerplate, explain unfamiliar code and suggest implementations. They do not know every hidden requirement in your system. Treat each suggestion like a contribution from a developer who needs a careful review.</p>
+<h2>Check Correctness and Edge Cases</h2>
+<p>Read the full diff, not just the highlighted suggestion. Test empty inputs, invalid values, permission boundaries, time zones and failure paths relevant to the feature. Confirm that the change fits the existing architecture and does not silently alter unrelated behaviour.</p>
+<h2>Review Security</h2>
+<p>Look for hard-coded secrets, unsafe deserialisation, injection risks, overly broad permissions and missing server-side validation. Check dependency names and versions before installing packages suggested by a model. Never paste production credentials into a prompt.</p>
+<h2>Require Tests</h2>
+<p>Ask for unit or integration tests, then inspect whether they actually cover the intended behaviour. Run the project's formatter, linter, type checker and test suite. A generated test that simply repeats the implementation's assumptions is not meaningful protection.</p>
+<h2>Keep Humans Accountable</h2>
+<p>The person merging the change remains responsible for it. Ask the assistant to explain trade-offs, but verify those explanations against the code and documentation. Merge small, understandable changes rather than large unreviewed code dumps.</p>`,
+    categorySlug: "ai-coding",
+    authorSlug: "marcus-webb",
+    featured: false,
+    trending: false,
+    readingTime: 7,
+    heroImage: "https://images.unsplash.com/photo-1555947381-e8d9d3e5d6c4?w=1200&q=80",
+    seoTitle: "AI Coding Assistant Code Review and Security Checklist",
+    seoDescription: "A practical checklist for reviewing AI-generated code, including correctness, security, dependencies, tests and maintainability.",
+    schemaType: "Article",
+    publishedAt: new Date("2026-11-06"),
+    tagNames: ["Developer Tools", "AI Coding", "Guides"],
+    toolSlugs: ["cursor", "github-copilot-free"],
+},
+{
+    slug: "small-business-ai-customer-support-workflow",
+    title: "How Small Businesses Can Introduce AI to Customer Support",
+    excerpt: "A measured approach to AI-assisted support: start with internal drafts, build a trusted knowledge base and escalate sensitive cases to people.",
+    content: `<h2>Start With Repetitive, Low-Risk Questions</h2>
+<p>Small businesses often receive the same questions about opening hours, delivery, returns and product details. These are useful starting points because answers can be documented and checked. Do not begin by letting an AI system make refunds, change orders or resolve complaints without oversight.</p>
+<h2>Create a Reliable Knowledge Source</h2>
+<p>Collect approved policies, product information and common answers in one maintained location. Give every document an owner and review date. If the information is missing or contradictory, the assistant should say it cannot answer and route the question to a person.</p>
+<h2>Keep a Human Escalation Path</h2>
+<p>Escalate billing disputes, safety issues, privacy requests, angry customers and unusual cases. Make it clear when customers are interacting with automation and provide a practical way to reach a human. Do not let the system invent policy exceptions.</p>
+<h2>Measure Service Quality</h2>
+<p>Track resolution accuracy, repeat contacts, customer satisfaction, escalation rates and response time. Review a sample of conversations regularly. Faster replies are not a success if customers receive incorrect or misleading information.</p>
+<h2>Expand Only After Testing</h2>
+<p>Run a limited pilot using approved content and test questions. Fix gaps before increasing traffic. A small, transparent assistant that reliably answers a narrow set of questions is more valuable than a broad bot that confidently gets things wrong.</p>`,
+    categorySlug: "business-ai",
+    authorSlug: "elena-cho",
+    featured: false,
+    trending: false,
+    readingTime: 6,
+    heroImage: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=80",
+    seoTitle: "AI Customer Support for Small Business: Safe Implementation",
+    seoDescription: "A practical guide to introducing AI customer support with an approved knowledge base, human escalation and quality measurement.",
+    schemaType: "Article",
+    publishedAt: new Date("2026-11-04"),
+    tagNames: ["Business AI", "Automation", "Guides"],
+    toolSlugs: ["chatgpt", "n8n"],
+},
+{
+    slug: "build-ai-ready-company-knowledge-base",
+    title: "How to Build an AI-Ready Knowledge Base for Your Team",
+    excerpt: "Prepare internal information for AI search with clear ownership, structured documents, access controls and a routine for keeping content current.",
+    content: `<h2>Fix the Source Material First</h2>
+<p>AI search cannot make outdated or contradictory documents reliable. Start by collecting the policies, process guides, product notes and FAQs people actually use. Remove duplicates, identify conflicting versions and assign an owner to each important document.</p>
+<h2>Use Clear, Descriptive Structure</h2>
+<p>Give documents meaningful titles, dates, version information and concise headings. Explain acronyms and include the context a new employee would need. Break very long documents into sections that each answer a coherent question.</p>
+<h2>Respect Existing Permissions</h2>
+<p>Access control must carry through to retrieval. A user should not receive an answer based on a document they are not authorised to read. Review inherited permissions, sensitive folders and connector scopes before enabling AI search across a workspace.</p>
+<h2>Make Answers Traceable</h2>
+<p>Prefer systems that show the source passages behind an answer. Ask users to open the original document for important decisions. Configure the assistant to say when evidence is missing rather than filling gaps with plausible-sounding guesses.</p>
+<h2>Maintain the Knowledge Base</h2>
+<p>Set review dates, archive obsolete policies and monitor unanswered questions. Feedback from users can reveal missing documentation, but changes should be approved by the document owner. Treat the knowledge base as a maintained product, not a one-time upload.</p>`,
+    categorySlug: "future-of-work",
+    authorSlug: "marcus-webb",
+    featured: false,
+    trending: false,
+    readingTime: 7,
+    heroImage: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=1200&q=80",
+    seoTitle: "Build an AI-Ready Knowledge Base for Your Team",
+    seoDescription: "Learn how to prepare company documents for AI search with clear ownership, structured content, permissions and source citations.",
+    schemaType: "Article",
+    publishedAt: new Date("2026-11-02"),
+    tagNames: ["Enterprise AI", "Productivity", "Guides"],
+    toolSlugs: ["notion-ai", "chatgpt"],
+},
+{
+    slug: "ai-image-commercial-use-rights-checklist",
+    title: "AI-Generated Images for Business: A Rights and Quality Checklist",
+    excerpt: "Before using generated images in campaigns or products, check the service terms, source assets, likeness risks, trademarks and human review.",
+    content: `<h2>Check the Tool's Current Terms</h2>
+<p>Commercial-use permissions vary by provider, plan and time. Read the terms that apply to the account that generated the image, and save a copy of the relevant policy. Do not assume that every free tier grants the same rights as a paid plan.</p>
+<h2>Watch for Recognisable Protected Material</h2>
+<p>Review outputs for logos, brand marks, copyrighted characters, distinctive artwork and other material that may create legal or reputational risk. Avoid prompts that request imitation of a living artist's distinctive style or reproduction of a specific protected work.</p>
+<h2>Consider People and Likenesses</h2>
+<p>Do not create misleading endorsements or realistic depictions that imply a real person did something they did not do. Obtain appropriate permission for identifiable people and be especially careful with sensitive, political or commercial contexts.</p>
+<h2>Review Quality and Disclosure</h2>
+<p>Check hands, text, product details, accessibility and consistency across a campaign. Keep records of the tool and workflow used. Where platform rules, advertising standards or audience expectations require disclosure, label synthetic imagery clearly.</p>
+<h2>Use Human Approval</h2>
+<p>For high-value campaigns, packaging or regulated industries, involve the appropriate legal and brand reviewers. This checklist is general guidance, not legal advice; seek qualified advice for a specific use or jurisdiction.</p>`,
+    categorySlug: "ai-image",
+    authorSlug: "elena-cho",
+    featured: false,
+    trending: false,
+    readingTime: 6,
+    heroImage: "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=1200&q=80",
+    seoTitle: "AI-Generated Images for Business: Commercial Rights Checklist",
+    seoDescription: "A practical checklist for reviewing AI image licensing, trademarks, likeness risks, quality and disclosure before commercial use.",
+    schemaType: "Article",
+    publishedAt: new Date("2026-10-30"),
+    tagNames: ["AI Image", "Guides", "Business AI"],
+    toolSlugs: ["canva-ai", "adobe-firefly"],
+},
+{
+    slug: "measure-ai-productivity-roi",
+    title: "How to Measure the Real Productivity ROI of AI at Work",
+    excerpt: "Move beyond impressive demos with a simple measurement plan for time saved, quality, rework, adoption and total cost.",
+    content: `<h2>Choose One Workflow</h2>
+<p>Measure a specific process before and after introducing AI. Examples include preparing a first draft, classifying support requests or summarising meetings. Keep the scope narrow enough that the team can identify what changed.</p>
+<h2>Establish a Baseline</h2>
+<p>Record current completion time, error rate, review effort and throughput over a representative period. Include variation between simple and complex cases. Without a baseline, it is easy to confuse a good demo with a durable improvement.</p>
+<h2>Measure Quality Alongside Speed</h2>
+<p>Track whether the work is accurate, complete and useful. Include human correction time, escalations and downstream rework. A task that finishes faster but creates expensive mistakes may have negative value.</p>
+<h2>Count the Full Cost</h2>
+<p>Include subscriptions, usage fees, setup, training, integration, security review and ongoing maintenance. Account for the time people spend checking outputs. Compare the total cost with the value of the work that genuinely improved.</p>
+<h2>Run a Controlled Pilot</h2>
+<p>Where practical, compare similar tasks with and without AI assistance. Collect feedback from the people doing the work and review edge cases. Expand only when the improvement persists across more than a handful of examples.</p>
+<h2>Report Honestly</h2>
+<p>Share assumptions, sample size and limitations with the result. Distinguish measured savings from estimates, and revisit the numbers as usage patterns change. This makes AI investment decisions more credible and easier to improve.</p>`,
+    categorySlug: "business-ai",
+    authorSlug: "marcus-webb",
+    featured: false,
+    trending: false,
+    readingTime: 7,
+    heroImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80",
+    seoTitle: "How to Measure AI Productivity ROI at Work",
+    seoDescription: "Measure AI productivity with a practical framework covering baseline time, output quality, rework, adoption and total cost.",
+    schemaType: "Article",
+    publishedAt: new Date("2026-10-28"),
+    tagNames: ["Business AI", "Productivity", "Enterprise AI"],
+    toolSlugs: ["chatgpt", "notion-ai", "n8n"],
+},
 ];
-if (ARTICLE_DEFINITIONS.length !== 35) {
+if (ARTICLE_DEFINITIONS.length !== 46) {
 throw new Error(
-"[SEED CONFIG ERROR] ARTICLE_DEFINITIONS must have exactly 35 entries. Found: " +
+"[SEED CONFIG ERROR] ARTICLE_DEFINITIONS must have exactly 46 entries. Found: " +
 ARTICLE_DEFINITIONS.length
 );
 }
@@ -2116,11 +2434,20 @@ console.log("\n▶ NEXORA seed starting...");
 // 1. ADMIN USER
 // ─────────────────────────────────────────────
 const adminEmail = process.env.ADMIN_EMAIL ?? "admin@nexora.io";
-const adminPassword = process.env.ADMIN_PASSWORD ?? "ChangeMe_Seed_2026!";
-const hashedPassword = await bcrypt.hash(adminPassword, 12);
+const adminPassword = process.env.ADMIN_PASSWORD?.trim();
+if (process.env.NODE_ENV === "production" && !adminPassword) {
+  throw new Error(
+    "[SEED SECURITY ERROR] Set ADMIN_PASSWORD before running the production seed."
+  );
+}
+const hashedPassword = await bcrypt.hash(
+  adminPassword ?? "ChangeMe_Seed_2026!",
+  12
+);
 const adminUser = await prisma.user.upsert({
     where: { email: adminEmail },
-    update: { passwordHash: hashedPassword, role: "ADMIN" },
+    // Never reset an existing administrator's password during a routine seed.
+    update: { role: "ADMIN" },
     create: {
       email: adminEmail,
       passwordHash: hashedPassword,
@@ -2268,7 +2595,7 @@ const authorId = authorMap.get(art.authorSlug);
 if (!authorId) {
 throw new Error("[SEED] Missing author: " + art.authorSlug);
 }
-const siteBase = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nexora.io";
+const siteBase = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://nexorahub.space").replace(/\/$/, "");
 const canonicalUrl = siteBase + "/articles/" + art.slug;
 const record = await prisma.article.upsert({
       where: { slug: art.slug },
@@ -2607,7 +2934,7 @@ throw new Error(
 if (TOOLS.length !== 50) {
 throw new Error("[VALIDATION] TOOLS array must have exactly 50 entries.");
 }
-if (ARTICLE_DEFINITIONS.length !== 35) {
+if (ARTICLE_DEFINITIONS.length !== 46) {
 throw new Error("[VALIDATION] ARTICLE_DEFINITIONS must have exactly 35 entries.");
 }
 // Validate free/paid split (25 free/freemium, 25 paid)

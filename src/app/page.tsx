@@ -38,7 +38,7 @@ type QuickLink = {
 }
 
 const quickLinks: QuickLink[] = [
-	{ label: "AI Agents", href: "/ai-agents" },
+	{ label: "AI Assistants", href: "/ai-assistants" },
 	{ label: "Automation", href: "/automation" },
 	{ label: "AI Tools", href: "/tools" },
 ]
@@ -60,11 +60,11 @@ export default async function HomePage() {
 		listTrendingArticles(8),
 		getFeaturedArticle(),
 		listLatestArticles(6),
-		listArticlesForCategory("ai-agents", 1, 3),
+		listArticlesForCategory("ai-assistants", 1, 3),
 		listArticlesForCategory("automation", 1, 3),
-		listArticlesForCategory("productivity", 1, 3),
+		listArticlesForCategory("future-of-work", 1, 3),
 		listArticlesForCategory("business-ai", 1, 3),
-		listArticlesForCategory("guides", 1, 3),
+		listArticlesForCategory("ai-writing", 1, 3),
 		listToolsDirectory({
 			featuredOnly: true,
 			pageSize: 6,
@@ -155,7 +155,7 @@ export default async function HomePage() {
 
 								<div className="flex flex-wrap justify-center gap-3 sm:gap-4 lg:justify-start">
 									<Link
-										href="/ai-agents"
+										href="/ai-assistants"
 										className="nexora-button group relative overflow-hidden rounded-pill bg-gradient-to-r from-nexora-blue via-nexora-turquoise to-nexora-blue bg-[length:200%_100%] px-6 py-3 text-small font-semibold text-[#071014] shadow-glow-blue transition-all duration-smooth hover:bg-right hover:shadow-glow-turquoise"
 									>
 										<span className="relative z-10">
@@ -169,7 +169,7 @@ export default async function HomePage() {
 									</Link>
 
 									<Link
-										href="/guides"
+										href="/ai-writing"
 										className="nexora-button nexora-glass group rounded-pill border border-nexora-blue/20 px-6 py-3 text-small font-semibold text-nexora-text transition-all duration-smooth hover:-translate-y-0.5 hover:border-nexora-turquoise/50 hover:text-nexora-vanilla"
 									>
 										Latest Research
@@ -312,8 +312,8 @@ export default async function HomePage() {
 				{enabled.has("aiAgents") && aiAgents.length > 0 ? (
 					<section className="nexora-section mx-auto w-full max-w-content px-4 animate-fade-up">
 						<SectionHeader
-							title="AI Agents"
-							href="/ai-agents"
+							title="AI Assistants"
+							href="/ai-assistants"
 						/>
 
 						<ArticleGrid articles={aiAgents} />
@@ -342,8 +342,8 @@ export default async function HomePage() {
 				{enabled.has("productivity") && productivity.length > 0 ? (
 					<section className="nexora-section mx-auto w-full max-w-content px-4 animate-fade-up">
 						<SectionHeader
-							title="AI Productivity"
-							href="/productivity"
+							title="Future of Work"
+							href="/future-of-work"
 						/>
 
 						<ArticleGrid articles={productivity} />
@@ -399,8 +399,8 @@ export default async function HomePage() {
 				{enabled.has("guides") && guides.length > 0 ? (
 					<section className="nexora-section mx-auto w-full max-w-content px-4 animate-fade-up">
 						<SectionHeader
-							title="AI Guides"
-							href="/guides"
+							title="AI Writing"
+							href="/ai-writing"
 						/>
 
 						<ArticleGrid articles={guides} />
@@ -447,21 +447,6 @@ export default async function HomePage() {
 					</section>
 				) : null}
 
-				{/* ============================================================
-				    ADMIN
-				============================================================ */}
-
-				<div className="mx-auto mt-[-1rem] w-full max-w-content px-4">
-					<div className="flex justify-center">
-						<Link
-							href="/admin/login"
-							className="nexora-glass nexora-hover-lift inline-flex items-center gap-2 rounded-pill border border-nexora-wine-ash/10 px-4 py-2 text-caption font-medium text-nexora-muted transition-all duration-normal hover:border-nexora-turquoise/40 hover:text-nexora-wine-ash"
-						>
-							<span aria-hidden="true">⚙</span>
-							Admin
-						</Link>
-					</div>
-				</div>
 			</div>
 		</div>
 	)

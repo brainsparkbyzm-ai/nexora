@@ -86,11 +86,12 @@ const nextConfig = {
 
 	async redirects() {
 		return [
-			{
-				source: "/post",
-				destination: "/articles",
-				permanent: true,
-			},
+			{ source: "/post", destination: "/articles", permanent: true },
+			{ source: "/ai-agents", destination: "/ai-assistants", permanent: true },
+			{ source: "/ai-tools", destination: "/tools", permanent: true },
+			{ source: "/productivity", destination: "/future-of-work", permanent: true },
+			{ source: "/reviews", destination: "/tools", permanent: true },
+			{ source: "/guides", destination: "/ai-writing", permanent: true },
 		]
 	},
 }

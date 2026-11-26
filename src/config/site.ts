@@ -43,17 +43,29 @@ export type HomepageSectionConfig = {
  * environment variable has not been configured yet.
  */
 const siteUrl =
-	process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://nexora.com"
+	process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://www.nexorahub.space"
 
-const normalizedSiteUrl = siteUrl.replace(/\/$/, "")
+const normalizedSiteUrl = (() => {
+	try {
+		const url = new URL(siteUrl)
+		// Production serves the www hostname; normalize the apex host so
+		// canonicals, sitemap entries, robots.txt and structured data agree.
+		if (url.hostname.toLowerCase() === "nexorahub.space") {
+			url.hostname = "www.nexorahub.space"
+		}
+		return url.toString().replace(/\/$/, "")
+	} catch {
+		return "https://www.nexorahub.space"
+	}
+})()
 
-let siteDomain = "nexora.com"
+let siteDomain = "www.nexorahub.space"
 
 try {
 	siteDomain = new URL(normalizedSiteUrl).hostname
 } catch {
 	// Keep a safe fallback instead of crashing the build.
-	siteDomain = "nexora.com"
+	siteDomain = "www.nexorahub.space"
 }
 
 export const siteConfig = {
@@ -94,32 +106,32 @@ export const siteConfig = {
 } as const
 
 export const primaryNav: NavItem[] = [
-	{ label: "AI Agents", href: "/ai-agents" },
+	{ label: "AI Assistants", href: "/ai-assistants" },
 	{ label: "Automation", href: "/automation" },
-	{ label: "AI Tools", href: "/ai-tools" },
-	{ label: "Productivity", href: "/productivity" },
+	{ label: "AI Tools", href: "/tools" },
+	{ label: "AI Writing", href: "/ai-writing" },
 	{ label: "Business", href: "/business-ai" },
-	{ label: "Reviews", href: "/reviews" },
+	{ label: "Future of Work", href: "/future-of-work" },
 ]
 
 export const mobileNav: NavItem[] = [
 	...primaryNav,
-	{ label: "Guides", href: "/guides" },
+	{ label: "AI Image", href: "/ai-image" },
 	{ label: "About", href: "/about" },
 ]
 
 export const footerNav = {
 	explore: [
-		{ label: "AI Agents", href: "/ai-agents" },
+		{ label: "AI Assistants", href: "/ai-assistants" },
 		{ label: "Automation", href: "/automation" },
-		{ label: "AI Tools", href: "/ai-tools" },
-		{ label: "Productivity", href: "/productivity" },
+		{ label: "AI Tools", href: "/tools" },
+		{ label: "Future of Work", href: "/future-of-work" },
 		{ label: "Business AI", href: "/business-ai" },
 	] satisfies NavItem[],
 
 	resources: [
-		{ label: "Guides", href: "/guides" },
-		{ label: "Reviews", href: "/reviews" },
+		{ label: "AI Coding", href: "/ai-coding" },
+		{ label: "AI Image", href: "/ai-image" },
 		{ label: "Comparisons", href: "/tools" },
 		{ label: "Search", href: "/search" },
 	] satisfies NavItem[],
@@ -160,8 +172,8 @@ export const defaultHomepageSections: HomepageSectionConfig[] = [
 	{
 		key: "aiAgents",
 		enabled: true,
-		categorySlug: "ai-agents",
-		title: "AI Agents",
+		categorySlug: "ai-assistants",
+		title: "AI Assistants",
 	},
 
 	{
@@ -174,7 +186,7 @@ export const defaultHomepageSections: HomepageSectionConfig[] = [
 	{
 		key: "productivity",
 		enabled: true,
-		categorySlug: "productivity",
+		categorySlug: "future-of-work",
 		title: "AI Productivity",
 	},
 
@@ -200,7 +212,7 @@ export const defaultHomepageSections: HomepageSectionConfig[] = [
 	{
 		key: "guides",
 		enabled: true,
-		categorySlug: "guides",
+		categorySlug: "ai-writing",
 		title: "AI Guides",
 	},
 
@@ -211,11 +223,11 @@ export const defaultHomepageSections: HomepageSectionConfig[] = [
 ]
 
 export const coreCategorySlugs = [
-	"ai-agents",
+	"ai-assistants",
+	"ai-coding",
+	"ai-writing",
+	"ai-image",
 	"automation",
-	"ai-tools",
-	"productivity",
 	"business-ai",
-	"reviews",
-	"guides",
+	"future-of-work",
 ] as const
