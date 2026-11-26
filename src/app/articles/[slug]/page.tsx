@@ -165,7 +165,7 @@ export default async function ArticlePage({ params }: Props) {
 			/>
 
 			{/* Article header */}
-			<header className="mx-auto w-full max-w-article px-4">
+			<header className="nexora-article-header mx-auto w-full max-w-article px-4">
 				<div className="mb-7">
 					<Breadcrumbs
 						items={[
