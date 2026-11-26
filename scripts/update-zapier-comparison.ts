@@ -14,7 +14,7 @@ const prisma = new PrismaClient({
   adapter: new PrismaNeon({ connectionString }),
 })
 
-const slug = "zapier-vs-make-vs-n8n"
+const slugs = ["zapier-vs-make-vs-n8n", "zapier-vs-make-vs-n8n-which-automation-platform-is-best"]
 const expectedTitle = "Zapier vs Make vs n8n: Which Automation Tool Is Right for You?"
 
 const title = "Zapier vs Make vs n8n: Which Automation Tool Is Best in 2026?"
@@ -159,8 +159,8 @@ const content = `
 
 async function main() {
   try {
-    const article = await prisma.article.findUnique({ where: { slug } })
-    if (!article) throw new Error(`Article not found: ${slug}. No changes made.`)
+    const article = await prisma.article.findFirst({ where: { slug: { in: slugs } } })
+    if (!article) throw new Error(`Comparison article not found under either known slug. No changes made.`)
     if (article.title !== expectedTitle) {
       throw new Error(`Unexpected article title for ${slug}. No changes made.`)
     }
@@ -189,11 +189,11 @@ async function main() {
         seoTitle: "Zapier vs Make vs n8n: Best Automation Tool (2026)",
         seoDescription:
           "Zapier vs Make vs n8n compared by pricing model, workflow complexity, integrations, hosting and team fit. See which automation platform suits your business.",
-        canonicalUrl: "https://www.nexorahub.space/articles/zapier-vs-make-vs-n8n",
+        canonicalUrl: `https://www.nexorahub.space/articles/${article.slug}`,
       },
     })
 
-    console.log(`Updated ${slug}; previous version saved as a Revision; ${wordCount} words; ${readingTime} min read.`)
+    console.log(`Updated ${article.slug}; previous version saved as a Revision; ${wordCount} words; ${readingTime} min read.`)
   } finally {
     await prisma.$disconnect()
   }
