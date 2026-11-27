@@ -1304,7 +1304,7 @@ select:focus {
   font-family: Calibri, Candara, "Segoe UI", Arial, sans-serif;
   font-size: 1.0625rem;
   line-height: 1.8;
-  text-align: left;
+  text-align: center;
 }
 
 .prose-nexora p { margin: 0 0 1.35em; }
@@ -1318,7 +1318,7 @@ select:focus {
   font-family: Calibri, Candara, "Segoe UI", Arial, sans-serif;
   font-weight: 700;
   line-height: 1.25;
-  text-align: left;
+  text-align: center;
   letter-spacing: -0.02em;
   scroll-margin-top: 6rem;
 }
@@ -1330,8 +1330,10 @@ select:focus {
 .prose-nexora h6 { margin: 1.35em 0 0.55em; font-size: 1.2rem; }
 .prose-nexora ul,
 .prose-nexora ol { margin: 0 0 1.5em; padding-left: 1.5em; }
-.prose-nexora ul { list-style: disc; }
-.prose-nexora ol { list-style: decimal; }
+.prose-nexora ul,
+.prose-nexora ol { padding-left: 0; list-style-position: inside; text-align: center; }
+.prose-nexora ul { list-style-type: disc; }
+.prose-nexora ol { list-style-type: decimal; }
 .prose-nexora li { margin: 0.45em 0; padding-left: 0.2em; }
 .prose-nexora a { color: var(--nexora-yellow); text-decoration: underline; text-underline-offset: 3px; }
 .prose-nexora blockquote { margin: 1.8em 0; padding: 0.25em 0 0.25em 1.2em; border-left: 4px solid var(--nexora-red); color: var(--nexora-muted); }
@@ -1340,7 +1342,7 @@ select:focus {
 .prose-nexora figure { margin: 1.75em auto; max-width: 100%; }
 .prose-nexora table { display: block; width: 100%; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
 .prose-nexora th,
-.prose-nexora td { padding: 0.7rem 0.85rem; border: 1px solid var(--nexora-border); text-align: left; vertical-align: top; }
+.prose-nexora td { padding: 0.7rem 0.85rem; border: 1px solid var(--nexora-border); text-align: center; vertical-align: top; }
 .prose-nexora th { color: var(--nexora-white); font-weight: 700; background: rgba(254,254,254,0.06); }
 .prose-nexora code { overflow-wrap: anywhere; }
 @media (max-width: 640px) {
